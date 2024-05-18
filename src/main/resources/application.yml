@@ -1,0 +1,47 @@
+spring:
+  datasource:
+#    url: jdbc:h2:mem:testdb
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
+    url: jdbc:postgresql://localhost:5432/commenting
+    username: jayce
+    password:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    hibernate:
+#      ddl-auto: create-drop
+#    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: '232728586772-bipelclpbc3amsmgai881ct8m1opt93f.apps.googleusercontent.com'
+            clientSecret: 'opUiQoAu2sU5IsvUBXtZHHx4'
+            scope: ['email', 'profile']
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+            user-name-attribute: sub
+
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/commenting
+#    username: jiheon
+#    password: "0000"
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop
+#    show-sql: true
