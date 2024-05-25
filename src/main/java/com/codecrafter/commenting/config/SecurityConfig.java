@@ -1,12 +1,11 @@
 package com.codecrafter.commenting.config;
 
-import com.codecrafter.commenting.service.OAuthService;
+import com.codecrafter.commenting.service.MemberAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -15,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuthService oAuthService;
+    private final MemberAuthService oAuthService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -24,7 +23,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .logout(logout -> logout.logoutSuccessUrl("/"))
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/api/oauth/loginInfo", true)
+                        .defaultSuccessUrl("/api/auth/oauth", true)
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService)));
 
 

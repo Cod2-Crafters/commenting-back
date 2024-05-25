@@ -3,6 +3,8 @@ package com.codecrafter.commenting.domain.entity;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
 import lombok.Builder;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
@@ -45,7 +47,7 @@ public class MemberAuth extends BaseEntity {
 	private Provider provider;
 
 	@Comment("비밀번호")
-	//@Column(nullable = false)
+//	@Column(nullable = false)
 	@Column(nullable = true)
 	private String password;
 
@@ -56,7 +58,7 @@ public class MemberAuth extends BaseEntity {
 	private Boolean isEnabled = false;
 
 	@Comment("회원 정보")
-	@OneToOne(mappedBy = "memberAuth", fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "memberAuth", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private MemberInfo memberInfo;
 
 	@Builder
@@ -67,6 +69,9 @@ public class MemberAuth extends BaseEntity {
 		this.password = password;
 		this.isEnabled = isEnabled;
 		this.memberInfo = memberInfo;
+		if (memberInfo != null) {
+			memberInfo.setMemberAuth(this);
+		}
 	}
 
 	public MemberAuth update(String email) {
