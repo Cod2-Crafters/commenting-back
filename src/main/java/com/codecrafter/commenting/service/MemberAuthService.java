@@ -3,7 +3,8 @@ package com.codecrafter.commenting.service;
 import com.codecrafter.commenting.domain.dto.MemberDto;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.base.Provider;
-import com.codecrafter.commenting.repository.MemberRepository;
+import com.codecrafter.commenting.repository.MemberAuthRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -21,11 +22,12 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class MemberAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final MemberRepository memberRepository;
+    private final MemberAuthRepository memberAuthRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
@@ -34,23 +36,20 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Provider registrationId = Provider.valueOf(registrationIdStr.toUpperCase());
 
         String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails()
-                .getUserInfoEndpoint()
-                .getUserNameAttributeName();
+                                                    .getProviderDetails()
+                                                    .getUserInfoEndpoint()
+                                                    .getUserNameAttributeName();
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         MemberDto member = Provider.extract(registrationId, attributes);
-
         member.setProvider(registrationId);
-        MemberAuth memberAuth = saveOrUpdate(member);
+        MemberAuth memberAuth = saveOrUpdateMemberAuth(member);   // 멤버인증, 멤버정보 함께 저장
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, member, registrationId);
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("USER")),
-                customAttribute,
-                userNameAttributeName);
-
+        return new DefaultOAuth2User(   Collections.singleton(new SimpleGrantedAuthority("USER")),
+                                        customAttribute,
+                                        userNameAttributeName);
     }
 
     private Map customAttribute(Map attributes, String userNameAttributeName, MemberDto member, Provider registrationId) {
@@ -59,18 +58,14 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         customAttribute.put("provider", registrationId);
         customAttribute.put("email", member.getEmail());
         return customAttribute;
-
     }
 
-    private MemberAuth saveOrUpdate(MemberDto member) {
-
-        MemberAuth memberAuth = memberRepository.findByEmailAndProvider(member.getEmail(), member.getProvider())
-                .map(m -> m.update(member.getEmail()))
-                .orElse(member.toMember());
-
-        return memberRepository.save(memberAuth);
+    private MemberAuth saveOrUpdateMemberAuth(MemberDto member) {
+        MemberAuth memberAuth = memberAuthRepository.findByEmailAndProvider(member.getEmail(), member.getProvider())
+                                                .map(m -> m.update(member.getEmail()))
+                                                .orElse(member.toMember());
+        return memberAuthRepository.save(memberAuth);
     }
-
 
 }
 
