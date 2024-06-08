@@ -84,7 +84,7 @@ public class Conversation extends BaseEntity {
 	 * @param memberInfo
 	 * @return new Conversation
 	 */
-	private static Conversation create(@NonNull String content, boolean isPrivate, boolean isQuestion,
+	public static Conversation create(@NonNull String content, boolean isPrivate, boolean isQuestion,
 		@Nullable MemberInfo memberInfo) {
 		return
 			Conversation.builder()
