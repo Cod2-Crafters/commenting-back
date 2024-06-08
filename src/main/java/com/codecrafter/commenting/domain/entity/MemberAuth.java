@@ -3,8 +3,12 @@ package com.codecrafter.commenting.domain.entity;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
+import com.codecrafter.commenting.domain.request.SignUpRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import lombok.Builder;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
@@ -22,6 +26,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 /**
  * 회원 인증 정보 엔티티
@@ -30,7 +38,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Entity
 @Getter
-public class MemberAuth extends BaseEntity {
+public class MemberAuth extends BaseEntity implements UserDetails {
 
 	@Id
 	@Comment("PK")
@@ -47,13 +55,11 @@ public class MemberAuth extends BaseEntity {
 	private Provider provider;
 
 	@Comment("비밀번호")
-//	@Column(nullable = false)
 	@Column(nullable = true)
 	private String password;
 
 	@Comment("계정 활성화 여부")
 	@ColumnDefault("false")
-//	@Column(name = "is_enabled", nullable = false)
 	@Column(name = "is_enabled", nullable = true)
 	private Boolean isEnabled = false;
 
@@ -79,5 +85,50 @@ public class MemberAuth extends BaseEntity {
 		return this;
 	}
 
-}
+	public static MemberAuth from(SignUpRequest request, PasswordEncoder encoder) {	// 파라미터에 PasswordEncoder 추가
+		return MemberAuth.builder()
+			.email(request.email())
+			.provider(Provider.valueOf(request.provider()))
+			.password(encoder.encode(request.password()))
+			//.createdAt(LocalDateTime.now())
+			.build();
+	}
 
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public String getUsername() {
+		return null;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return false;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return false;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return false;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
+	}
+
+//	public void update(MemberUpdateRequest newMember, PasswordEncoder encoder) {	// 파라미터에 PasswordEncoder 추가
+//		this.password = newMember.newPassword() == null || newMember.newPassword().isBlank()
+//			? this.password : encoder.encode(newMember.newPassword());	// 수정
+//		this.name = newMember.name();
+//		this.age = newMember.age();
+//	}
+
+}

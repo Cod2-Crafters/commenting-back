@@ -23,7 +23,13 @@ public enum Provider {
 		MemberDto member = new MemberDto();
 		member.setEmail((String) attributes.get("email"));
 		return member;
-	});
+	}),
+	BASE("base", (attributes) -> {
+		MemberDto member = new MemberDto();
+		member.setEmail((String) attributes.get("email"));
+		return member;
+	})
+	;
 
 	private final String registrationId;
 	private final Function<Map<String, Object>, MemberDto> of;

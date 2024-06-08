@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: jwt.yml
   datasource:
 #    url: jdbc:h2:mem:testdb
 #    username: sa
@@ -45,3 +47,19 @@ spring:
 #    hibernate:
 #      ddl-auto: create-drop
 #    show-sql: true
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  paths-to-match: /**
+  swagger-ui:
+    path: /swagger
+    display-request-duration: true
+    groups-order: desc
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+  api-docs:
+    groups:
+      enabled: true
+logging:
+  level:
+    org.springframework.security: DEBUG
