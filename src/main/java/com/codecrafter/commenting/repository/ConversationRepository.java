@@ -8,6 +8,6 @@ import com.codecrafter.commenting.domain.entity.Conversation;
  * @author jiheon
  * Conversation 관리 Repository
  */
-public interface ConversationRepository extends JpaRepository<Conversation, Long> {
+public interface ConversationRepository extends JpaRepository<Conversation, Long>, ConversationRepositoryCustom {
 
 }

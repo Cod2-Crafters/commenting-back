@@ -1,18 +1,19 @@
 package com.codecrafter.commenting.controller;
 
-import java.util.List;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.request.ConversationRequest;
 import com.codecrafter.commenting.domain.response.ConversationMSTResponse;
+import com.codecrafter.commenting.domain.response.HasNextResponse;
 import com.codecrafter.commenting.service.ConversationService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,14 @@ public class ConversationController {
 	private final ConversationService conversationService;
 
 	@GetMapping("/{ownerId}")
-	public ApiResponse getConversationList(@AuthenticationPrincipal MemberAuth memberAuth,
-		@PathVariable("ownerId") Long ownerId) {
-		List<ConversationMSTResponse> allConversationMST = conversationService.getAllConversationMST(ownerId);
-		return ApiResponse.success(allConversationMST);
+	public ResponseEntity<HasNextResponse<ConversationMSTResponse>> getConversationList(
+		@AuthenticationPrincipal MemberAuth memberAuth,
+		@PathVariable("ownerId") Long ownerId,
+		@RequestParam(required = false, defaultValue = "-1") Long lastSeenId,
+		@RequestParam(required = false, defaultValue = "2") int limit) {
+		HasNextResponse<ConversationMSTResponse> hasNextResponse = conversationService.getNextConversationMST(ownerId,
+			lastSeenId, limit);
+		return ResponseEntity.ok(hasNextResponse);
 	}
 
 	@PostMapping("/{ownerId}")

@@ -10,6 +10,7 @@ import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.ConversationRequest;
 import com.codecrafter.commenting.domain.response.ConversationMSTResponse;
+import com.codecrafter.commenting.domain.response.HasNextResponse;
 import com.codecrafter.commenting.repository.ConversationMSTRepository;
 import com.codecrafter.commenting.repository.ConversationRepository;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
@@ -33,13 +34,21 @@ public class ConversationService {
 	private final MemberInfoRepository memberInfoRepository;
 	private final ConversationMSTRepository conversationMSTRepository;
 
-	public List<ConversationMSTResponse> getAllConversationMST(Long ownerId) {
-		List<ConversationMST> conversations = conversationMSTRepository.findByOwnerIdOrderByIdDesc(ownerId);
+	public HasNextResponse<ConversationMSTResponse> getNextConversationMST(Long ownerId, Long lastSeenId, int limit) {
+		List<ConversationMST> conversations = conversationRepository.findNextConversations(ownerId, lastSeenId,
+			limit + 1);
+		boolean hasNext = false;
+		Long nextCursor = null;
+		if (conversations.size() == limit + 1) {
+			conversations = conversations.subList(0, limit);
+			hasNext = true;
+			nextCursor = conversations.get(conversations.size() - 1).getId();
+		}
 		List<ConversationMSTResponse> resList = conversations.stream()
 			.map(ConversationMSTResponse::fromEntity)
 			.toList();
+		return HasNextResponse.of(resList, hasNext, nextCursor);
 
-		return resList;
 	}
 
 	@Transactional(readOnly = false)
