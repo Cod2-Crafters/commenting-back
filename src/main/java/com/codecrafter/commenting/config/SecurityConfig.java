@@ -32,7 +32,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers("/", "/swagger-ui/**", "/v3/**", "/api/member/sign-in", "/api/member/sign-up", "/api/auth/validate")
                 .permitAll()
-                .anyRequest().authenticated())
+                .requestMatchers("/ouath/google").authenticated()   // google ouath 로그인 화면경로
+                .anyRequest().permitAll() // 그 외 모든 요청은 허용
+//                .anyRequest() // 모든요청에
+//                .authenticated() // 인증이되야한다
+            )
             .sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
