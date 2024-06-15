@@ -85,12 +85,11 @@ public class MemberAuth extends BaseEntity implements UserDetails {
 		return this;
 	}
 
-	public static MemberAuth from(SignUpRequest request, PasswordEncoder encoder) {
+	public static MemberAuth from(SignUpRequest request) {
 		return MemberAuth.builder()
 			.email(request.email())
-			.provider(Provider.valueOf(request.provider()))
-			.password(encoder.encode(request.password()))	// 비번암호화 임시 주석처리
-//			.password(request.password())
+			.provider(request.provider())
+			.password(request.password())
 			//.createdAt(LocalDateTime.now())
 			.build();
 	}
@@ -124,12 +123,5 @@ public class MemberAuth extends BaseEntity implements UserDetails {
 	public boolean isEnabled() {
 		return false;
 	}
-
-//	public void update(MemberUpdateRequest newMember, PasswordEncoder encoder) {	// 파라미터에 PasswordEncoder 추가
-//		this.password = newMember.newPassword() == null || newMember.newPassword().isBlank()
-//			? this.password : encoder.encode(newMember.newPassword());	// 수정
-//		this.name = newMember.name();
-//		this.age = newMember.age();
-//	}
 
 }

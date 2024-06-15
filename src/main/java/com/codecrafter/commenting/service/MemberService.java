@@ -13,6 +13,8 @@ import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.exception.AuthenticationFailedException;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
+import jakarta.validation.Valid;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,9 +36,13 @@ public class MemberService {
     private final TokenProvider tokenProvider;
 
     @Transactional
-    public SignUpResponse registMember(SignUpRequest request) {
-        SignUpRequest cstRequest = new SignUpRequest(request.email(), "BASE", passwordEncoder.toString());
-        MemberAuth memberAuth = memberAuthRepository.save(MemberAuth.from(cstRequest, passwordEncoder));
+    public SignUpResponse registMember(@Valid SignUpRequest request) {
+        chkDupEmail(request.email());
+//        SignUpRequest cstRequest = new SignUpRequest(request.email(), "BASE", passwordEncoder.toString());    // 비번암호화 주석처리, 편의를위해 평문으로 등록
+        SignUpRequest cstRequest = new SignUpRequest(request.email()
+                                                    , request.provider()
+                                                    , request.password());
+        MemberAuth memberAuth = memberAuthRepository.save(MemberAuth.from(cstRequest));
 
         MemberInfo memberInfo = MemberInfo.builder()
                                             .email(request.email())
@@ -47,7 +53,7 @@ public class MemberService {
         try {
             memberAuthRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
+            throw new IllegalArgumentException("중복오류...!");
         }
         return SignUpResponse.from(memberAuth);
     }
@@ -56,11 +62,20 @@ public class MemberService {
     public SignInResponse signIn(SignInRequest request) {
         MemberAuth member = memberAuthRepository.findByEmail(request.email())
                                             .stream()
-//                                            .filter(it -> passwordEncoder.matches(request.password(), it.getPassword()))
+//                                            .filter(it -> passwordEncoder.matches(request.password(), it.getPassword()))  // 비번암호화 주석처리, 편의를위해 평문으로 등록
+                                            .filter(it -> Provider.BASE.equals(request.provider()) ? request.password().equals(it.getPassword()) : true)   // 기본 로그인일경우만 비번 체크
                                             .findFirst()
                                             .orElseThrow(() -> new AuthenticationFailedException("아이디 또는 비밀번호가 일치하지 않습니다."));
         String token = tokenProvider.createToken(String.format("%s", member.getEmail()));
-        return new SignInResponse(member.getEmail(), token);
+        return new SignInResponse(member.getId(), member.getEmail(), token);
+    }
+
+    // 이메일 중복체크
+    private void chkDupEmail(String email) {
+        Optional<MemberAuth> existingMemberAuth = memberAuthRepository.findByEmail(email);
+        if (existingMemberAuth.isPresent()) {
+            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+        }
     }
 
 }
