@@ -1,16 +1,23 @@
 package com.codecrafter.commenting.config;
 
 import com.codecrafter.commenting.config.filter.JwtAuthenticationFilter;
+import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.service.MemberAuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -20,28 +27,33 @@ public class SecurityConfig {
 
     private final MemberAuthService oAuthService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final TokenProvider tokenProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
             .csrf(csrf -> csrf.disable())
             .logout(logout -> logout.logoutSuccessUrl("/"))
             .oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("/api/auth/oauth", true)
-                .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService)))
+                .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
+            )
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers("/", "/swagger-ui/**", "/v3/**", "/api/member/sign-in", "/api/member/sign-up", "/api/auth/validate")
                 .permitAll()
-                .requestMatchers("/ouath/google").authenticated()   // google ouath 로그인 화면경로
-                .anyRequest().permitAll() // 그 외 모든 요청은 허용
-//                .anyRequest() // 모든요청에
-//                .authenticated() // 인증이되야한다
+                .requestMatchers("/oauth/google").authenticated()
+                .anyRequest().permitAll()
             )
-            .sessionManagement(sessionManagement -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//            .sessionManagement(sessionManagement -> sessionManagement
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            ;
+
         return http.build();
     }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
