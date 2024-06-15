@@ -85,11 +85,12 @@ public class MemberAuth extends BaseEntity implements UserDetails {
 		return this;
 	}
 
-	public static MemberAuth from(SignUpRequest request, PasswordEncoder encoder) {	// 파라미터에 PasswordEncoder 추가
+	public static MemberAuth from(SignUpRequest request, PasswordEncoder encoder) {
 		return MemberAuth.builder()
 			.email(request.email())
 			.provider(Provider.valueOf(request.provider()))
-			.password(encoder.encode(request.password()))
+			.password(encoder.encode(request.password()))	// 비번암호화 임시 주석처리
+//			.password(request.password())
 			//.createdAt(LocalDateTime.now())
 			.build();
 	}

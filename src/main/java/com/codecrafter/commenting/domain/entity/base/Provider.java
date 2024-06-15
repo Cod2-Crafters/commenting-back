@@ -40,7 +40,7 @@ public enum Provider {
 	}
 
 	public static MemberDto extract(Provider registrationId, Map<String, Object> attributes) {
-		System.out.println("registrationId : " + registrationId);
+		System.out.println("MemberDto extract registrationId : " + registrationId);
 
 		return Arrays.stream(Provider.values())
 			.filter(provider -> registrationId.equals(provider))
