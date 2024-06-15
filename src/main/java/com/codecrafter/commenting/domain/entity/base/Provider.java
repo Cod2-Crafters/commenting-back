@@ -1,10 +1,12 @@
 package com.codecrafter.commenting.domain.entity.base;
 
 import com.codecrafter.commenting.domain.dto.MemberDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
+@Schema(description = "공급자")
 public enum Provider {
 
 	GOOGLE("google", (attributes) -> {
@@ -40,8 +42,6 @@ public enum Provider {
 	}
 
 	public static MemberDto extract(Provider registrationId, Map<String, Object> attributes) {
-		System.out.println("MemberDto extract registrationId : " + registrationId);
-
 		return Arrays.stream(Provider.values())
 			.filter(provider -> registrationId.equals(provider))
 			.findFirst()

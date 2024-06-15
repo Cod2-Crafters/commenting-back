@@ -4,13 +4,17 @@ import com.codecrafter.commenting.domain.entity.MemberAuth;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record SignUpResponse (
-    String email,
-    String password
+
+    @Schema(description = "식별자", example = "1")
+    Long id,
+    @Schema(description = "이메일", example = "jayce@crafter.com")
+    String email
+
 ){
     public static SignUpResponse from(MemberAuth member) {
         return new SignUpResponse(
-            member.getEmail(),
-            member.getPassword()
+            member.getId(),
+            member.getEmail()
         );
     }
 }
