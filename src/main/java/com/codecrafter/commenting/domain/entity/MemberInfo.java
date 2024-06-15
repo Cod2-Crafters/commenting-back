@@ -6,6 +6,7 @@ import static lombok.AccessLevel.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
 import lombok.Builder;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -27,6 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Entity
 @Getter
+@Setter
 public class MemberInfo extends BaseEntity {
 
 	@Id
@@ -100,6 +102,8 @@ public class MemberInfo extends BaseEntity {
 		this.email = email;
 		return this;
 	}
+
+
 
 	public void setMemberAuth(MemberAuth memberAuth) {
 		this.memberAuth = memberAuth;

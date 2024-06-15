@@ -28,13 +28,21 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @Operation(summary = "회원 가입")
+    @Operation(summary = "회원 가입",
+        description = """
+					★BASE 회원가입</br>
+			        {host}/api/member/sign-up
+			        """)
     @PostMapping("/sign-up")
     public ApiResponse signUp(@RequestBody SignUpRequest request) {
         return ApiResponse.success(memberService.registMember(request));
     }
 
-    @Operation(summary = "로그인")
+    @Operation(summary = "로그인",
+        description = """
+					★BASE 로그인</br>
+			        {host}/api/member/sign-in
+			        """)
     @PostMapping("/sign-in")
     public ResponseEntity<ApiResponse> signIn(@RequestBody SignInRequest request) {
         SignInResponse signInResponse = memberService.signIn(request);
@@ -48,9 +56,11 @@ public class MemberController {
         return ResponseEntity.ok().headers(headers).body(ApiResponse.success(signInResponse));
     }
 
+
     @GetMapping("/jwt-test")
     public String getUser(@AuthenticationPrincipal MemberAuth memberAuth) {
         log.info("memberAuth : {}", memberAuth.getEmail());
+        log.info("memberAuth : {}", memberAuth.getId());
         return memberAuth.getEmail();
     }
 

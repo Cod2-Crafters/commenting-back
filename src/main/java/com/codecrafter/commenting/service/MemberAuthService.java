@@ -6,7 +6,9 @@ import com.codecrafter.commenting.domain.entity.base.Provider;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -26,8 +28,6 @@ public class MemberAuthService implements OAuth2UserService<OAuth2UserRequest, O
 
     private final MemberAuthRepository memberAuthRepository;
 
-    @Override
-    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
@@ -47,9 +47,17 @@ public class MemberAuthService implements OAuth2UserService<OAuth2UserRequest, O
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, member, registrationId);
 
-        return new DefaultOAuth2User(   Collections.singleton(new SimpleGrantedAuthority("USER")),
-                                        customAttribute,
-                                        userNameAttributeName);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            memberAuth,
+            null,
+            Collections.singleton(new SimpleGrantedAuthority("USER"))
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+        return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("USER")),
+            customAttribute,
+            userNameAttributeName);
     }
 
     private Map customAttribute(Map attributes, String userNameAttributeName, MemberDto member, Provider registrationId) {
