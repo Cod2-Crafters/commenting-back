@@ -51,11 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.error("JWT Token has expired", e);
             }
         }
-        log.info("doFilterInternal.username : {}", username);
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            List<MemberAuth> memberAuthList = memberAuthRepository.findByEmail(username);
-            if (!memberAuthList.isEmpty() && jwtUtil.validateToken(jwtToken) != null) {
-                MemberAuth memberAuth = memberAuthList.get(0);
+            Optional<MemberAuth> memberAuthOptional = memberAuthRepository.findByEmail(username);
+            if (memberAuthOptional.isPresent() && jwtUtil.validateToken(jwtToken) != null) {
+                MemberAuth memberAuth = memberAuthOptional.get();
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     memberAuth, null, memberAuth.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
