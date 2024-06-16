@@ -1,6 +1,5 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.jwt.JwtUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
@@ -23,27 +22,29 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final MemberAuthRepository memberAuthRepository;
-    private final MemberInfoRepository memberInfoRepository;
-    private final JwtUtil jwtUtil;
     private final TokenProvider tokenProvider;
 
 
     public ProfileResponse getProfile(Long id) {
         MemberInfo memberInfo = profileRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다"));
+                                                    .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다"));
 
         return retProfileResponse(memberInfo);
     }
 
     @Transactional(readOnly = false)
     public ProfileResponse updateProfile(Long id, ProfileRequest request, String token) {
-//        String authenticatedToken = tokenProvider.getUserIdFromToken(token);
+        String cstToken = token.substring(7);
+        Long authenticatedUserId = tokenProvider.getUserIdFromToken(cstToken);
 
-//        log.info("updateProfile1 : {}", token);
-//        log.info("updateProfile2 : {}", authenticatedToken);
+        log.info("updateProfile1 : {}", token);
+        log.info("updateProfile2 : {}", authenticatedUserId);
 
+        if (!id.equals(authenticatedUserId)) {
+            throw new IllegalArgumentException("자신의 프로필만 수정할 수 있습니다.");
+        }
         MemberAuth memberAuth = memberAuthRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
+                                                    .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
 
         MemberInfo memberInfo = memberAuth.getMemberInfo();
 
@@ -61,10 +62,10 @@ public class ProfileService {
         memberInfo.setEmailNotice(request.emailNotice());
 
 //        memberInfo.update(request.email());
-        memberInfo = memberInfoRepository.save(memberInfo);
+        memberInfo = profileRepository.save(memberInfo);
 
         try {
-            memberInfoRepository.flush();
+            profileRepository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("프로필을 업데이트할 수 없습니다.");
         }
