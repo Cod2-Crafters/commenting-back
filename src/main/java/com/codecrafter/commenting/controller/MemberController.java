@@ -5,11 +5,13 @@ import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
 import com.codecrafter.commenting.domain.response.SignInResponse;
+import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +34,9 @@ public class MemberController {
                         {host}/api/member/sign-up
                         """)
     @PostMapping("/sign-up")
-    public ApiResponse signUp(@RequestBody SignUpRequest request) {
-        return ApiResponse.success(memberService.registMember(request));
+    public ResponseEntity<ApiResponse> signUp(@RequestBody SignUpRequest request) {
+        SignUpResponse signUpResponse = memberService.registMember(request);
+        return new ResponseEntity<>(ApiResponse.success(signUpResponse), HttpStatus.CREATED);
     }
 
     @Operation(summary = "로그인",
