@@ -71,11 +71,12 @@ public class MemberService {
     }
 
     // 이메일 중복체크
-    private void chkDupEmail(String email) {
+    public boolean chkDupEmail(String email) {
         Optional<MemberAuth> existingMemberAuth = memberAuthRepository.findByEmail(email);
         if (existingMemberAuth.isPresent()) {
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
+        return false;
     }
 
 }
