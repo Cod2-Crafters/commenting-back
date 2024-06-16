@@ -46,13 +46,4 @@ public class TokenProvider {
             .compact();
     }
 
-    public String getUserSpecificationFromToken(String token) {
-        Jws<Claims> claimsJws = Jwts.parser()
-            .setSigningKey(secretKey)
-            .build()
-            .parseClaimsJws(token);
-        Claims claims = claimsJws.getBody();
-        return claims.getSubject();
-    }
-
 }
