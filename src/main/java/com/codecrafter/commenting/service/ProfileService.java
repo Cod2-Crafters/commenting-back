@@ -1,5 +1,7 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.config.jwt.JwtUtil;
+import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.ProfileRequest;
@@ -22,34 +24,31 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberAuthRepository memberAuthRepository;
     private final MemberInfoRepository memberInfoRepository;
-    public ProfileResponse getProfile(Long id) {
-        log.info("id : ", id);
-        MemberInfo memberInfo = profileRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Member not found"));
+    private final JwtUtil jwtUtil;
+    private final TokenProvider tokenProvider;
 
-        return new ProfileResponse(
-            memberInfo.getEmail(),
-            memberInfo.getNickname(),
-            memberInfo.getIntroduce(),
-            memberInfo.getLink1(),
-            memberInfo.getLink2(),
-            memberInfo.getLink3(),
-            memberInfo.getAvatarPath(),
-            memberInfo.getAllowAnonymous(),
-            memberInfo.getEmailNotice(),
-            "token"
-        );
+
+    public ProfileResponse getProfile(Long id) {
+        MemberInfo memberInfo = profileRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다"));
+
+        return retProfileResponse(memberInfo);
     }
 
     @Transactional(readOnly = false)
-    public ProfileResponse updateProfile(Long id, ProfileRequest request) {
+    public ProfileResponse updateProfile(Long id, ProfileRequest request, String token) {
+//        String authenticatedToken = tokenProvider.getUserIdFromToken(token);
+
+//        log.info("updateProfile1 : {}", token);
+//        log.info("updateProfile2 : {}", authenticatedToken);
+
         MemberAuth memberAuth = memberAuthRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
 
         MemberInfo memberInfo = memberAuth.getMemberInfo();
 
         if (memberInfo == null) {
-            throw new IllegalArgumentException("MemberInfo not found for the member");
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다");
         }
 
         memberInfo.setNickname(request.nickname());
@@ -67,11 +66,15 @@ public class ProfileService {
         try {
             memberInfoRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Error updating profile.");
+            throw new IllegalArgumentException("프로필을 업데이트할 수 없습니다.");
         }
 
+        return retProfileResponse(memberInfo);
+    }
+
+    private ProfileResponse retProfileResponse(MemberInfo memberInfo) {
         return new ProfileResponse(
-            memberAuth.getEmail(),
+            memberInfo.getEmail(),
             memberInfo.getNickname(),
             memberInfo.getIntroduce(),
             memberInfo.getLink1(),
@@ -79,8 +82,7 @@ public class ProfileService {
             memberInfo.getLink3(),
             memberInfo.getAvatarPath(),
             memberInfo.getAllowAnonymous(),
-            memberInfo.getEmailNotice(),
-            request.token()
+            memberInfo.getEmailNotice()
         );
     }
 }

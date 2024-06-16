@@ -66,7 +66,7 @@ public class MemberService {
                                             .filter(it -> Provider.BASE.equals(request.provider()) ? request.password().equals(it.getPassword()) : true)   // 기본 로그인일경우만 비번 체크
                                             .findFirst()
                                             .orElseThrow(() -> new AuthenticationFailedException("아이디 또는 비밀번호가 일치하지 않습니다."));
-        String token = tokenProvider.createToken(String.format("%s", member.getEmail()));
+        String token = tokenProvider.createToken(String.format("%s", member.getId()));
         return new SignInResponse(member.getId(), member.getEmail(), token);
     }
 

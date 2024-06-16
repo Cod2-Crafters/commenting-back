@@ -20,9 +20,7 @@ public record ProfileRequest(
     String avatarPath,
     @Schema(description = "익명여부", example = "true")
     Boolean allowAnonymous,
-
     @Schema(description = "메일수신여부", example = "true")
-    Boolean emailNotice,
-    String token
+    Boolean emailNotice
 ) {
 }

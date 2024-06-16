@@ -47,9 +47,7 @@ public class JwtUtil {
             .getBody();
     }
 
-    public String getEmailFromToken(String token) {
-        log.info("getEmailFromToken token : {}", token);
-        log.info("getEmailFromToken secretKey : {}", secretKey);
+    public String getUserIdFromToken(String token) {
         Claims claims = validateToken(token);
         return claims.getSubject();
     }
