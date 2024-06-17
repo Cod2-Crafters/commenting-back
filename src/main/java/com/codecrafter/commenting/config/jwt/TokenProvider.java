@@ -10,6 +10,8 @@ import java.security.Key;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,8 +48,8 @@ public class TokenProvider {
             .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS512.getJcaName()))
             .setSubject(userSpecification)
             .setIssuer(issuer)
-            .setIssuedAt(Timestamp.valueOf(LocalDateTime.now()))
-            .setExpiration(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)))
+            .setIssuedAt(Date.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant()))
+            .setExpiration(Date.from(ZonedDateTime.now(ZoneId.of("UTC")).plusHours(expirationHours).toInstant()))
             .compact();
     }
 
