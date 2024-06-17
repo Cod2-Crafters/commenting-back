@@ -51,11 +51,9 @@ public class ProfileController {
 
     @Operation(summary = "프로필 수정")
     @PutMapping(value = "/profile/{id}")
-    public ResponseEntity<ApiResponse> updateProfile(
-                                                        @PathVariable Long id,
-                                                        @RequestPart("profile") @Parameter(description = "프로필 데이터", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) ProfileRequest request,
-                                                        @RequestHeader("Authorization") String token
-    ) {
+    public ResponseEntity<ApiResponse> updateProfile(    @PathVariable Long id
+                                                        , @RequestBody ProfileRequest request
+                                                        , @RequestHeader("Authorization") String token) {
         ProfileResponse profileResponse = profileService.updateProfile(id, request, token);
         return ResponseEntity.ok(ApiResponse.success(profileResponse));
     }
@@ -63,7 +61,9 @@ public class ProfileController {
 
     @PostMapping(path = "/profile/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필썸네일 파일 업로드")
-    public ResponseEntity<ApiResponse>  avatarUpload(@PathVariable Long id, @ModelAttribute @Valid MultipartFile avatar, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse>  avatarUpload( @PathVariable Long id
+                                                    , @ModelAttribute @Valid MultipartFile avatar
+                                                    , @RequestHeader("Authorization") String token) {
         String avatarUrl = profileService.uploadAvatarFile(id, avatar, token);
         return ResponseEntity.ok(ApiResponse.success(avatarUrl));
     }
