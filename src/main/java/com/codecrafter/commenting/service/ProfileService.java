@@ -119,7 +119,9 @@ public class ProfileService {
             memberInfo.getLink3(),
             memberInfo.getAvatarPath(),
             memberInfo.getAllowAnonymous(),
-            memberInfo.getEmailNotice()
+            memberInfo.getEmailNotice(),
+            1L,
+            2L  // 개발 전 좋와요수,답변수 하드코딩
         );
     }
 }

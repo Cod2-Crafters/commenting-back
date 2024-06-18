@@ -18,7 +18,7 @@ public record ProfileRequest(
     String link3,
     @Schema(description = "썸네일", example = "/프로필이미지경로/")
     String avatarPath,
-    @Schema(description = "익명여부", example = "true")
+    @Schema(description = "익명댓글허용여부", example = "true")
     Boolean allowAnonymous,
     @Schema(description = "메일수신여부", example = "true")
     Boolean emailNotice

@@ -1,7 +1,6 @@
 package com.codecrafter.commenting.domain.response;
 
 
-import com.codecrafter.commenting.domain.entity.MemberInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ProfileResponse(
@@ -19,10 +18,15 @@ public record ProfileResponse(
     String link3,
     @Schema(description = "썸네일", example = "/프로필이미지경로/")
     String avatarPath,
-    @Schema(description = "익명여부", example = "true")
+    @Schema(description = "익명댓글허용여부", example = "true")
     Boolean allowAnonymous,
     @Schema(description = "메일수신여부", example = "true")
-    Boolean emailNotice
+    Boolean emailNotice,
+    @Schema(description = "좋와요수", example = "1")
+    Long isGoodCnt,
+    @Schema(description = "답변수", example = "2")
+    Long isAnswerCnt
+
 ) {
 
 
