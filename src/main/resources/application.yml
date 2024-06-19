@@ -36,7 +36,22 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
             user-name-attribute: sub
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jayce8887@gmail.com
+    password: szzpnqdfgeozkobk
+    properties:
+      mail:
+        debug: true
+        smtp.auth: true
+        smtp.timeout: 50000
+        smtp.starttls.enable: true
+  data:
+    redis:
+      mail:
+        host: localhost
+        port: 6379
 #spring:
 #  datasource:
 #    url: jdbc:postgresql://localhost:5432/commenting

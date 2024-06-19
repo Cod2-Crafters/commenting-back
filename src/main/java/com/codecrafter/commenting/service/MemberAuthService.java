@@ -5,7 +5,13 @@ import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.base.Provider;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import jakarta.transaction.Transactional;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +29,14 @@ import java.util.Map;
 
 
 @Service
+@Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class MemberAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberAuthRepository memberAuthRepository;
+    private final JavaMailSender emailSender;
+
 
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService delegate = new DefaultOAuth2UserService();
@@ -70,10 +80,15 @@ public class MemberAuthService implements OAuth2UserService<OAuth2UserRequest, O
 
     private MemberAuth saveOrUpdateMemberAuth(MemberDto member) {
         MemberAuth memberAuth = memberAuthRepository.findByEmailAndProvider(member.getEmail(), member.getProvider())
-                                                .map(m -> m.update(member.getEmail()))
-                                                .orElse(member.toMember());
+                                                    .map(m -> m.update(member.getEmail()))
+                                                    .orElse(member.toMember());
         return memberAuthRepository.save(memberAuth);
     }
+
+
+
+
+
 
 }
 
