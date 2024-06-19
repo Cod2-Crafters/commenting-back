@@ -2,23 +2,11 @@ spring:
   config:
     import: jwt.yml
   datasource:
-#    url: jdbc:h2:mem:testdb
-#    username: sa
-#    password:
-#    driver-class-name: org.h2.Driver
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2-console
     url: jdbc:postgresql://localhost:5432/commenting
-    username: jayce
+    username: ${COMMENTING_DATABASE_USERNAME}
     password:
     driver-class-name: org.postgresql.Driver
   jpa:
-#    database-platform: org.hibernate.dialect.H2Dialect
-#    hibernate:
-#      ddl-auto: create-drop
-#    show-sql: true
     hibernate:
       ddl-auto: create-drop
     show-sql: true
@@ -27,7 +15,8 @@ spring:
       client:
         registration:
           google:
-            clientId: '232728586772-bipelclpbc3amsmgai881ct8m1opt93f.apps.googleusercontent.com'
+            clientId: ${COMMENTING_GOOGLE_CLIENT_ID}
+            clientSecret: ${COMMENTING_GOOGLE_CLIENT_SECRET}
             scope: ['email', 'profile']
         provider:
           google:
@@ -38,7 +27,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: jayce8887@gmail.com
+    username: ${MAIL_USERNAME}
+    password : ${MAIL_PASSWORD}
     properties:
       mail:
         debug: true
@@ -50,16 +40,6 @@ spring:
       mail:
         host: localhost
         port: 6379
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/commenting
-#    username: jiheon
-#    password: "0000"
-#    driver-class-name: org.postgresql.Driver
-#  jpa:
-#    hibernate:
-#      ddl-auto: create-drop
-#    show-sql: true
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
