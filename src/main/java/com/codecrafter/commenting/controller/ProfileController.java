@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.codecrafter.commenting.domain.dto.ApiResponse;
@@ -14,6 +12,8 @@ import com.codecrafter.commenting.domain.response.ProfileResponse;
 import com.codecrafter.commenting.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Value;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +40,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @Value("${custom.avatar-location}")
-    private final String avatarLocation;
+    private String avatarLocation;
 
     @Operation(summary = "프로필 조회",
         description = """
