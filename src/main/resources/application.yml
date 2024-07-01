@@ -1,4 +1,9 @@
 spring:
+  web:
+    resources:
+      static-locations: file:/home/ubuntu/avatar
+  custom:
+    avatar-location: /home/ubuntu/avatar
   config:
     import: jwt.yml
   datasource:

@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.codecrafter.commenting.domain.dto.ApiResponse;
@@ -11,6 +13,11 @@ import com.codecrafter.commenting.domain.request.ProfileRequest;
 import com.codecrafter.commenting.domain.response.ProfileResponse;
 import com.codecrafter.commenting.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +38,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class ProfileController {
     private final ProfileService profileService;
+
+    @Value("${custom.avatar-location}")
+    private final String avatarLocation;
 
     @Operation(summary = "프로필 조회",
         description = """
@@ -66,6 +76,30 @@ public class ProfileController {
                                                     , @RequestHeader("Authorization") String token) {
         String avatarUrl = profileService.uploadAvatarFile(id, avatar, token);
         return ResponseEntity.ok(ApiResponse.success(avatarUrl));
+    }
+
+    @GetMapping("/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        try {
+            Path file = Paths.get(avatarLocation).resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = "image/jpeg";
+                if (filename.endsWith(".png")) {
+                    contentType = "image/png";
+                } else if (filename.endsWith(".gif")) {
+                    contentType = "image/gif";
+                }
+
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    .body(resource);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }
