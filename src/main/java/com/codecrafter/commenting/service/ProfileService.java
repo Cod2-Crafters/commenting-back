@@ -31,6 +31,8 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberAuthRepository memberAuthRepository;
     private final TokenProvider tokenProvider;
+    private final Path avatarLocation = Paths.get("/home/ubuntu/avatar");
+
 
 
     public ProfileResponse getProfile(Long id) {
