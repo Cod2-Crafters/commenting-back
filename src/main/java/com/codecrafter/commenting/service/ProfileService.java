@@ -17,7 +17,13 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,11 +34,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(readOnly = true)
 public class ProfileService {
 
+    @Value("${custom.avatar-location}")
+    private String avatarLocation;
+
     private final ProfileRepository profileRepository;
     private final MemberAuthRepository memberAuthRepository;
     private final TokenProvider tokenProvider;
-    private final Path avatarLocation = Paths.get("/home/ubuntu/avatar");
-
 
 
     public ProfileResponse getProfile(Long id) {
@@ -109,6 +116,31 @@ public class ProfileService {
         }
 
         return memberInfo;
+    }
+
+
+    public ResponseEntity<Resource> serveFile(String filename) {
+        log.info("avatarLocation : {}", avatarLocation);
+        try {
+            Path file = Paths.get(avatarLocation).resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = "image/jpeg";
+                if (filename.endsWith(".png")) {
+                    contentType = "image/png";
+                } else if (filename.endsWith(".gif")) {
+                    contentType = "image/gif";
+                }
+
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    .body(resource);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     private ProfileResponse retProfileResponse(MemberInfo memberInfo) {

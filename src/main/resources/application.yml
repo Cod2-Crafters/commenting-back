@@ -1,7 +1,4 @@
 spring:
-  web:
-    resources:
-      static-locations: file:/home/ubuntu/avatar
   config:
     import: jwt.yml
   datasource:
@@ -43,6 +40,11 @@ spring:
       mail:
         host: localhost
         port: 6379
+    web:
+      resources:
+        static-locations: file:/home/ec2-user/avatar
+custom:
+  avatar-location: /home/ec2-user/avatar
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
@@ -59,5 +61,5 @@ springdoc:
 logging:
   level:
     org.springframework.security: DEBUG
-custom:
-  avatar-location: /home/ubuntu/avatar
+server:
+  port: 8080
