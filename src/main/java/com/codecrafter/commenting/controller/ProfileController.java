@@ -39,9 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileController {
     private final ProfileService profileService;
 
-    @Value("${custom.avatar-location}")
-    private String avatarLocation;
-
     @Operation(summary = "프로필 조회",
         description = """
                     ★프로필 조회</br>
@@ -78,28 +75,14 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success(avatarUrl));
     }
 
+    @Operation(summary = "썸네일 조회",
+        description = """
+                    ★프로필 아바타 이미지 조회</br>
+                    {host}/api/profile/profile/test.jpg
+                    """)
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-        try {
-            Path file = Paths.get(avatarLocation).resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                String contentType = "image/jpeg";
-                if (filename.endsWith(".png")) {
-                    contentType = "image/png";
-                } else if (filename.endsWith(".gif")) {
-                    contentType = "image/gif";
-                }
-
-                return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, contentType)
-                    .body(resource);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return profileService.serveFile(filename);
     }
 
 }
