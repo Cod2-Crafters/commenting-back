@@ -81,7 +81,7 @@ public class ProfileController {
                     {host}/api/profile/profile/test.jpg
                     """)
     @GetMapping("/{filename:.+}")
-    public ResponseEntity<String> serveFile(@PathVariable String filename) {
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         return profileService.serveFile(filename);
     }
 
