@@ -93,10 +93,9 @@ public class ProfileService {
         try {
             Path path = Paths.get(uploadDir, newFilename);
             Files.copy(avatarFile.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-//            memberInfo.setAvatarPath(path.toString());    // 파일전체경로
-            memberInfo.setAvatarPath(newFilename);  // 파일명만
+            memberInfo.setAvatarPath(path.toString());    // 파일전체경로
             profileRepository.save(memberInfo);
-            return path.toString();
+            return newFilename;
         } catch (IOException e) {
             throw new IllegalArgumentException("파일 업로드 실패", e);
         }
