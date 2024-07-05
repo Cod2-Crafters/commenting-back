@@ -45,7 +45,10 @@ public class ProfileService {
     public ProfileResponse getProfile(Long id) {
         MemberInfo memberInfo = profileRepository.findById(id)
                                                     .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다"));
+        String avatarPath = memberInfo.getAvatarPath();
+        String onlyFileNm = (avatarPath != null) ? Paths.get(avatarPath).getFileName().toString() : "";
 
+        memberInfo.setAvatarPath(onlyFileNm);
         return retProfileResponse(memberInfo);
     }
 
@@ -121,9 +124,7 @@ public class ProfileService {
 
     public ResponseEntity<Resource> serveFile(String filename) {
         try {
-            String onlyFilename = Paths.get(filename).getFileName().toString();
-
-            Path file = Paths.get(avatarLocation).resolve(onlyFilename);
+            Path file = Paths.get(avatarLocation).resolve(filename);
             Resource resource = new UrlResource(file.toUri());
 
             if (resource.exists() || resource.isReadable()) {
