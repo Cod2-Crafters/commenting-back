@@ -119,11 +119,13 @@ public class ProfileService {
     }
 
 
-    public ResponseEntity<Resource> serveFile(String filename) {
+    public ResponseEntity<String> serveFile(String filename) {
         log.info("avatarLocation : {}", avatarLocation);
         try {
             Path file = Paths.get(avatarLocation).resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
+            Resource resource = new UrlResource(file.toUri()); // 경로 + 파열명
+            String fileName   = file.getFileName().toString(); // only 파열명
+
             if (resource.exists() || resource.isReadable()) {
                 String contentType = "image/jpeg";
                 if (filename.endsWith(".png")) {
@@ -134,7 +136,7 @@ public class ProfileService {
 
                 return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, contentType)
-                    .body(resource);
+                    .body(fileName);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }

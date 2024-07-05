@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${COMMENTING_DATABASE_URL}/commenting
     username: ${COMMENTING_DATABASE_USERNAME}
-    password:
+    password: ${COMMENTING_DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
