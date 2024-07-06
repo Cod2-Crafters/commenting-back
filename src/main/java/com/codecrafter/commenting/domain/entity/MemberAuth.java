@@ -6,6 +6,7 @@ import static lombok.AccessLevel.*;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,7 +61,7 @@ public class MemberAuth extends BaseEntity implements UserDetails {
 
 	@Comment("계정 활성화 여부")
 	@ColumnDefault("false")
-	@Column(name = "is_enabled", nullable = true)
+	@Column(name = "is_enabled", nullable = false)
 	private Boolean isEnabled = false;
 
 	@Comment("회원 정보")
@@ -92,6 +93,13 @@ public class MemberAuth extends BaseEntity implements UserDetails {
 			.password(request.password())
 			//.createdAt(LocalDateTime.now())
 			.build();
+	}
+
+	@PrePersist
+	protected void onCreate() {
+		if (this.isEnabled == null) {
+			this.isEnabled = false;
+		}
 	}
 
 	@Override

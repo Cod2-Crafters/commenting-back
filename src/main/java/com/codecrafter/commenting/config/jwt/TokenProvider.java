@@ -1,26 +1,21 @@
 package com.codecrafter.commenting.config.jwt;
 
-import com.codecrafter.commenting.exception.AuthenticationFailedException;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @PropertySource("classpath:jwt.yml")
 @Component
@@ -31,16 +26,18 @@ public class TokenProvider {
     private final long expirationHours;
     private final String issuer;
     private final Key key;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public TokenProvider(
         @Value("${secret-key}") String secretKey,
         @Value("${expiration-hours}") long expirationHours,
-        @Value("${issuer}") String issuer
-    ) {
+        @Value("${issuer}") String issuer,
+        RedisTemplate<String, String> redisTemplate) {
         this.secretKey          = secretKey;
         this.expirationHours    = expirationHours;
         this.issuer             = issuer;
         this.key                = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.redisTemplate      = redisTemplate;
     }
 
     public String createToken(String userSpecification) {
@@ -68,5 +65,26 @@ public class TokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
+    }
+
+    public void invalidateToken(String token) {
+        long expirationMillis = Jwts.parser()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .getExpiration()
+            .getTime();
+
+        long currentMillis = System.currentTimeMillis();
+        long ttl = expirationMillis - currentMillis;
+
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        ops.set(token, "invalid", Duration.ofMillis(ttl));
+    }
+
+    private boolean isTokenBlacklisted(String token) {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        return ops.get(token) != null;
     }
 }
