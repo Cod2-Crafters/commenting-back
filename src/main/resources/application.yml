@@ -38,13 +38,15 @@ spring:
   data:
     redis:
       mail:
-        host: localhost
-        port: 6379
+        host: ${COMMENTING_REDIS_HOST}
+        port: ${COMMENTING_REDIS_PORT}
+        password: ${COMMENTING_REDIS_PASSWORD}
+        ssl: true
     web:
       resources:
-        static-locations: file:/home/ec2-user/avatar
+        static-locations: file:${COMMENTING_AVATAR_UPLOAD_PATH}
 custom:
-  avatar-location: /home/ec2-user/avatar
+  avatar-location: ${COMMENTING_AVATAR_UPLOAD_PATH}
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
