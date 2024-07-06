@@ -63,11 +63,17 @@ public class MemberService {
         MemberAuth member = memberAuthRepository.findByEmail(request.email())
                                             .stream()
 //                                            .filter(it -> passwordEncoder.matches(request.password(), it.getPassword()))  // 비번암호화 주석처리, 편의를위해 평문으로 등록
-                                            .filter(it -> Provider.BASE.equals(request.provider()) ? request.password().equals(it.getPassword()) : true)   // 기본 로그인일경우만 비번 체크
+                                            .filter(it -> Provider.BASE.equals(request.provider()) ? request.password().equals(it.getPassword()) : true)   // 기본 로그인일 경우만 비번 체크
+                                            //.filter(it -> Provider.BASE.equals(request.provider()) ? it.isEnabled() : true)   // 기본 로그인일 경우만 메일인증 체크
                                             .findFirst()
                                             .orElseThrow(() -> new AuthenticationFailedException("아이디 또는 비밀번호가 일치하지 않습니다."));
         String token = tokenProvider.createToken(String.format("%s", member.getId()));
         return new SignInResponse(member.getId(), member.getEmail(), token);
+    }
+
+    @Transactional
+    public void logout(String token) {
+        tokenProvider.invalidateToken(token);
     }
 
     // 이메일 중복체크

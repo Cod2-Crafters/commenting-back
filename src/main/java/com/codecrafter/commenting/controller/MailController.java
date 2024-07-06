@@ -1,15 +1,17 @@
 package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
+import com.codecrafter.commenting.domain.enumeration.ApiStatus;
 import com.codecrafter.commenting.domain.request.EmailCertificationRequest;
-import com.codecrafter.commenting.domain.response.EmailCertificationResponse;
 import com.codecrafter.commenting.service.MailSendService;
 import com.codecrafter.commenting.service.MailVerifyService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +30,8 @@ public class MailController {
 
     private final MailSendService mailSendService;
     private final MailVerifyService mailVerifyService;
+
+    private static final String EXTERNAL_API_URL = "https://commenting-front.vercel.app/api/verify-email";
 
     @Operation(summary = "인증 메일 전송",
         description = """
@@ -51,7 +55,10 @@ public class MailController {
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse> verifyCertificationNumber(   @RequestParam(name = "email") String email,
                                                                     @RequestParam(name = "certificationNumber") String certificationNumber) {
-        mailVerifyService.verifyEmail(email, certificationNumber);
-        return ResponseEntity.ok(ApiResponse.success(mailVerifyService));
+        ApiResponse response = mailVerifyService.verifyEmail(email, certificationNumber);
+        String redirectUrl = String.format(EXTERNAL_API_URL + "?email=%s&isVerify=%s", email, response.status());
+
+        URI redirectUri = URI.create(redirectUrl);
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(redirectUri).build();
     }
 }

@@ -1,11 +1,15 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.exception.EmailNotFoundException;
 import com.codecrafter.commenting.exception.InvalidCertificationNumberException;
 import com.codecrafter.commenting.repository.CertificationNumberRepository;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,18 +23,21 @@ public class MailVerifyService {
     private final CertificationNumberRepository certificationNumberRepository;
     private final MemberAuthRepository memberAuthRepository;
 
-    public void verifyEmail(String email, String certificationNumber) {
-        log.info("certificationNumber : {}", certificationNumber);
+    public ApiResponse verifyEmail(String email, String certificationNumber) {
+        Map<String, Object> responseData = new HashMap<>();
 
         if (!isVerify(email, certificationNumber)) {
-            throw new InvalidCertificationNumberException();
+            return ApiResponse.error("인증에 실패했습니다.");
         }
 
         certificationNumberRepository.removeCertificationNumber(email);
 
-        MemberAuth memberAuth = memberAuthRepository.findByEmail(email)
-                                                    .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 이메일입니다."));
+        Optional<MemberAuth> optionalMemberAuth = memberAuthRepository.findByEmail(email);
+        if (optionalMemberAuth.isEmpty()) {
+            return ApiResponse.error("존재하지 않는 이메일입니다.");
+        }
 
+        MemberAuth memberAuth = optionalMemberAuth.get();
         MemberAuth updatedMemberAuth = MemberAuth.builder()
                                                 .id(memberAuth.getId())
                                                 .email(memberAuth.getEmail())
@@ -41,6 +48,10 @@ public class MailVerifyService {
                                                 .build();
 
         memberAuthRepository.save(updatedMemberAuth); // 업데이트된 엔티티를 저장
+
+        responseData.put("email", email);
+        responseData.put("isVerify", true);
+        return ApiResponse.success(responseData);
     }
 
     private boolean isVerify(String email, String certificationNumber) {

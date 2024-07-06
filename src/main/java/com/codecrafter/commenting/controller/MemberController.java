@@ -18,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,15 +57,11 @@ public class MemberController {
         return ResponseEntity.ok().headers(headers).body(ApiResponse.success(signInResponse));
     }
 
-//    @Operation(summary = "로그아웃",
-//        description = """
-//					★로그아웃</br>
-//			        {host}/api/member/sign-out
-//			        """)
-//    @PostMapping("/sign-out")
-//    public ResponseEntity signOut(@RequestBody SignInRequest request) {
-//        return null;
-//    }
+    @PostMapping("/sign-out")
+    public ResponseEntity<ApiResponse> signOut(@RequestHeader("Authorization") String token) {
+        memberService.logout(token);
+        return ResponseEntity.ok(ApiResponse.success("로그아웃이 성공적으로 완료되었습니다."));
+    }
 
     @Operation(summary = "이메일 중복 검사",
         description = """
