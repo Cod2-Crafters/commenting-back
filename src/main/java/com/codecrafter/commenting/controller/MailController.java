@@ -7,9 +7,11 @@ import com.codecrafter.commenting.service.MailSendService;
 import com.codecrafter.commenting.service.MailVerifyService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/mail")
 public class MailController {
@@ -32,9 +35,10 @@ public class MailController {
                         {host}/api/mail/send-certification
                         """)
     @PostMapping("/send-certification")
-    public ResponseEntity<ApiResponse> sendCertificationNumber(@Validated @RequestBody EmailCertificationRequest request)
+    public ResponseEntity<ApiResponse> sendCertificationNumber(@Validated @RequestBody EmailCertificationRequest request,
+                                                                                        HttpServletRequest httpServletRequest)
                                                                         throws MessagingException, NoSuchAlgorithmException {
-        mailSendService.sendEmailForCertification(request.getEmail());
+        mailSendService.sendEmailForCertification(request.getEmail(), httpServletRequest);
         return ResponseEntity.ok(ApiResponse.success(mailSendService));
     }
 

@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
             )
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/", "/swagger-ui/**", "/v3/**", "/api/member/sign-in", "/api/member/sign-up", "/api/auth/validate")
+                .requestMatchers("/", "/swagger-ui/**", "/v3/**", "/api/member/sign-in", "/api/member/sign-up", "/api/auth/validate", "/api/mail/verify")
                 .permitAll()
                 .requestMatchers("/oauth/google").authenticated()
                 .anyRequest().permitAll()
