@@ -11,9 +11,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,17 +28,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/mail")
+@Slf4j
 public class MailController {
 
     private final MailSendService mailSendService;
     private final MailVerifyService mailVerifyService;
-
-    private static final String EXTERNAL_API_URL = "https://commenting-front.vercel.app/api/verify-email";
 
     @Operation(summary = "인증 메일 전송",
         description = """
@@ -53,12 +61,16 @@ public class MailController {
                         {host}/api/mail/verify?certificationNumber=000000&email=jayce@crafter.com
                         """)
     @GetMapping("/verify")
-    public ResponseEntity<ApiResponse> verifyCertificationNumber(   @RequestParam(name = "email") String email,
-                                                                    @RequestParam(name = "certificationNumber") String certificationNumber) {
+    public ModelAndView verifyCertificationNumber(   @RequestParam(name = "email") String email,
+                                                     @RequestParam(name = "certificationNumber") String certificationNumber) {
         ApiResponse response = mailVerifyService.verifyEmail(email, certificationNumber);
-        String redirectUrl = String.format(EXTERNAL_API_URL + "?email=%s&isVerify=%s", email, response.status());
 
-        URI redirectUri = URI.create(redirectUrl);
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(redirectUri).build();
+        ModelAndView modelAndView = new ModelAndView();
+
+        modelAndView.setViewName("redirect:/postRedirect.html");
+        modelAndView.addObject("isVertiry", response.status());   // 검증결과
+
+        return modelAndView;
     }
+
 }

@@ -25,8 +25,10 @@ public class MailVerifyService {
 
     public ApiResponse verifyEmail(String email, String certificationNumber) {
         Map<String, Object> responseData = new HashMap<>();
+        responseData.put("email", email);
 
         if (!isVerify(email, certificationNumber)) {
+//            responseData.put("isVerify", false);
             return ApiResponse.error("인증에 실패했습니다.");
         }
 
@@ -34,6 +36,7 @@ public class MailVerifyService {
 
         Optional<MemberAuth> optionalMemberAuth = memberAuthRepository.findByEmail(email);
         if (optionalMemberAuth.isEmpty()) {
+//            responseData.put("isVerify", false);
             return ApiResponse.error("존재하지 않는 이메일입니다.");
         }
 
@@ -49,16 +52,15 @@ public class MailVerifyService {
 
         memberAuthRepository.save(updatedMemberAuth); // 업데이트된 엔티티를 저장
 
-        responseData.put("email", email);
-        responseData.put("isVerify", true);
+//        responseData.put("isVerify", true);
         return ApiResponse.success(responseData);
     }
 
     private boolean isVerify(String email, String certificationNumber) {
         boolean validatedEmail = isEmailExists(email);
-        if (!isEmailExists(email)) {
-            throw new EmailNotFoundException();
-        }
+//        if (!isEmailExists(email)) {
+//            throw new EmailNotFoundException();
+//        }
         return (validatedEmail && certificationNumberRepository.getCertificationNumber(email).equals(certificationNumber));
     }
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Redirecting...</title>
+    <script type="text/javascript">
+        function postRedirect(url, data) {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = data;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        window.onload = function() {
+            var url = 'https://commenting-front.vercel.app/api/verify-email';
+            var data = new URLSearchParams(window.location.search).get('isVertiry');
+            postRedirect(url, data);
+        };
+    </script>
+</head>
+<body>
+<h2>wait a moment</h2>
+</body>
+</html>
