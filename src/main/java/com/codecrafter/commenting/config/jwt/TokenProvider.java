@@ -9,12 +9,15 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 @PropertySource("classpath:jwt.yml")
@@ -42,39 +45,42 @@ public class TokenProvider {
 
     public String createToken(String userSpecification) {
         return Jwts.builder()
-            .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS512.getJcaName()))
-            .setSubject(userSpecification)
-            .setIssuer(issuer)
-            .setIssuedAt(Date.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant()))
-            .setExpiration(Date.from(ZonedDateTime.now(ZoneId.of("UTC")).plusHours(expirationHours).toInstant()))
-            .compact();
+                    .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS512.getJcaName()))
+                    .setSubject(userSpecification)
+                    .setIssuer(issuer)
+                    .setIssuedAt(Date.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant()))
+                    .setExpiration(Date.from(ZonedDateTime.now(ZoneId.of("UTC")).plusHours(expirationHours).toInstant()))
+                    .compact();
     }
 
     public Long getUserIdFromToken(String token) {
+        token = whitespaceToken(token);
         Claims claims = Jwts.parser()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+                            .setSigningKey(key)
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
         return Long.valueOf(claims.getSubject());
     }
 
     public Claims validateToken(String token) {
+        token = whitespaceToken(token);
         return Jwts.parser()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
     }
 
     public void invalidateToken(String token) {
+        token = whitespaceToken(token);
         long expirationMillis = Jwts.parser()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getExpiration()
-            .getTime();
+                                    .setSigningKey(key)
+                                    .build()
+                                    .parseClaimsJws(token)
+                                    .getBody()
+                                    .getExpiration()
+                                    .getTime();
 
         long currentMillis = System.currentTimeMillis();
         long ttl = expirationMillis - currentMillis;
@@ -86,5 +92,25 @@ public class TokenProvider {
     private boolean isTokenBlacklisted(String token) {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         return ops.get(token) != null;
+    }
+
+    public boolean isTokenValid(String token) {
+        token = whitespaceToken(token);
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(token))) {
+            return false;
+        }
+        try {
+            validateToken(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
+    private String whitespaceToken(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
+        return token;
     }
 }

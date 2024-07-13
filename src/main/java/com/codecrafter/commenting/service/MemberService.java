@@ -13,6 +13,7 @@ import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.exception.AuthenticationFailedException;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
+import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class MemberService {
     @Transactional
     public SignUpResponse registMember(@Valid SignUpRequest request) {
         chkDupEmail(request.email());
-//        SignUpRequest cstRequest = new SignUpRequest(request.email(), "BASE", passwordEncoder.toString());    // 비번암호화 주석처리, 편의를위해 평문으로 등록
+//        SignUpRequest cstRequest = new SignUpRequest(request.email(), request.provider(), passwordEncoder.toString());    // 비번암호화 주석처리, 편의를위해 평문으로 등록
         SignUpRequest cstRequest = new SignUpRequest(request.email()
                                                     , request.provider()
                                                     , request.password());
@@ -73,7 +74,25 @@ public class MemberService {
 
     @Transactional
     public void logout(String token) {
+        if (!tokenProvider.isTokenValid(token)) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
         tokenProvider.invalidateToken(token);
+    }
+
+    @Transactional
+    public void unregister(SignInRequest request, String token) {
+        Claims claims = tokenProvider.validateToken(token);
+        Long memberId = Long.parseLong(claims.getSubject());
+
+        MemberAuth member = memberAuthRepository.findById(memberId)
+                                                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        if (!member.getEmail().equals(request.email())) {
+            throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
+        }
+
+        memberAuthRepository.delete(member);
     }
 
     // 이메일 중복체크

@@ -57,10 +57,27 @@ public class MemberController {
         return ResponseEntity.ok().headers(headers).body(ApiResponse.success(signInResponse));
     }
 
+    @Operation(summary = "로그아웃",
+        description = """
+                        ★로그아웃</br>
+                        {host}/api/member/sign-out
+                        """)
     @PostMapping("/sign-out")
     public ResponseEntity<ApiResponse> signOut(@RequestHeader("Authorization") String token) {
         memberService.logout(token);
         return ResponseEntity.ok(ApiResponse.success("로그아웃이 성공적으로 완료되었습니다."));
+    }
+
+    @Operation(summary = "탈퇴",
+        description = """
+                        ★회원탈퇴</br>
+                        {host}/api/member/unregister
+                        """)
+    @PostMapping("/unregister")
+    public ResponseEntity<Void> unregister(@RequestHeader("Authorization") String token
+    ,                                        @RequestBody SignInRequest request) {
+        memberService.unregister(request, token);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "이메일 중복 검사",
@@ -79,11 +96,11 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/jwt-test")
-    public String getUser(@AuthenticationPrincipal MemberAuth memberAuth) {
-        log.info("getUser memberAuth : {}", memberAuth.getEmail());
-        log.info("getUser memberAuth : {}", memberAuth.getId());
-        return memberAuth.getEmail();
-    }
+//    @GetMapping("/jwt-test")
+//    public String getUser(@AuthenticationPrincipal MemberAuth memberAuth) {
+//        log.info("getUser memberAuth : {}", memberAuth.getEmail());
+//        log.info("getUser memberAuth : {}", memberAuth.getId());
+//        return memberAuth.getEmail();
+//    }
 
 }
