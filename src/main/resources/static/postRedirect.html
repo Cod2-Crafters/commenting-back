@@ -3,15 +3,15 @@
 <head>
     <title>Redirecting...</title>
     <script type="text/javascript">
-        function postRedirect(url, data) {
-            var form = document.createElement('form');
+        function postRedirect(url, email, isVerify) {
+            const form = document.createElement('form');
             form.method = 'POST';
             form.action = url;
 
-            var input = document.createElement('input');
+            const input = document.createElement('input');
             input.type = 'hidden';
             input.name = 'data';
-            input.value = data;
+            input.value = JSON.stringify({ email: email, isVerify: isVerify });
             form.appendChild(input);
 
             document.body.appendChild(form);
@@ -19,9 +19,29 @@
         }
 
         window.onload = function() {
-            var url = 'https://commenting-front.vercel.app/api/verify-email';
-            var data = new URLSearchParams(window.location.search).get('isVertiry');
-            postRedirect(url, data);
+            const url = 'https://commenting-front-h8iz.vercel.app/api/verify-email';
+            let data = new URLSearchParams(window.location.search).get('data');
+
+            if (data) {
+                try {
+                    let decodedData = decodeURIComponent(data);
+                    let parsedData = JSON.parse(decodedData);
+                    let status = parsedData.status;
+                    let isVerify = false;
+                    if(status == "SUCCESS") {
+                        isVerify = true;
+                    }
+                    let email = parsedData.data.email;
+
+                    alert("parsedData data email ::: " + email);
+                    alert("parsedData status ::: " + isVerify);
+                    postRedirect(url, email, isVerify);
+                } catch (e) {
+                    alert("데이터 형식이 올바르지 않습니다.");
+                }
+            } else {
+                alert("잘못된 접근입니다.");
+            }
         };
     </script>
 </head>

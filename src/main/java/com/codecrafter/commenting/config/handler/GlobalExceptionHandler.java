@@ -14,14 +14,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException  .class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ApiResponse> handleDuplicateEmailException(IllegalArgumentException ex) {
-        ApiResponse errorResponse = ApiResponse.error(ex.getMessage());
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ApiResponse> handleAuthenticationFailedException(AuthenticationFailedException ex) {
-        ApiResponse errorResponse = ApiResponse.error(ex.getMessage());
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 

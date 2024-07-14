@@ -4,7 +4,7 @@ package com.codecrafter.commenting.domain.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ProfileResponse(
-    @Schema(description = "이메일", example = "jayce@crafter.com")
+    @Schema(description = "이메일", example = "kin8887@naver.com")
     String email,
     @Schema(description = "닉네임", example = "제이스")
     String nickname,

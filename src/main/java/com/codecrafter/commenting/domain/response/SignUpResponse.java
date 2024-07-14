@@ -7,7 +7,7 @@ public record SignUpResponse (
 
     @Schema(description = "식별자", example = "1")
     Long id,
-    @Schema(description = "이메일", example = "jayce@crafter.com")
+    @Schema(description = "이메일", example = "kin8887@naver.com")
     String email
 
 ){
