@@ -8,7 +8,9 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
+    datasource:
+      initialization-mode: never
     show-sql: true
   security:
     oauth2:
