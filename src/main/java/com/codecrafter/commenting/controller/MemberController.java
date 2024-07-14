@@ -92,7 +92,7 @@ public class MemberController {
             boolean isDup = memberService.chkDupEmail(email);
             return ResponseEntity.ok(ApiResponse.success(isDup));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(e.getMessage(), e));
         }
     }
 

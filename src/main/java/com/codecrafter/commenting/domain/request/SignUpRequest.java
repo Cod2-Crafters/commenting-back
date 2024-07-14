@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.Nullable;
 
 public record SignUpRequest (
-    @Schema(description = "이메일", example = "jayce@crafter.com")
+    @Schema(description = "이메일", example = "kin8887@naver.com")
     @NotBlank(message = "이메일은 필수 항목입니다.")
     String email,
     @Schema(description = "공급자", example = "BASE")

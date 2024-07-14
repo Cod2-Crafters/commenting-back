@@ -5,10 +5,14 @@ import com.codecrafter.commenting.domain.enumeration.ApiStatus;
 import com.codecrafter.commenting.domain.request.EmailCertificationRequest;
 import com.codecrafter.commenting.service.MailSendService;
 import com.codecrafter.commenting.service.MailVerifyService;
+import com.nimbusds.jose.shaded.gson.Gson;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,13 +66,16 @@ public class MailController {
                         """)
     @GetMapping("/verify")
     public ModelAndView verifyCertificationNumber(   @RequestParam(name = "email") String email,
-                                                     @RequestParam(name = "certificationNumber") String certificationNumber) {
+                                                     @RequestParam(name = "certificationNumber") String certificationNumber,
+                                                     HttpSession session) {
         ApiResponse response = mailVerifyService.verifyEmail(email, certificationNumber);
 
-        ModelAndView modelAndView = new ModelAndView();
+        log.info("response : {}",  response);
 
-        modelAndView.setViewName("redirect:/postRedirect.html");
-        modelAndView.addObject("isVertiry", response.status());   // 검증결과
+        ModelAndView modelAndView = new ModelAndView();
+        String jsonResponse = new Gson().toJson(response); // JSON 문자열로 변환
+        String encodedResponse = URLEncoder.encode(jsonResponse, StandardCharsets.UTF_8);
+        modelAndView.setViewName("redirect:/postRedirect.html?data=" + encodedResponse);
 
         return modelAndView;
     }
