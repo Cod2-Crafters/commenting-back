@@ -22,11 +22,13 @@ public class RedisConfig {
     private int port;
     @Value("${spring.data.redis.mail.password}")
     private String password;
+    @Value("${spring.data.redis.mail.ssl}")
+    private boolean ssl;
 
     @Bean
     public RedisClient redisClient() {
         RedisURI redisUri = RedisURI.Builder.redis(host, port)
-            .withSsl(true)
+            .withSsl(ssl)
             .withPassword(password)
             .build();
         return RedisClient.create(redisUri);

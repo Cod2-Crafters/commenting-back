@@ -43,7 +43,7 @@ spring:
         host: ${COMMENTING_REDIS_HOST}
         port: ${COMMENTING_REDIS_PORT}
         password: ${COMMENTING_REDIS_PASSWORD}
-        ssl: true
+        ssl: ${COMMENTING_REDIS_SSL}
     web:
       resources:
         static-locations: file:${COMMENTING_AVATAR_UPLOAD_PATH}
