@@ -2,10 +2,12 @@ package com.codecrafter.commenting.repository;
 
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.codecrafter.commenting.domain.entity.Conversation;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 /**
@@ -23,5 +25,10 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE a.owner_id = :ownerId AND a.id = b.mst_id " +
                     "ORDER BY b.mst_id, b.id", nativeQuery = true)
     List<ConversationDetailsResponse> findConversationDetailsByOwnerId(@Param("ownerId") Long ownerId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM conversation WHERE mst_id = :mstId", nativeQuery = true)
+    void deleteByConversationMSTId(@Param("mstId") Long mstId);
 
 }

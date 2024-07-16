@@ -32,19 +32,19 @@ public class ConversationService {
 	private final MemberInfoRepository memberInfoRepository;
 
 	@Transactional(readOnly = true)
-	public ConversationResponse getConversation(Long conversationId) {
-		Conversation conversation = findConversationById(conversationId);
+	public ConversationResponse getConversation(Long id) {
+		Conversation conversation = findConversationById(id);
 		return convertToResponse(conversation);
 	}
 
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationDetails(Long mstId) {
-		return conversationRepository.findConversationDetailsByMstId(mstId);
+	public List<ConversationDetailsResponse> getConversationDetails(Long id) {
+		return conversationRepository.findConversationDetailsByMstId(id);
 	}
 
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationDetailsByOwnerId(Long ownerId) {
-		return conversationRepository.findConversationDetailsByOwnerId(ownerId);
+	public List<ConversationDetailsResponse> getConversationDetailsByOwnerId(Long id) {
+		return conversationRepository.findConversationDetailsByOwnerId(id);
 	}
 
 	@Transactional
@@ -62,7 +62,7 @@ public class ConversationService {
 		Conversation conversation = Conversation.builder()
 												.content(request.content())
 												.isPrivate(request.isPrivate())
-												.isQuestion(request.isQuestion())
+												.isQuestion(true) // true = 질문, false = 답변
 												.memberInfo(writerInfo)
 												.build();
 		conversation.setConversationMST(conversationMST);
@@ -78,9 +78,15 @@ public class ConversationService {
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());
-		conversation.setQuestion(request.isQuestion());
+		conversation.setQuestion(true);
 
 		return conversationRepository.save(conversation);
+	}
+
+	@Transactional
+	public void deleteConversationAndDetails(Long mstId) {
+		conversationRepository.deleteByConversationMSTId(mstId);
+		conversationMSTRepository.deleteById(mstId);
 	}
 
 	@Transactional
@@ -96,10 +102,27 @@ public class ConversationService {
 											.isQuestion(false) // true = 질문, false = 답변
 											.memberInfo(writer)
 											.build();
+
 		answer.setConversationMST(conversationMST);
 		conversationRepository.save(answer);
 
 		return convertToResponse(answer);
+	}
+
+	public Conversation updateAddAnswer(UpdateConversationRequest request) {
+		Conversation conversation = findConversationById(request.conversationId());
+
+		conversation.setContent(request.content());
+		conversation.setPrivate(request.isPrivate());
+		conversation.setQuestion(false);
+
+		return conversationRepository.save(conversation);
+	}
+
+	@Transactional
+	public void deleteAnswer(Long answerId) {
+		Conversation answer = findConversationById(answerId);
+		conversationRepository.delete(answer);
 	}
 
 	private Conversation findConversationById(Long conversationId) {
