@@ -43,13 +43,14 @@ public class Conversation extends BaseEntity {
 
 	@Comment("대화내용")
 	@Column(nullable = false, columnDefinition = "TEXT")
+	@Setter
 	private String content;
 
 	@Comment("좋아요 여부")
 	@ColumnDefault("false")
 	@Column(name = "is_good")
 	@Setter
-	private Boolean isGood = false;
+	private boolean isGood = false;
 
 	@Comment("비공개 여부")
 	@ColumnDefault("false")
@@ -60,6 +61,7 @@ public class Conversation extends BaseEntity {
 	@Comment("질문 여부(대화의 주인이 질문자인지)")
 	@ColumnDefault("false")
 	@Column(name = "is_question")
+	@Setter
 	private boolean isQuestion = false;
 
 	@Comment("작성자 정보(익명일수도)")
