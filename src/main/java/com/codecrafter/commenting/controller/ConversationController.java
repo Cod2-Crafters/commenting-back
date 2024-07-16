@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,14 +67,14 @@ public class ConversationController {
 
     @Operation(summary = "질문작성",
         description = """
-                ★스페이스에 불특정 다수의 질문자가 질문</br>
-                {host}/api/conversations/question</br>
-                입력값 ==================================</br>
-                         "ownerId": 주인장아이디,</br>
-                         "guestId": 질문자아이디,</br>
-                         "content": 내용</br>
-                ==================================
-                """)
+                        ★스페이스에 불특정 다수의 질문자가 질문</br>
+                        {host}/api/conversations/question</br>
+                        입력값 ==================================</br>
+                                 "ownerId": 주인장아이디,</br>
+                                 "guestId": 질문자아이디,</br>
+                                 "content": 내용</br>
+                        ==================================
+                        """)
     @PostMapping("/question")
     public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
             ConversationMST createdConversationMST = conversationService.createConversation(request);
@@ -88,6 +89,18 @@ public class ConversationController {
     public ResponseEntity<ApiResponse> updateQuestion(@RequestBody UpdateConversationRequest request) {
         Conversation updatedConversation = conversationService.updateConversation(request);
         return new ResponseEntity<>(ApiResponse.success(updatedConversation), HttpStatus.OK);
+    }
+
+    @Operation(summary = "질문삭제",
+        description = """
+                        ★질문 삭제시 관련대화(질문1 + 답변n) 일괄 삭제</br>
+                        {host}/api/conversations/question/{id}</br>
+                        id = mst_id
+                        """)
+    @DeleteMapping("/question/{id}")
+    public ResponseEntity<ApiResponse> deleteQuestion(@PathVariable Long id) {
+        conversationService.deleteConversationAndDetails(id);
+        return new ResponseEntity<>(ApiResponse.success(id), HttpStatus.OK);
     }
 
     @Operation(summary = "답변작성",
@@ -105,6 +118,29 @@ public class ConversationController {
     public ResponseEntity<ApiResponse> creatAnswer(@RequestBody CreateConversationRequest request) {
         ConversationResponse answer = conversationService.addAnswer(request);
         return new ResponseEntity<>(ApiResponse.success(answer), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "답변수정",
+        description = """
+                        ★답변자가 답변내용 수정</br>
+                        {host}/api/conversations/answer/update
+                        """)
+    @PutMapping("/answer/update")
+    public ResponseEntity<ApiResponse> updateAnswer(@RequestBody UpdateConversationRequest request) {
+        Conversation updatedConversation = conversationService.updateAddAnswer(request);
+        return new ResponseEntity<>(ApiResponse.success(updatedConversation), HttpStatus.OK);
+    }
+
+    @Operation(summary = "답변삭제",
+        description = """
+                        ★답변 단건 삭제</br>
+                        {host}/api/conversations/answer/{id}</br>
+                        id = con_id(== sub_id)
+                        """)
+    @DeleteMapping("/answer/{id}")
+    public ResponseEntity<ApiResponse> deleteAnswer(@PathVariable Long id) {
+        conversationService.deleteAnswer(id);
+        return new ResponseEntity<>(ApiResponse.success(id), HttpStatus.OK);
     }
 
 }
