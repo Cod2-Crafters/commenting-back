@@ -66,9 +66,14 @@ public class ConversationController {
 
     @Operation(summary = "질문작성",
         description = """
-                        ★스페이스에 불특정 다수의 질문자가 질문</br>
-                        {host}/api/conversations/question
-                        """)
+                ★스페이스에 불특정 다수의 질문자가 질문</br>
+                {host}/api/conversations/question</br>
+                입력값 ==================================</br>
+                         "ownerId": 주인장아이디,</br>
+                         "guestId": 질문자아이디,</br>
+                         "content": 내용</br>
+                ==================================
+                """)
     @PostMapping("/question")
     public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
             ConversationMST createdConversationMST = conversationService.createConversation(request);
@@ -88,7 +93,13 @@ public class ConversationController {
     @Operation(summary = "답변작성",
         description = """
                         ★스페이스 주인이 질문에 대한 답변 작성</br>
-                        {host}/api/conversations/answer
+                        {host}/api/conversations/answer</br>
+                        입력값 ==================================</br>
+                         "conversationMstId": 대화식별자,</br>
+                         "ownerId": 주인장아이디,</br>
+                         "guestId": 질문자아이디,</br>
+                         "content": 내용</br>
+                        ==================================
                         """)
     @PostMapping("/answer")
     public ResponseEntity<ApiResponse> creatAnswer(@RequestBody CreateConversationRequest request) {
