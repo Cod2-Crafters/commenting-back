@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record UpdateConversationRequest(
     @Schema(description = "대화 아이디", example = "1")
-    Long conversationId,
+    Long conId,
     @Schema(description = "질문 내용", example = "퇴사하고싶어요")
     String content,
     @Schema(description = "노출여부(보여줄거면 true)", example = "true")

@@ -31,7 +31,7 @@ public class RecommendService {
     private final TokenProvider tokenProvider;
     @Transactional
     public RecommendResponse updateLikes(RecommendRequest request) {
-        Conversation conversation = conversationRepository.findById(request.conversationId())
+        Conversation conversation = conversationRepository.findById(request.conId())
                                                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
         MemberInfo memberInfo = memberInfoRepository.findById(request.userId())
                                                             .orElseThrow(() -> new IllegalArgumentException("로그인이 필요한 서비스입니다."));
@@ -58,7 +58,7 @@ public class RecommendService {
     @Transactional
     public RecommendResponse updateThanked(RecommendRequest request) {
         // 익명추천관련해서 추후 구현시 좋아요와 로직 달리할 예정
-        Conversation conversation = conversationRepository.findById(request.conversationId())
+        Conversation conversation = conversationRepository.findById(request.conId())
                                                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
         MemberInfo memberInfo = memberInfoRepository.findById(request.userId())
                                                             .orElseThrow(() -> new IllegalArgumentException("로그인이 필요한 서비스입니다."));

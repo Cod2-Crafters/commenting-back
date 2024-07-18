@@ -74,7 +74,7 @@ public class ConversationService {
 
 	@Transactional
 	public Conversation updateConversation(UpdateConversationRequest request) {
-		Conversation conversation = findConversationById(request.conversationId());
+		Conversation conversation = findConversationById(request.conId());
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());
@@ -91,7 +91,7 @@ public class ConversationService {
 
 	@Transactional
 	public ConversationResponse addAnswer(CreateConversationRequest request) {
-		ConversationMST conversationMST = conversationMSTRepository.findById(request.conversationMstId())
+		ConversationMST conversationMST = conversationMSTRepository.findById(request.mstId())
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
 		MemberInfo writer = memberInfoRepository.findById(request.ownerId())
 																	.orElseThrow(() -> new IllegalArgumentException("스페이스 주인을 찾을 수 없습니다."));
@@ -110,7 +110,7 @@ public class ConversationService {
 	}
 
 	public Conversation updateAddAnswer(UpdateConversationRequest request) {
-		Conversation conversation = findConversationById(request.conversationId());
+		Conversation conversation = findConversationById(request.conId());
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());

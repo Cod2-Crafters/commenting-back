@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CreateConversationRequest(
     @Schema(description = "대화 아이디", example = "1")
-    Long conversationMstId,
+    Long mstId,
     @Schema(description = "주인장 아이디", example = "1")
     Long ownerId,
     @Schema(description = "질문자 아이디", example = "7")

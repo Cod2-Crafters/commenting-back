@@ -54,9 +54,9 @@ public class RecommendController {
     @Operation(summary = "좋은질문들",
         description = """
                         ★내가 좋아요누른 대화 조회</br>
-                        {host}/api/recommends/user/{userId}
+                        {host}/api/recommends/user
                         """)
-        @PostMapping("/user")
+    @PostMapping("/user")
     public ResponseEntity<ApiResponse> getRecommendedConversations(@RequestHeader("Authorization") String token) {
         List<ConversationResponse> conversations = recommendService.getRecommendedConversations(token);
         return new ResponseEntity<>(ApiResponse.success(conversations), HttpStatus.OK);

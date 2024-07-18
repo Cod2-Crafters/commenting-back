@@ -4,7 +4,7 @@ import com.codecrafter.commenting.domain.entity.base.Provider;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record SignInRequest(
-    @Schema(description = "이메일", example = "kin8887@naver.com")
+    @Schema(description = "이메일", example = "jayce@crafter.com")
     String email,
     @Schema(description = "공급자", example = "BASE")
     Provider provider,
