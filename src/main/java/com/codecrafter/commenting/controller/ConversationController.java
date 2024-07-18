@@ -74,7 +74,6 @@ public class ConversationController {
                                  "guestId": 질문자아이디,</br>
                                  "content": 내용</br>
                         ==================================
-                        반환값 = mstId
                         """)
     @PostMapping("/question")
     public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
