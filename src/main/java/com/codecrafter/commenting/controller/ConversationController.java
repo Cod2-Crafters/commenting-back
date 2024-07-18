@@ -74,11 +74,12 @@ public class ConversationController {
                                  "guestId": 질문자아이디,</br>
                                  "content": 내용</br>
                         ==================================
+                        반환값 = mstId
                         """)
     @PostMapping("/question")
     public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
-            ConversationMST createdConversationMST = conversationService.createConversation(request);
-        return new ResponseEntity<>(ApiResponse.success(createdConversationMST), HttpStatus.CREATED);
+            ConversationMST conversationMST = conversationService.createConversation(request);
+        return new ResponseEntity<>(ApiResponse.success(conversationMST.getId()), HttpStatus.CREATED);
     }
     @Operation(summary = "질문수정",
         description = """
@@ -87,15 +88,14 @@ public class ConversationController {
                         """)
     @PutMapping("/question/update")
     public ResponseEntity<ApiResponse> updateQuestion(@RequestBody UpdateConversationRequest request) {
-        Conversation updatedConversation = conversationService.updateConversation(request);
-        return new ResponseEntity<>(ApiResponse.success(updatedConversation), HttpStatus.OK);
+        Conversation conversation = conversationService.updateConversation(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation.getId()), HttpStatus.OK);
     }
 
     @Operation(summary = "질문삭제",
         description = """
                         ★질문 삭제시 관련대화(질문1 + 답변n) 일괄 삭제</br>
                         {host}/api/conversations/question/{id}</br>
-                        id = mst_id
                         """)
     @DeleteMapping("/question/{id}")
     public ResponseEntity<ApiResponse> deleteQuestion(@PathVariable Long id) {
@@ -116,8 +116,8 @@ public class ConversationController {
                         """)
     @PostMapping("/answer")
     public ResponseEntity<ApiResponse> creatAnswer(@RequestBody CreateConversationRequest request) {
-        ConversationResponse answer = conversationService.addAnswer(request);
-        return new ResponseEntity<>(ApiResponse.success(answer), HttpStatus.CREATED);
+        Conversation conversation = conversationService.addAnswer(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation.getId()), HttpStatus.CREATED);
     }
 
     @Operation(summary = "답변수정",
@@ -127,8 +127,8 @@ public class ConversationController {
                         """)
     @PutMapping("/answer/update")
     public ResponseEntity<ApiResponse> updateAnswer(@RequestBody UpdateConversationRequest request) {
-        Conversation updatedConversation = conversationService.updateAddAnswer(request);
-        return new ResponseEntity<>(ApiResponse.success(updatedConversation), HttpStatus.OK);
+        Conversation conversation = conversationService.updateAddAnswer(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation.getId()), HttpStatus.OK);
     }
 
     @Operation(summary = "답변삭제",

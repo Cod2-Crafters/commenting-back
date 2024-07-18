@@ -90,7 +90,7 @@ public class ConversationService {
 	}
 
 	@Transactional
-	public ConversationResponse addAnswer(CreateConversationRequest request) {
+	public Conversation addAnswer(CreateConversationRequest request) {
 		ConversationMST conversationMST = conversationMSTRepository.findById(request.mstId())
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
 		MemberInfo writer = memberInfoRepository.findById(request.ownerId())
@@ -104,9 +104,7 @@ public class ConversationService {
 											.build();
 
 		answer.setConversationMST(conversationMST);
-		conversationRepository.save(answer);
-
-		return convertToResponse(answer);
+		return conversationRepository.save(answer);
 	}
 
 	public Conversation updateAddAnswer(UpdateConversationRequest request) {
