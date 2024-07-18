@@ -108,10 +108,10 @@ public class ConversationController {
                         ★스페이스 주인이 질문에 대한 답변 작성</br>
                         {host}/api/conversations/answer</br>
                         입력값 ==================================</br>
-                         "conversationMstId": 대화식별자,</br>
-                         "ownerId": 주인장아이디,</br>
-                         "guestId": 질문자아이디,</br>
-                         "content": 내용</br>
+                                 "mstId": 대화식별자,</br>
+                                 "ownerId": 주인장아이디,</br>
+                                 "guestId": 질문자아이디,</br>
+                                 "content": 내용</br>
                         ==================================
                         """)
     @PostMapping("/answer")
