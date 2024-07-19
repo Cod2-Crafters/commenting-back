@@ -42,7 +42,7 @@ public class Recommend {
 
     @Comment("좋아요/고마와요 여부")
     @Enumerated(EnumType.STRING)
-    @Column(name = "recommed_status")
+    @Column(name = "recommend_status")
     private RecommendStatus recommendStatus;
 
     @CreationTimestamp

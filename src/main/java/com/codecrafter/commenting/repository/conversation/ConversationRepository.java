@@ -1,4 +1,4 @@
-package com.codecrafter.commenting.repository;
+package com.codecrafter.commenting.repository.conversation;
 
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import io.lettuce.core.dynamic.annotation.Param;

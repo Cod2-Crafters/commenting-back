@@ -1,4 +1,4 @@
-package com.codecrafter.commenting.repository;
+package com.codecrafter.commenting.repository.conversation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
