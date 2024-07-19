@@ -77,7 +77,7 @@ public class ConversationController {
                         """)
     @PostMapping("/question")
     public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
-            ConversationMST conversationMST = conversationService.createConversation(request);
+        ConversationMST conversationMST = conversationService.createConversation(request);
         return new ResponseEntity<>(ApiResponse.success(conversationMST.getId()), HttpStatus.CREATED);
     }
     @Operation(summary = "질문수정",

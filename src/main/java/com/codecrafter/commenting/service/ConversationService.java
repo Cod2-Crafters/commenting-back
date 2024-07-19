@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.codecrafter.commenting.repository.ConversationMSTRepository;
-import com.codecrafter.commenting.repository.ConversationRepository;
+import com.codecrafter.commenting.repository.conversation.ConversationMSTRepository;
+import com.codecrafter.commenting.repository.conversation.ConversationRepository;
 
 import lombok.RequiredArgsConstructor;
 

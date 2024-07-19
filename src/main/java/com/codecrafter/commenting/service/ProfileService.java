@@ -1,13 +1,14 @@
 package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.config.jwt.TokenProvider;
+import com.codecrafter.commenting.domain.dto.MemberInfoDto;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.ProfileRequest;
-import com.codecrafter.commenting.domain.response.ProfileResponse;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
-import com.codecrafter.commenting.repository.MemberInfoRepository;
-import com.codecrafter.commenting.repository.ProfileRepository;
+import com.codecrafter.commenting.repository.profile.ProfileRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,19 +42,12 @@ public class ProfileService {
     private final MemberAuthRepository memberAuthRepository;
     private final TokenProvider tokenProvider;
 
-
-    public ProfileResponse getProfile(Long id) {
-        MemberInfo memberInfo = profileRepository.findById(id)
-                                                    .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다"));
-        String avatarPath = memberInfo.getAvatarPath();
-        String onlyFileNm = (avatarPath != null) ? Paths.get(avatarPath).getFileName().toString() : "";
-
-        memberInfo.setAvatarPath(onlyFileNm);
-        return retProfileResponse(memberInfo);
+    public MemberInfoDto getProfileResponse(Long memberId) {
+        return profileRepository.getProfileResponse(memberId);
     }
 
     @Transactional(readOnly = false)
-    public ProfileResponse updateProfile(Long id, ProfileRequest request, String token) {
+    public void updateProfile(Long id, ProfileRequest request, String token) {
         MemberInfo memberInfo = validateMember(id, token);
 
         memberInfo.setNickname(request.nickname());
@@ -73,8 +67,6 @@ public class ProfileService {
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("프로필을 업데이트할 수 없습니다.");
         }
-
-        return retProfileResponse(memberInfo);
     }
 
     @Transactional
@@ -146,19 +138,4 @@ public class ProfileService {
         }
     }
 
-    private ProfileResponse retProfileResponse(MemberInfo memberInfo) {
-        return new ProfileResponse(
-            memberInfo.getEmail(),
-            memberInfo.getNickname(),
-            memberInfo.getIntroduce(),
-            memberInfo.getLink1(),
-            memberInfo.getLink2(),
-            memberInfo.getLink3(),
-            memberInfo.getAvatarPath(),
-            memberInfo.getAllowAnonymous(),
-            memberInfo.getEmailNotice(),
-            1L,
-            2L  // 개발 전 좋와요수,답변수 하드코딩
-        );
-    }
 }

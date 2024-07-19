@@ -74,8 +74,8 @@ public class MemberController {
                         {host}/api/member/unregister
                         """)
     @PostMapping("/unregister")
-    public ResponseEntity<Void> unregister(@RequestHeader("Authorization") String token
-    ,                                        @Parameter(description = "이메일", example = "jayce@crafter.com") @RequestParam String email) {
+    public ResponseEntity<Void> unregister(@RequestHeader("Authorization") String token,
+                                             @Parameter(description = "이메일", example = "jayce@crafter.com") @RequestParam String email) {
         memberService.unregister(email, token);
         return ResponseEntity.ok().build();
     }
@@ -86,8 +86,7 @@ public class MemberController {
                         {host}/api/member/check-email
                         """)
     @GetMapping("/check-email")
-    public ResponseEntity<ApiResponse> checkEmailDuplicate(
-                    @Parameter(description = "이메일", example = "jayce@crafter.com") @RequestParam String email) {
+    public ResponseEntity<ApiResponse> checkEmailDuplicate(@Parameter(description = "이메일", example = "jayce@crafter.com") @RequestParam String email) {
         try {
             boolean isDup = memberService.chkDupEmail(email);
             return ResponseEntity.ok(ApiResponse.success(isDup));

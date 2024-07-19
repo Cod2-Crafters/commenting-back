@@ -45,25 +45,23 @@ public class MemberInfo extends BaseEntity {
 	private String email;
 
 	@Comment("닉네임")
-//	@Column(nullable = false)
 	@Column(nullable = true)
 	private String nickname;
 
 	@Comment("프로필 자기소개")
-//	@Column(nullable = false, columnDefinition = "TEXT")
 	@Column(nullable = true, columnDefinition = "TEXT")
 	private String introduce;
 
 	@Comment("링크1")
-	@Column(name = "link_1")
+	@Column(name = "link_1", nullable = true)
 	private String link1;
 
 	@Comment("링크2")
-	@Column(name = "link_2")
+	@Column(name = "link_2", nullable = true)
 	private String link2;
 
 	@Comment("링크3")
-	@Column(name = "link_3")
+	@Column(name = "link_3", nullable = true)
 	private String link3;
 
 	@Comment("프로필 이미지 경로")
@@ -72,13 +70,11 @@ public class MemberInfo extends BaseEntity {
 
 	@Comment("익명 댓글 허용 여부")
 	@ColumnDefault("true")
-//	@Column(name = "allow_anonymous", nullable = false)
 	@Column(name = "allow_anonymous", nullable = true)
 	private Boolean allowAnonymous = true;
 
 	@Comment("이메일 알림 수신 여부")
 	@ColumnDefault("true")
-//	@Column(name = "email_notice", nullable = false)
 	@Column(name = "email_notice", nullable = true)
 	private Boolean emailNotice = true;
 
@@ -101,12 +97,6 @@ public class MemberInfo extends BaseEntity {
 	public MemberInfo update(String email) {
 		this.email = email;
 		return this;
-	}
-
-
-
-	public void setMemberAuth(MemberAuth memberAuth) {
-		this.memberAuth = memberAuth;
 	}
 
 }

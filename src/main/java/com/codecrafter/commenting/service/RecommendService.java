@@ -8,7 +8,7 @@ import com.codecrafter.commenting.domain.enumeration.RecommendStatus;
 import com.codecrafter.commenting.domain.request.RecommendRequest;
 import com.codecrafter.commenting.domain.response.RecommendResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
-import com.codecrafter.commenting.repository.ConversationRepository;
+import com.codecrafter.commenting.repository.conversation.ConversationRepository;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.RecommendRepository;
 import io.jsonwebtoken.Claims;
