@@ -32,7 +32,7 @@ public class ProfileController {
     @Operation(summary = "프로필 조회",
         description = """
                         ★프로필 조회</br>
-                        {host}/api/profile/profile/{}
+                        {host}/api/profile/profile/{id}
                         """)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProfile(@PathVariable Long id) {
@@ -40,7 +40,11 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success(profileResponse));
     }
 
-    @Operation(summary = "프로필 수정")
+    @Operation(summary = "프로필 수정",
+        description = """
+                        ★프로필 수정</br>
+                        {host}/api/profile
+                        """)
     @PutMapping(value = "/{id}")
     public ResponseEntity<ApiResponse> updateProfile(    @PathVariable Long id
                                                         , @RequestBody ProfileRequest request
@@ -50,8 +54,13 @@ public class ProfileController {
     }
 
 
+
     @PostMapping(path = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "프로필썸네일 파일 업로드")
+    @Operation(summary = "프로필썸네일 파일 업로드",
+        description = """
+                        ★프로필 아바타 이미지 업로드</br>
+                        {host}/api/profile/{filename}/avatar
+                        """)
     public ResponseEntity<ApiResponse>  avatarUpload( @PathVariable Long id
                                                     , @ModelAttribute @Valid MultipartFile avatar
                                                     , @RequestHeader("Authorization") String token) {
@@ -62,7 +71,7 @@ public class ProfileController {
     @Operation(summary = "썸네일 조회",
         description = """
                         ★프로필 아바타 이미지 조회</br>
-                        {host}/api/profile/profile/test.jpg
+                        {host}/api/profile/file/{filename}
                         """)
     @GetMapping("/file/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
