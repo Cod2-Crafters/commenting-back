@@ -55,12 +55,12 @@ public class ProfileController {
 
 
 
-    @PostMapping(path = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필썸네일 파일 업로드",
         description = """
                         ★프로필 아바타 이미지 업로드</br>
                         {host}/api/profile/{filename}/avatar
                         """)
+    @PostMapping(path = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse>  avatarUpload( @PathVariable Long id
                                                     , @ModelAttribute @Valid MultipartFile avatar
                                                     , @RequestHeader("Authorization") String token) {

@@ -1,6 +1,6 @@
 package com.codecrafter.commenting.domain.request;
 
-import com.codecrafter.commenting.domain.entity.base.Provider;
+import com.codecrafter.commenting.domain.enumeration.Provider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.Nullable;

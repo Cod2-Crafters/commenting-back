@@ -2,15 +2,11 @@ package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.domain.dto.MemberDto;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
-import com.codecrafter.commenting.domain.entity.base.Provider;
+import com.codecrafter.commenting.domain.enumeration.Provider;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import jakarta.transaction.Transactional;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
