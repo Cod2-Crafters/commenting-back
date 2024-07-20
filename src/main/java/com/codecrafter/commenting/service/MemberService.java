@@ -1,11 +1,9 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.jwt.CustomUserDetails;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
-import com.codecrafter.commenting.domain.dto.MemberDto;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
-import com.codecrafter.commenting.domain.entity.base.Provider;
+import com.codecrafter.commenting.domain.enumeration.Provider;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
 import com.codecrafter.commenting.domain.response.SignInResponse;
@@ -19,9 +17,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

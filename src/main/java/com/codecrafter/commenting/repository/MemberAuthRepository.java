@@ -1,9 +1,7 @@
 package com.codecrafter.commenting.repository;
 
 import com.codecrafter.commenting.domain.entity.MemberAuth;
-import com.codecrafter.commenting.domain.entity.base.Provider;
-import io.github.classgraph.AnnotationInfoList;
-import java.util.List;
+import com.codecrafter.commenting.domain.enumeration.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

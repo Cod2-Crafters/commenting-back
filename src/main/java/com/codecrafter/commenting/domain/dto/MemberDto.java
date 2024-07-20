@@ -1,7 +1,7 @@
 package com.codecrafter.commenting.domain.dto;
 
 import com.codecrafter.commenting.domain.entity.MemberInfo;
-import com.codecrafter.commenting.domain.entity.base.Provider;
+import com.codecrafter.commenting.domain.enumeration.Provider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import lombok.*;
 

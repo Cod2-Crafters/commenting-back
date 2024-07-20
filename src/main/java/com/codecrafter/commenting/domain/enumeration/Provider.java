@@ -1,4 +1,4 @@
-package com.codecrafter.commenting.domain.entity.base;
+package com.codecrafter.commenting.domain.enumeration;
 
 import com.codecrafter.commenting.domain.dto.MemberDto;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -5,9 +5,7 @@ import static lombok.AccessLevel.*;
 
 import com.codecrafter.commenting.domain.request.SignUpRequest;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.Builder;
@@ -15,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 import com.codecrafter.commenting.domain.entity.base.BaseEntity;
-import com.codecrafter.commenting.domain.entity.base.Provider;
+import com.codecrafter.commenting.domain.enumeration.Provider;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,7 +27,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 /**
