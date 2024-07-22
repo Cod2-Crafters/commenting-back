@@ -12,4 +12,5 @@ public interface ConversationDetailsResponse {
     Boolean getIsPrivate();
     Boolean getIsQuestion();
     LocalDateTime getModifiedAt();
+    String getAvatarPath();
 }

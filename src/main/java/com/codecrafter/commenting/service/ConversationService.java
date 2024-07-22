@@ -6,10 +6,15 @@ import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +35,7 @@ public class ConversationService {
 	private final ConversationMSTRepository conversationMSTRepository;
 	private final ConversationRepository conversationRepository;
 	private final MemberInfoRepository memberInfoRepository;
+	static final int timelinePageSize = 3;
 
 	@Transactional(readOnly = true)
 	public ConversationResponse getConversation(Long id) {
@@ -43,8 +49,24 @@ public class ConversationService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationDetailsByOwnerId(Long id) {
-		return conversationRepository.findConversationDetailsByOwnerId(id);
+	public List<ConversationDetailsResponse> getConversationByOwnerId(Long id) {
+		return conversationRepository.findConversationByOwnerId(id);
+	}
+
+	public ConversationPageResponse getConversationPage(Long ownerId, Integer page) {
+		int pageNumber = (page != null) ? page - 1 : 0;	// 페이지 인덱스
+		int pageSize = timelinePageSize;	// 보여줄 블럭 수
+		int offset = pageNumber * pageSize;	// 페이징 시작 위치
+		boolean lastPage = false;	// 마지막 페이지 여부
+		long totalRecords = conversationMSTRepository.countByOwnerId(ownerId);
+
+		// 더이상 페이지가 없으면 마지막페이지
+		if(offset + pageSize > totalRecords) {
+			lastPage = true;
+		}
+
+		List<ConversationDetailsResponse> result = conversationRepository.findConversationByOwnerIdPaging(ownerId, pageSize, offset);
+		return new ConversationPageResponse(result, lastPage);
 	}
 
 	@Transactional

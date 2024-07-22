@@ -6,12 +6,14 @@ import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.service.ConversationService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,15 +56,28 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 전체 조회",
+    @Operation(summary = "대화 전체 조회(삭제예정/조회용으로 남겨둠)",
         description = """
                         ★해당 스페이스의 모든 대화 조회</br>
                         {host}/api/conversations/timeline/{ownerId}
                         """)
     @GetMapping("/timeline/{ownerId}")
     public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId) {
-        List<ConversationDetailsResponse> details = conversationService.getConversationDetailsByOwnerId(ownerId);
+        List<ConversationDetailsResponse> details = conversationService.getConversationByOwnerId(ownerId);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
+    }
+
+    @Operation(summary = "대화 전체 조회(페이징)",
+        description = """
+                        ★대화 블럭단위로 스페이스의 대화 조회</br>
+                        초기 블럭 3개, 추가 요청시 블럭 3개</br>
+                        {host}/api/conversations/timeline/{ownerId}/{page}
+                        """)
+    @GetMapping("/timeline/{ownerId}/{page}")
+    public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId,
+                                                               @PathVariable(required = false) Integer page) {
+        ConversationPageResponse conversation = conversationService.getConversationPage(ownerId, page);
+        return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
     @Operation(summary = "질문작성",
