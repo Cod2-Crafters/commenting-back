@@ -85,7 +85,12 @@ public class ProfileService {
         try {
             Path path = Paths.get(uploadDir, newFilename);
             Files.copy(avatarFile.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            String avatarPath = path.toString();
+            String onlyFileNm = (avatarPath != null) ? Paths.get(avatarPath).getFileName().toString() : "";
+
             memberInfo.setAvatarPath(path.toString());    // 파일전체경로
+            memberInfo.setAvatarPath(onlyFileNm);   // 파일명만
+
             profileRepository.save(memberInfo);
             return newFilename;
         } catch (IOException e) {
