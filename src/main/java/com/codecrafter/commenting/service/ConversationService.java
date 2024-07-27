@@ -3,6 +3,7 @@ package com.codecrafter.commenting.service;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
+import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
@@ -35,6 +36,7 @@ public class ConversationService {
 	private final ConversationMSTRepository conversationMSTRepository;
 	private final ConversationRepository conversationRepository;
 	private final MemberInfoRepository memberInfoRepository;
+	private final NotificationService notificationService;
 	static final int timelinePageSize = 3;
 
 	@Transactional(readOnly = true)
@@ -89,7 +91,8 @@ public class ConversationService {
 												.build();
 		conversation.setConversationMST(conversationMST);
 
-		conversationRepository.save(conversation);
+		Long id = conversationRepository.save(conversation).getId();
+		notificationService.saveAndSendNotification(owner, writerInfo, NotificationType.QUESTION, id);
 
 		return conversationMST;
 	}
@@ -117,6 +120,8 @@ public class ConversationService {
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
 		MemberInfo writer = memberInfoRepository.findById(request.ownerId())
 																	.orElseThrow(() -> new IllegalArgumentException("스페이스 주인을 찾을 수 없습니다."));
+		MemberInfo guest = memberInfoRepository.findById(request.guestId())
+												.orElseThrow(() -> new IllegalArgumentException("스페이스 주인을 찾을 수 없습니다."));
 
 		Conversation answer = Conversation.builder()
 											.content(request.content())
@@ -126,7 +131,9 @@ public class ConversationService {
 											.build();
 
 		answer.setConversationMST(conversationMST);
-		return conversationRepository.save(answer);
+		Conversation conversation = conversationRepository.save(answer);
+		notificationService.saveAndSendNotification(guest, writer, NotificationType.COMMENT, conversation.getId());
+		return conversation;
 	}
 
 	public Conversation updateAddAnswer(UpdateConversationRequest request) {
