@@ -10,6 +10,7 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationDetai
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
+import java.nio.file.Paths;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
