@@ -3,6 +3,7 @@ package com.codecrafter.commenting.controller;
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
+import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,8 +53,9 @@ public class ConversationController {
                         {host}/api/conversations/details/{mstId}
                         """)
     @GetMapping("/details/{mstId}")
-    public ResponseEntity<ApiResponse> getConversationDetails(@PathVariable Long mstId) {
-        List<ConversationDetailsResponse> details = conversationService.getConversationDetails(mstId);
+    public ResponseEntity<ApiResponse> getConversationDetails(@PathVariable Long mstId,
+                                                              @AuthenticationPrincipal MemberAuth memberAuth) {
+        List<ConversationDetailsResponse> details = conversationService.getConversationDetails(mstId, memberAuth);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
@@ -62,8 +65,9 @@ public class ConversationController {
                         {host}/api/conversations/timeline/{ownerId}
                         """)
     @GetMapping("/timeline/{ownerId}")
-    public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId) {
-        List<ConversationDetailsResponse> details = conversationService.getConversationByOwnerId(ownerId);
+    public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId,
+                                                               @AuthenticationPrincipal MemberAuth memberAuth) {
+        List<ConversationDetailsResponse> details = conversationService.getConversationByOwnerId(ownerId, memberAuth);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
@@ -75,8 +79,9 @@ public class ConversationController {
                         """)
     @GetMapping("/timeline/{ownerId}/{page}")
     public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId,
-                                                               @PathVariable(required = false) Integer page) {
-        ConversationPageResponse conversation = conversationService.getConversationPage(ownerId, page);
+                                                               @PathVariable(required = false) Integer page,
+                                                               @AuthenticationPrincipal MemberAuth memberAuth) {
+        ConversationPageResponse conversation = conversationService.getConversationPage(ownerId, page, memberAuth);
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
