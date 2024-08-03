@@ -8,6 +8,7 @@ public record SignInResponse(
         @Schema(description = "이메일", example = "jayce@crafter.com")
         String email,
         @Schema(description = "토큰값")
-        String token
+        String token,
+        String avatarPath
 ) {
 }
