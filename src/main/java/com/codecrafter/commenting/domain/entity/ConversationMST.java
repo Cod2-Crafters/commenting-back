@@ -4,6 +4,7 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
+import jakarta.persistence.Version;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,9 @@ public class ConversationMST extends BaseEntity {
 
 	@OneToMany(mappedBy = "conversationMST", cascade = CascadeType.PERSIST)
 	private List<Conversation> conversations = new ArrayList<>();
+
+	@Version
+	private Long version;
 
 	/**
 	 * 대화어 관개를 맺는 양방향 메서드

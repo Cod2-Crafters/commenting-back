@@ -92,8 +92,8 @@ public class ConversationController {
                         """)
     @PostMapping("/question")
     public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
-        ConversationMST conversationMST = conversationService.createConversation(request);
-        return new ResponseEntity<>(ApiResponse.success(conversationMST.getId()), HttpStatus.CREATED);
+        List<ConversationResponse> conversation = conversationService.createConversation(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.CREATED);
     }
     @Operation(summary = "질문수정",
         description = """
