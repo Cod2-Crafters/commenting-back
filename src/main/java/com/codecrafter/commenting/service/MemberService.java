@@ -64,7 +64,7 @@ public class MemberService {
                                             .findFirst()
                                             .orElseThrow(() -> new AuthenticationFailedException("아이디 또는 비밀번호가 일치하지 않습니다."));
         String token = tokenProvider.createToken(String.format("%s", member.getId()));
-        return new SignInResponse(member.getId(), member.getEmail(), token);
+        return new SignInResponse(member.getId(), member.getEmail(), token, member.getMemberInfo().getAvatarPath());
     }
 
     @Transactional
