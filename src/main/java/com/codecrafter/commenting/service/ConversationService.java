@@ -2,6 +2,7 @@ package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
+import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
@@ -49,16 +50,19 @@ public class ConversationService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationDetails(Long id) {
-		return conversationRepository.findConversationDetailsByMstId(id);
+	public List<ConversationDetailsResponse> getConversationDetails(Long mstId, MemberAuth memberAuth) {
+		Long userId = (memberAuth != null) ? memberAuth.getId() : null;
+		return conversationRepository.findConversationDetailsByMstId(mstId, userId);
 	}
 
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationByOwnerId(Long id) {
-		return conversationRepository.findConversationByOwnerId(id);
+	public List<ConversationDetailsResponse> getConversationByOwnerId(Long ownerId, MemberAuth memberAuth) {
+		Long userId = (memberAuth != null) ? memberAuth.getId() : null;
+		return conversationRepository.findConversationByOwnerId(ownerId, userId);
 	}
 
-	public ConversationPageResponse getConversationPage(Long ownerId, Integer page) {
+	public ConversationPageResponse getConversationPage(Long ownerId, Integer page, MemberAuth memberAuth) {
+		Long userId = (memberAuth != null) ? memberAuth.getId() : null;
 		int pageNumber = (page != null) ? page - 1 : 0;	// 페이지 인덱스
 		int pageSize = timelinePageSize;	// 보여줄 블럭 수
 		int offset = pageNumber * pageSize;	// 페이징 시작 위치
@@ -70,35 +74,9 @@ public class ConversationService {
 			lastPage = true;
 		}
 
-		List<ConversationDetailsResponse> result = conversationRepository.findConversationByOwnerIdPaging(ownerId, pageSize, offset);
+		List<ConversationDetailsResponse> result = conversationRepository.findConversationByOwnerIdPaging(ownerId, pageSize, offset, userId);
 		return new ConversationPageResponse(result, lastPage);
 	}
-
-//	@Transactional
-//	public ConversationMST createConversation(CreateConversationRequest request) {
-//		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
-//																.orElseThrow(() -> new IllegalArgumentException("존재하지않는 프로필입니다."));
-//		// 익명의 사용자일 경우 널처리
-//		MemberInfo guest = request.guestId() != null ? memberInfoRepository.findById(request.guestId()).orElse(null) : null;
-//
-//		ConversationMST conversationMST = ConversationMST.create(owner, guest);
-//		conversationMST = conversationMSTRepository.save(conversationMST);
-//
-//		MemberInfo writerInfo = request.guestId() != null ? guest : null;
-//
-//		Conversation conversation = Conversation.builder()
-//												.content(request.content())
-//												.isPrivate(request.isPrivate())
-//												.isQuestion(true) // true = 질문, false = 답변
-//												.memberInfo(writerInfo)
-//												.build();
-//		conversation.setConversationMST(conversationMST);
-//
-//		Long id = conversationRepository.save(conversation).getId();
-//		notificationService.saveAndSendNotification(owner, writerInfo, NotificationType.QUESTION, id);
-//
-//		return conversationMST;
-//	}
 
 	@Transactional
 	public List<ConversationResponse> createConversation(CreateConversationRequest request) {
@@ -128,7 +106,7 @@ public class ConversationService {
 		// 대화슬레이브 저장
 		Long id = conversationRepository.save(conversation).getId();
 
-		// 알림 추가
+		// 알림 보내기
 		notificationService.saveAndSendNotification(owner, writerInfo, NotificationType.QUESTION, id);
 
 		List<ConversationResponse> conversations = conversationRepository.findByConversationAdd(maxId, id)
@@ -193,8 +171,8 @@ public class ConversationService {
 		conversationRepository.delete(answer);
 	}
 
-	private Conversation findConversationById(Long conversationId) {
-		return conversationRepository.findById(conversationId)
+	private Conversation findConversationById(Long conId) {
+		return conversationRepository.findById(conId)
 									.orElseThrow(() -> new IllegalArgumentException("존재하지않는 대화입니다."));
 	}
 

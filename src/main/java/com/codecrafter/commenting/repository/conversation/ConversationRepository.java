@@ -42,6 +42,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "        SELECT conversation_id, COUNT(*) AS recommend_count " +
                     "        FROM recommend " +
                     "          WHERE recommend_status = 'LIKES' " +
+                    "            AND user_id = :userId " +
                     "        GROUP BY conversation_id " +
                     "    ) r ON b.id = r.conversation_id " +
                     "    WHERE b.mst_id = :mstId " +
@@ -52,7 +53,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE cd.mstId = :mstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
-    List<ConversationDetailsResponse> findConversationDetailsByMstId(@Param("mstId") Long mstId);
+    List<ConversationDetailsResponse> findConversationDetailsByMstId(@Param("mstId") Long mstId, @Param("userId") Long userId);
 
     @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
                     "FROM (" +
@@ -74,6 +75,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "        SELECT conversation_id, COUNT(*) AS recommend_count " +
                     "        FROM recommend " +
                     "          WHERE recommend_status = 'LIKES' " +
+                    "            AND user_id = :userId " +
                     "        GROUP BY conversation_id " +
                     "    ) r ON b.id = r.conversation_id " +
                     "    WHERE a.owner_id = :ownerId " +
@@ -84,7 +86,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE cd.ownerId = :ownerId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
-    List<ConversationDetailsResponse> findConversationByOwnerId(@Param("ownerId") Long ownerId);
+    List<ConversationDetailsResponse> findConversationByOwnerId(@Param("ownerId") Long ownerId, @Param("userId") Long userId);
 
 
     @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
@@ -107,6 +109,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "        SELECT conversation_id, COUNT(*) AS recommend_count " +
                     "        FROM recommend " +
                     "          WHERE recommend_status = 'LIKES' " +
+                    "            AND user_id = :userId " +
                     "        GROUP BY conversation_id " +
                     "    ) r ON b.id = r.conversation_id " +
                     "    WHERE a.owner_id = :ownerId AND a.id IN ( " +
@@ -122,7 +125,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE cd.ownerId = :ownerId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
-    List<ConversationDetailsResponse> findConversationByOwnerIdPaging(@Param("ownerId") Long ownerId, @Param("pageSize") int pageSize, @Param("offset") int offset);
+    List<ConversationDetailsResponse> findConversationByOwnerIdPaging(@Param("ownerId") Long ownerId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
 
     @Modifying
     @Transactional
