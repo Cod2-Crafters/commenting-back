@@ -15,5 +15,7 @@ public interface ConversationMSTRepository extends JpaRepository<ConversationMST
     @Query("SELECT COUNT(c) FROM ConversationMST c WHERE c.owner.id = :ownerId")
     long countByOwnerId(@Param("ownerId") Long ownerId);
 
+    @Query("SELECT MAX(c.id) FROM ConversationMST c")
+    Long findMaxId();
 
 }

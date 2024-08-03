@@ -10,8 +10,10 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationDetai
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
-import java.nio.file.Paths;
+import jakarta.persistence.Tuple;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,18 +74,49 @@ public class ConversationService {
 		return new ConversationPageResponse(result, lastPage);
 	}
 
-	@Transactional
-	public ConversationMST createConversation(CreateConversationRequest request) {
-		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
-																.orElseThrow(() -> new IllegalArgumentException("존재하지않는 프로필입니다."));
-		// 익명의 사용자일 경우 널처리
-		MemberInfo guest = request.guestId() != null ? memberInfoRepository.findById(request.guestId()).orElse(null) : null;
+//	@Transactional
+//	public ConversationMST createConversation(CreateConversationRequest request) {
+//		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
+//																.orElseThrow(() -> new IllegalArgumentException("존재하지않는 프로필입니다."));
+//		// 익명의 사용자일 경우 널처리
+//		MemberInfo guest = request.guestId() != null ? memberInfoRepository.findById(request.guestId()).orElse(null) : null;
+//
+//		ConversationMST conversationMST = ConversationMST.create(owner, guest);
+//		conversationMST = conversationMSTRepository.save(conversationMST);
+//
+//		MemberInfo writerInfo = request.guestId() != null ? guest : null;
+//
+//		Conversation conversation = Conversation.builder()
+//												.content(request.content())
+//												.isPrivate(request.isPrivate())
+//												.isQuestion(true) // true = 질문, false = 답변
+//												.memberInfo(writerInfo)
+//												.build();
+//		conversation.setConversationMST(conversationMST);
+//
+//		Long id = conversationRepository.save(conversation).getId();
+//		notificationService.saveAndSendNotification(owner, writerInfo, NotificationType.QUESTION, id);
+//
+//		return conversationMST;
+//	}
 
+	@Transactional
+	public List<ConversationResponse> createConversation(CreateConversationRequest request) {
+		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
+												.orElseThrow(() -> new IllegalArgumentException("존재하지않는 프로필입니다."));
+		// 익명의 사용자일 경우 널처리
+		MemberInfo guest = Optional.ofNullable(request.guestId())
+									.flatMap(memberInfoRepository::findById)
+									.orElse(null);
+
+		// 변경전 대화 마스터 최대값
+		Long maxId = Optional.ofNullable(conversationMSTRepository.findMaxId()).orElse(0L);
+
+		// 대화마스터 저장
 		ConversationMST conversationMST = ConversationMST.create(owner, guest);
 		conversationMST = conversationMSTRepository.save(conversationMST);
 
 		MemberInfo writerInfo = request.guestId() != null ? guest : null;
-
 		Conversation conversation = Conversation.builder()
 												.content(request.content())
 												.isPrivate(request.isPrivate())
@@ -92,10 +125,17 @@ public class ConversationService {
 												.build();
 		conversation.setConversationMST(conversationMST);
 
+		// 대화슬레이브 저장
 		Long id = conversationRepository.save(conversation).getId();
+
+		// 알림 추가
 		notificationService.saveAndSendNotification(owner, writerInfo, NotificationType.QUESTION, id);
 
-		return conversationMST;
+		List<ConversationResponse> conversations = conversationRepository.findByConversationAdd(maxId, id)
+																			.stream()
+																			.map(this::mapToConversationResponse)
+																			.collect(Collectors.toList());
+		return conversations;
 	}
 
 	@Transactional
@@ -170,5 +210,18 @@ public class ConversationService {
 			conversation.getConversationMST().getId()
 		);
 	}
+	private ConversationResponse mapToConversationResponse(Tuple tuple) {
+		return new ConversationResponse(
+			tuple.get("conId", Long.class),
+			tuple.get("ownerId", Long.class),
+			tuple.get("guestId", Long.class),
+			tuple.get("content", String.class),
+			tuple.get("isGood", Boolean.class),
+			tuple.get("isPrivate", Boolean.class),
+			tuple.get("isQuestion", Boolean.class),
+			tuple.get("mstId", Long.class)
+		);
+	}
+
 
 }
