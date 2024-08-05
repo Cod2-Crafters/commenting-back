@@ -97,6 +97,9 @@ public class MemberAuth extends BaseEntity implements UserDetails {
 		if (this.isEnabled == null) {
 			this.isEnabled = false;
 		}
+		if (this.id == null) {
+			this.id = 0L;
+		}
 	}
 
 	@Override
