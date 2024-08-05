@@ -1,28 +1,23 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
-import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
-import com.codecrafter.commenting.repository.MemberInfoRepository;
 import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.codecrafter.commenting.repository.conversation.ConversationMSTRepository;
 import com.codecrafter.commenting.repository.conversation.ConversationRepository;
 
@@ -33,36 +28,60 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Slf4j
+@Transactional
 public class ConversationService {
 
 	private final ConversationMSTRepository conversationMSTRepository;
 	private final ConversationRepository conversationRepository;
-	private final MemberInfoRepository memberInfoRepository;
 	private final NotificationService notificationService;
 	static final int timelinePageSize = 3;
 
+	/**
+	 * conId로 질문 혹은 답변 1건을 조회합니다.
+	 *
+	 * @param conId 대화 슬레이브 ID
+	 * @return 대화 응답 객체
+	 */
 	@Transactional(readOnly = true)
-	public ConversationResponse getConversation(Long id) {
-		Conversation conversation = findConversationById(id);
+	public ConversationResponse getConversation(Long conId) {
+		Conversation conversation = findConversationById(conId);
 		return convertToResponse(conversation);
 	}
 
+	/**
+	 * mstId로 대화 블럭 1건을 조회합니다.
+	 *
+	 * @param mstId 대화 마스터 ID
+	 * @return 대화 상세 응답 객체 목록
+	 */
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationDetails(Long mstId, MemberAuth memberAuth) {
-		Long userId = (memberAuth != null) ? memberAuth.getId() : null;
+	public List<ConversationDetailsResponse> getConversationDetails(Long mstId) {
+		Long userId = getCurrentUserId();
 		return conversationRepository.findConversationDetailsByMstId(mstId, userId);
 	}
 
+	/**
+	 * 답변자 ID로 대화를 조회합니다.
+	 *
+	 * @param ownerId 답변자 ID
+	 * @return 대화 상세 응답 객체 목록
+	 */
 	@Transactional(readOnly = true)
-	public List<ConversationDetailsResponse> getConversationByOwnerId(Long ownerId, MemberAuth memberAuth) {
-		Long userId = (memberAuth != null) ? memberAuth.getId() : null;
+	public List<ConversationDetailsResponse> getConversationByOwnerId(Long ownerId) {
+		Long userId = getCurrentUserId();
 		return conversationRepository.findConversationByOwnerId(ownerId, userId);
 	}
 
-	public ConversationPageResponse getConversationPage(Long ownerId, Integer page, MemberAuth memberAuth) {
-		Long userId = (memberAuth != null) ? memberAuth.getId() : null;
+	/**
+	 * 대화 페이지를 조회합니다.
+	 *
+	 * @param ownerId 답변자 ID
+	 * @param page 페이지 번호
+	 * @return 대화 페이지 응답 객체
+	 */
+	public ConversationPageResponse getConversationPage(Long ownerId, Integer page) {
+		Long userId = getCurrentUserId();
 		int pageNumber = (page != null) ? page - 1 : 0;	// 페이지 인덱스
 		int pageSize = timelinePageSize;	// 보여줄 블럭 수
 		int offset = pageNumber * pageSize;	// 페이징 시작 위치
@@ -78,14 +97,21 @@ public class ConversationService {
 		return new ConversationPageResponse(result, lastPage);
 	}
 
+	/**
+	 * 질문을 작성합니다.
+	 *
+	 * @param request 대화 생성 요청 객체
+	 * @return 대화/프로필 응답 객체 목록
+	 */
 	@Transactional
-	public List<ConversationResponse> createConversation(CreateConversationRequest request) {
-		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
-												.orElseThrow(() -> new IllegalArgumentException("존재하지않는 프로필입니다."));
-		// 익명의 사용자일 경우 널처리
-		MemberInfo guest = Optional.ofNullable(request.guestId())
-									.flatMap(memberInfoRepository::findById)
-									.orElse(null);
+	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
+		Long userId = getCurrentUserId();
+		MemberInfo owner = MemberInfo.builder()
+										.id(request.ownerId())
+										.build();
+		MemberInfo guest = MemberInfo.builder()
+										.id(userId)
+										.build();
 
 		// 변경전 대화 마스터 최대값
 		Long maxId = Optional.ofNullable(conversationMSTRepository.findMaxId()).orElse(0L);
@@ -94,12 +120,11 @@ public class ConversationService {
 		ConversationMST conversationMST = ConversationMST.create(owner, guest);
 		conversationMST = conversationMSTRepository.save(conversationMST);
 
-		MemberInfo writerInfo = request.guestId() != null ? guest : null;
 		Conversation conversation = Conversation.builder()
 												.content(request.content())
 												.isPrivate(request.isPrivate())
 												.isQuestion(true) // true = 질문, false = 답변
-												.memberInfo(writerInfo)
+												.memberInfo(guest)
 												.build();
 		conversation.setConversationMST(conversationMST);
 
@@ -107,40 +132,62 @@ public class ConversationService {
 		Long id = conversationRepository.save(conversation).getId();
 
 		// 알림 보내기
-		notificationService.saveAndSendNotification(owner, writerInfo, NotificationType.QUESTION, id);
+		notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, id);
 
-		List<ConversationResponse> conversations = conversationRepository.findByConversationAdd(maxId, id)
-																			.stream()
-																			.map(this::mapToConversationResponse)
-																			.collect(Collectors.toList());
-		return conversations;
+		return conversationRepository.findByConversationAdd(maxId, id)
+										.stream()
+										.map(this::mapToConversationResponse)
+										.collect(Collectors.toList());
 	}
 
+	/**
+	 * 질문 혹은 답변 1건을 수정합니다.
+	 *
+	 * @param request 대화 업데이트 요청 객체
+	 * @return 업데이트된 대화 객체
+	 */
 	@Transactional
-	public Conversation updateConversation(UpdateConversationRequest request) {
+	public ConversationResponse updateConversation(UpdateConversationRequest request) {
 		Conversation conversation = findConversationById(request.conId());
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());
 		conversation.setQuestion(true);
 
-		return conversationRepository.save(conversation);
+		conversationRepository.save(conversation);
+
+		return convertToResponse(conversation);
 	}
 
+	/**
+	 * mstId로 대화블럭 1건을 삭제합니다
+	 *
+	 * @param mstId 대화 마스터 ID
+	 */
 	@Transactional
 	public void deleteConversationAndDetails(Long mstId) {
 		conversationRepository.deleteByConversationMSTId(mstId);
 		conversationMSTRepository.deleteById(mstId);
 	}
 
+	/**
+	 * 답변을 작성합니다.
+	 *
+	 * @param request 대화 생성 요청 객체
+	 * @return 추가된 답변 객체
+	 */
 	@Transactional
-	public Conversation addAnswer(CreateConversationRequest request) {
+	public ConversationResponse addAnswer(CreateConversationRequest request) {
 		ConversationMST conversationMST = conversationMSTRepository.findById(request.mstId())
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
-		MemberInfo writer = memberInfoRepository.findById(request.ownerId())
-																	.orElseThrow(() -> new IllegalArgumentException("스페이스 주인을 찾을 수 없습니다."));
-		MemberInfo guest = memberInfoRepository.findById(request.guestId())
-												.orElseThrow(() -> new IllegalArgumentException("스페이스 주인을 찾을 수 없습니다."));
+
+		Long userId = getCurrentUserId();
+		MemberInfo writer = MemberInfo.builder()
+										.id(userId)
+										.build();
+		MemberInfo guest = MemberInfo.builder()
+										.id(request.guestId())
+										.build();
 
 		Conversation answer = Conversation.builder()
 											.content(request.content())
@@ -151,24 +198,52 @@ public class ConversationService {
 
 		answer.setConversationMST(conversationMST);
 		Conversation conversation = conversationRepository.save(answer);
+
 		notificationService.saveAndSendNotification(guest, writer, NotificationType.COMMENT, conversation.getId());
-		return conversation;
+
+		return convertToResponse(conversation);
 	}
 
-	public Conversation updateAddAnswer(UpdateConversationRequest request) {
+
+	/**
+	 * 답변을 수정합니다.
+	 *
+	 * @param request 대화 수정 요청 객체
+	 */
+	public ConversationResponse updateAddAnswer(UpdateConversationRequest request) {
 		Conversation conversation = findConversationById(request.conId());
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());
 		conversation.setQuestion(false);
 
-		return conversationRepository.save(conversation);
+		conversationRepository.save(conversation);
+
+		return convertToResponse(conversation);
 	}
 
+	/**
+	 * 답변을 삭제합니다.
+	 *
+	 * @param answerId 답변 ID
+	 */
 	@Transactional
 	public void deleteAnswer(Long answerId) {
 		Conversation answer = findConversationById(answerId);
 		conversationRepository.delete(answer);
+	}
+
+	/**
+	 * 보낸 질문을 조회합니다.
+	 *
+	 * @param guestId 주인 ID
+	 */
+	@Transactional(readOnly = true)
+	public List<ConversationProfileResponse> getQuestionsByGuestId(Long guestId) {
+		return conversationRepository.findByGuestId(guestId)
+										.stream()
+										.map(this::mapToConversationResponse)
+										.collect(Collectors.toList());
 	}
 
 	private Conversation findConversationById(Long conId) {
@@ -177,29 +252,31 @@ public class ConversationService {
 	}
 
 	private ConversationResponse convertToResponse(Conversation conversation) {
-		return new ConversationResponse(
-			conversation.getId(),
-			conversation.getConversationMST().getOwner().getId(),
-			conversation.getConversationMST().getGuest() != null ? conversation.getConversationMST().getGuest().getId() : null,
-			conversation.getContent(),
-			conversation.isGood(),
-			conversation.isPrivate(),
-			conversation.isQuestion(),
-			conversation.getConversationMST().getId()
-		);
-	}
-	private ConversationResponse mapToConversationResponse(Tuple tuple) {
-		return new ConversationResponse(
-			tuple.get("conId", Long.class),
-			tuple.get("ownerId", Long.class),
-			tuple.get("guestId", Long.class),
-			tuple.get("content", String.class),
-			tuple.get("isGood", Boolean.class),
-			tuple.get("isPrivate", Boolean.class),
-			tuple.get("isQuestion", Boolean.class),
-			tuple.get("mstId", Long.class)
+		return new ConversationResponse(conversation.getId(),
+										conversation.getConversationMST().getOwner().getId(),
+										conversation.getConversationMST().getGuest() != null ? conversation.getConversationMST().getGuest().getId() : 0,
+										conversation.getContent(),
+										conversation.isGood(),
+										conversation.isPrivate(),
+										conversation.isQuestion(),
+										conversation.getConversationMST().getId()
 		);
 	}
 
+	private ConversationProfileResponse mapToConversationResponse(Tuple tuple) {
+		return new ConversationProfileResponse(	tuple.get("conId", Long.class),
+												tuple.get("ownerId", Long.class),
+												tuple.get("guestId", Long.class),
+												tuple.get("content", String.class),
+												tuple.get("isGood", Boolean.class),
+												tuple.get("isPrivate", Boolean.class),
+												tuple.get("isQuestion", Boolean.class),
+												tuple.get("mstId", Long.class),
+												tuple.get("avatarPath", String.class)
+		);
+	}
 
+	private Long getCurrentUserId() {
+		return SecurityUtil.getCurrentMember().getId();
+	}
 }

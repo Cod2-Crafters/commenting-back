@@ -1,23 +1,19 @@
 package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
-import com.codecrafter.commenting.domain.entity.Conversation;
-import com.codecrafter.commenting.domain.entity.ConversationMST;
-import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.service.ConversationService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,15 +43,15 @@ public class ConversationController {
         ConversationResponse conversation = conversationService.getConversation(id);
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
+
     @Operation(summary = "대화 상세 조회",
         description = """
                         ★질/답 상세 조회</br>
                         {host}/api/conversations/details/{mstId}
                         """)
     @GetMapping("/details/{mstId}")
-    public ResponseEntity<ApiResponse> getConversationDetails(@PathVariable Long mstId,
-                                                              @AuthenticationPrincipal MemberAuth memberAuth) {
-        List<ConversationDetailsResponse> details = conversationService.getConversationDetails(mstId, memberAuth);
+    public ResponseEntity<ApiResponse> getConversationDetails(@PathVariable Long mstId) {
+        List<ConversationDetailsResponse> details = conversationService.getConversationDetails(mstId);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
@@ -65,9 +61,8 @@ public class ConversationController {
                         {host}/api/conversations/timeline/{ownerId}
                         """)
     @GetMapping("/timeline/{ownerId}")
-    public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId,
-                                                               @AuthenticationPrincipal MemberAuth memberAuth) {
-        List<ConversationDetailsResponse> details = conversationService.getConversationByOwnerId(ownerId, memberAuth);
+    public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId) {
+        List<ConversationDetailsResponse> details = conversationService.getConversationByOwnerId(ownerId);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
@@ -79,9 +74,8 @@ public class ConversationController {
                         """)
     @GetMapping("/timeline/{ownerId}/{page}")
     public ResponseEntity<ApiResponse> getConversationTimeline(@PathVariable Long ownerId,
-                                                               @PathVariable(required = false) Integer page,
-                                                               @AuthenticationPrincipal MemberAuth memberAuth) {
-        ConversationPageResponse conversation = conversationService.getConversationPage(ownerId, page, memberAuth);
+                                                               @PathVariable(required = false) Integer page) {
+        ConversationPageResponse conversation = conversationService.getConversationPage(ownerId, page);
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
@@ -96,10 +90,11 @@ public class ConversationController {
                         ==================================
                         """)
     @PostMapping("/question")
-    public ResponseEntity<ApiResponse> CreateQuestion(@RequestBody CreateConversationRequest request) {
-        List<ConversationResponse> conversation = conversationService.createConversation(request);
+    public ResponseEntity<ApiResponse> createQuestion(@RequestBody CreateConversationRequest request) {
+        List<ConversationProfileResponse> conversation = conversationService.createConversation(request);
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.CREATED);
     }
+
     @Operation(summary = "질문수정",
         description = """
                         ★질문자가 질문내용 수정</br>
@@ -107,8 +102,8 @@ public class ConversationController {
                         """)
     @PutMapping("/question/update")
     public ResponseEntity<ApiResponse> updateQuestion(@RequestBody UpdateConversationRequest request) {
-        Conversation conversation = conversationService.updateConversation(request);
-        return new ResponseEntity<>(ApiResponse.success(conversation.getId()), HttpStatus.OK);
+        ConversationResponse conversation = conversationService.updateConversation(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
     @Operation(summary = "질문삭제",
@@ -135,8 +130,8 @@ public class ConversationController {
                         """)
     @PostMapping("/answer")
     public ResponseEntity<ApiResponse> creatAnswer(@RequestBody CreateConversationRequest request) {
-        Conversation conversation = conversationService.addAnswer(request);
-        return new ResponseEntity<>(ApiResponse.success(conversation.getId()), HttpStatus.CREATED);
+        ConversationResponse conversation = conversationService.addAnswer(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.CREATED);
     }
 
     @Operation(summary = "답변수정",
@@ -146,8 +141,8 @@ public class ConversationController {
                         """)
     @PutMapping("/answer/update")
     public ResponseEntity<ApiResponse> updateAnswer(@RequestBody UpdateConversationRequest request) {
-        Conversation conversation = conversationService.updateAddAnswer(request);
-        return new ResponseEntity<>(ApiResponse.success(conversation.getId()), HttpStatus.OK);
+        ConversationResponse conversation = conversationService.updateAddAnswer(request);
+        return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
     @Operation(summary = "답변삭제",
@@ -160,6 +155,17 @@ public class ConversationController {
     public ResponseEntity<ApiResponse> deleteAnswer(@PathVariable Long id) {
         conversationService.deleteAnswer(id);
         return new ResponseEntity<>(ApiResponse.success(id), HttpStatus.OK);
+    }
+
+    @Operation(summary = "보낸 질문",
+        description = """
+                        ★내가 작성한 보낸질문(답변포함) 조회</br>
+                        {host}/api/conversations/send-question/{ownerId}
+                        """)
+    @GetMapping("/send-question/{ownerId}")
+    public ResponseEntity<ApiResponse> getSendQuestion(@PathVariable Long ownerId) {
+        List<ConversationProfileResponse> details = conversationService.getQuestionsByGuestId(ownerId);
+        return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
 }

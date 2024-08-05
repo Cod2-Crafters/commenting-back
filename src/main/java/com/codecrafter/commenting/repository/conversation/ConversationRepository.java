@@ -164,5 +164,37 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     nativeQuery = true)
     List<Tuple> findByConversationAdd(@Param("maxId") Long startMstId, @Param("id") Long endMstId);
 
+    @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
+                    "FROM (" +
+                    "    SELECT a.id AS mstId, " +
+                    "           a.guest_id AS guestId, " +
+                    "           a.owner_id AS ownerId, " +
+                    "           b.id AS conId, " +
+                    "           b.content, " +
+                    "           CASE "+
+                    "           WHEN r.recommend_count > 0 THEN true "+
+                    "           ELSE false "+
+                    "           END AS isGood, "+
+                    "           b.is_private AS isPrivate, " +
+                    "           b.is_question AS isQuestion, " +
+                    "           b.modified_at AS modifiedAt " +
+                    "    FROM conversation_mst a " +
+                    "    JOIN conversation b ON a.id = b.mst_id " +
+                    "    LEFT JOIN ( " +
+                    "        SELECT conversation_id, COUNT(*) AS recommend_count " +
+                    "        FROM recommend " +
+                    "          WHERE recommend_status = 'LIKES' " +
+                    "            AND user_id = :guestId " +
+                    "        GROUP BY conversation_id " +
+                    "    ) r ON b.id = r.conversation_id " +
+                    "    WHERE a.guest_id = :guestId " +
+                    ") cd " +
+                    "JOIN member_info mi " +
+                    "ON (cd.isQuestion = TRUE AND cd.ownerId = mi.id) " +
+                    "OR (cd.isQuestion = FALSE AND cd.guestId = mi.id) " +
+                    "WHERE cd.guestId = :guestId " +
+                    "ORDER BY cd.conId DESC",
+                    nativeQuery = true)
+    List<Tuple> findByGuestId(@Param("guestId") Long guestId);
 
 }
