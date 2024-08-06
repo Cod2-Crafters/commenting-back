@@ -4,6 +4,7 @@ import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
+import com.codecrafter.commenting.exception.SseEmitterSendException;
 import com.codecrafter.commenting.repository.EmitterRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class NotificationService {
             );
         } catch (IOException exception) {
             emitterRepository.deleteById(emitterId);
-            throw new RuntimeException("Connection Failed.");
+            throw new SseEmitterSendException("Send Failed: " + "Event ID: " + eventId + ", Emitter ID: " + emitterId, exception);
         }
     }
 
