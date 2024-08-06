@@ -1,10 +1,10 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.annotation.Notification;
 import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
-import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
@@ -104,6 +104,7 @@ public class ConversationService {
 	 * @return 대화/프로필 응답 객체 목록
 	 */
 	@Transactional
+	@Notification
 	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
 		Long userId = getCurrentUserId();
 		MemberInfo owner = MemberInfo.builder()
@@ -131,8 +132,6 @@ public class ConversationService {
 		// 대화슬레이브 저장
 		Long id = conversationRepository.save(conversation).getId();
 
-		// 알림 보내기
-		notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, id);
 
 		return conversationRepository.findByConversationAdd(maxId, id)
 										.stream()
@@ -177,6 +176,7 @@ public class ConversationService {
 	 * @return 추가된 답변 객체
 	 */
 	@Transactional
+	@Notification
 	public ConversationResponse addAnswer(CreateConversationRequest request) {
 		ConversationMST conversationMST = conversationMSTRepository.findById(request.mstId())
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
@@ -198,9 +198,6 @@ public class ConversationService {
 
 		answer.setConversationMST(conversationMST);
 		Conversation conversation = conversationRepository.save(answer);
-
-		notificationService.saveAndSendNotification(guest, writer, NotificationType.COMMENT, conversation.getId());
-
 		return convertToResponse(conversation);
 	}
 
