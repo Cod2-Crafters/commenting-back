@@ -35,7 +35,7 @@ public class ConversationController {
 
     @Operation(summary = "질문조회",
         description = """
-                        ★질문 단건 조회</br>
+                        ★질문 단건조회</br>
                         {host}/api/conversations/question/{id}
                         """)
     @GetMapping("/question/{id}")
@@ -44,9 +44,9 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 상세 조회",
+    @Operation(summary = "대화 상세조회",
         description = """
-                        ★질/답 상세 조회</br>
+                        ★질/답 상세조회</br>
                         {host}/api/conversations/details/{mstId}
                         """)
     @GetMapping("/details/{mstId}")
@@ -55,7 +55,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 전체 조회(삭제예정/조회용으로 남겨둠)",
+    @Operation(summary = "대화 전체조회(삭제예정/조회용으로 남겨둠)",
         description = """
                         ★해당 스페이스의 모든 대화 조회</br>
                         {host}/api/conversations/timeline/{ownerId}
@@ -66,7 +66,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 전체 조회(페이징)",
+    @Operation(summary = "대화 전체조회(페이징)",
         description = """
                         ★대화 블럭단위로 스페이스의 대화 조회</br>
                         초기 블럭 3개, 추가 요청시 블럭 3개</br>
@@ -147,7 +147,7 @@ public class ConversationController {
 
     @Operation(summary = "답변삭제",
         description = """
-                        ★답변 단건 삭제</br>
+                        ★답변 단건삭제</br>
                         {host}/api/conversations/answer/{id}</br>
                         id = con_id(== sub_id)
                         """)
@@ -157,13 +157,15 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(id), HttpStatus.OK);
     }
 
-    @Operation(summary = "보낸 질문",
+    @Operation(summary = "보낸질문(페이징)",
         description = """
-                        ★내가 작성한 보낸질문(답변포함) 조회</br>
-                        {host}/api/conversations/send-question/{ownerId}
+                        ★내가 작성한 보낸질문(답변포함) 블럭단위로 조회</br>
+                        초기 블럭 3개, 추가 요청시 블럭 3개</br>
+                        {host}/api/conversations/send-question/{ownerId}/{page}
                         """)
     @GetMapping("/send-question/{ownerId}")
     public ResponseEntity<ApiResponse> getSendQuestion(@PathVariable Long ownerId) {
+//                                                       @PathVariable(required = false) Integer page) {
         List<ConversationProfileResponse> details = conversationService.getQuestionsByGuestId(ownerId);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }

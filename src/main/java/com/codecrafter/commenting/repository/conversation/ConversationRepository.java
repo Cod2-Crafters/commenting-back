@@ -1,17 +1,11 @@
 package com.codecrafter.commenting.repository.conversation;
 
-import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
-import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.codecrafter.commenting.domain.entity.Conversation;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -48,8 +42,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "    WHERE b.mst_id = :mstId " +
                     ") cd " +
                     "JOIN member_info mi " +
-                    "ON (cd.isQuestion = TRUE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = FALSE AND cd.guestId = mi.id) " +
+                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
+                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
                     "WHERE cd.mstId = :mstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
@@ -81,8 +75,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "    WHERE a.owner_id = :ownerId " +
                     ") cd " +
                     "JOIN member_info mi " +
-                    "ON (cd.isQuestion = TRUE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = FALSE AND cd.guestId = mi.id) " +
+                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
+                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
                     "WHERE cd.ownerId = :ownerId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
@@ -120,8 +114,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "    )" +
                     ") cd " +
                     "JOIN member_info mi " +
-                    "ON (cd.isQuestion = TRUE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = FALSE AND cd.guestId = mi.id) " +
+                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
+                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
                     "WHERE cd.ownerId = :ownerId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
@@ -157,8 +151,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "    WHERE b.mst_id BETWEEN :startMstId AND :endMstId " +
                     ") cd " +
                     "JOIN member_info mi " +
-                    "ON (cd.isQuestion = TRUE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = FALSE AND cd.guestId = mi.id) " +
+                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
+                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
                     "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
@@ -190,8 +184,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "    WHERE a.guest_id = :guestId " +
                     ") cd " +
                     "JOIN member_info mi " +
-                    "ON (cd.isQuestion = TRUE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = FALSE AND cd.guestId = mi.id) " +
+                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
+                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
                     "WHERE cd.guestId = :guestId " +
                     "ORDER BY cd.conId DESC",
                     nativeQuery = true)
