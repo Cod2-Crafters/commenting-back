@@ -106,16 +106,15 @@ public class ConversationService {
 	@Transactional
 	@Notification
 	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
-		Long userId = getCurrentUserId();
 		MemberInfo owner = MemberInfo.builder()
 										.id(request.ownerId())
+//										.nickname("")
+//										.email("")
 										.build();
-		MemberInfo guest = MemberInfo.builder()
-										.id(userId)
-										.build();
+		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
 
 		// 변경전 대화 마스터 최대값
-		Long maxId = Optional.ofNullable(conversationMSTRepository.findMaxId()).orElse(0L);
+		Long maxId = Optional.ofNullable(request.maxMstId()).orElse(0L);
 
 		// 대화마스터 저장
 		ConversationMST conversationMST = ConversationMST.create(owner, guest);
@@ -131,7 +130,6 @@ public class ConversationService {
 
 		// 대화슬레이브 저장
 		Long id = conversationRepository.save(conversation).getId();
-
 
 		return conversationRepository.findByConversationAdd(maxId, id)
 										.stream()
@@ -181,14 +179,7 @@ public class ConversationService {
 		ConversationMST conversationMST = conversationMSTRepository.findById(request.mstId())
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
 
-		Long userId = getCurrentUserId();
-		MemberInfo writer = MemberInfo.builder()
-										.id(userId)
-										.build();
-		MemberInfo guest = MemberInfo.builder()
-										.id(request.guestId())
-										.build();
-
+		MemberInfo writer = SecurityUtil.getCurrentMember().getMemberInfo();
 		Conversation answer = Conversation.builder()
 											.content(request.content())
 											.isPrivate(request.isPrivate())
