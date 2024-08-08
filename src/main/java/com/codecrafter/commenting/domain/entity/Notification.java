@@ -26,7 +26,6 @@ import org.hibernate.annotations.DynamicInsert;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@DynamicInsert
 public class Notification extends BaseEntity {
 
     @Id
