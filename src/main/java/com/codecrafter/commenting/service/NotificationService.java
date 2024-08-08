@@ -1,5 +1,6 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
@@ -68,29 +69,33 @@ public class NotificationService {
             .forEach(entry -> sendToClient(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    public void saveAndSendNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {
-        Notification notification = notificationRepository.save(createNotification(receiver, sender, type, typeId));
+    public void saveAndSendNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Conversation conversation) {
+        Notification notification = notificationRepository.save(createNotification(receiver, sender, type, conversation.getId()));
         String receiverEmail = receiver.getEmail();
         String eventId = makeTimeIncludeId(receiverEmail);
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(receiverEmail);
         emitters.forEach(
             (key, emitter) -> {
-                emitterRepository.saveEventCache(key, notification);
-                sendToClient(emitter, eventId, key, toNotificationResponse(notification));
+                NotificationResponse notificationResponse = toNotificationResponse(notification, conversation);
+                emitterRepository.saveEventCache(key, notificationResponse);
+                sendToClient(emitter, eventId, key, notificationResponse);
             }
         );
     }
 
-    private NotificationResponse toNotificationResponse(Notification notification) {
+    private NotificationResponse toNotificationResponse(Notification notification, Conversation conversation) {
         return NotificationResponse.builder()
-            .id(notification.getId())
-            .name(notification.getReceiverInfo().getNickname())
-            .message(notification.getMessage())
-            .type(notification.getNotificationType())
-            .createdAt(notification.getCreatedAt())
-            .url(notification.getUrl())
-            .build();
+                                    .id(notification.getId())
+                                    .senderNickName(conversation.getMemberInfo().getNickname()) // 상대 닉네임이
+                                    .message(notification.getMessage())
+                                    .content(conversation.getContent())  // 질문, 답변 내용
+                                    .type(notification.getNotificationType())
+                                    .createdAt(notification.getCreatedAt())
+                                    .url(notification.getUrl())
+                                    .image(conversation.getMemberInfo().getAvatarPath()) // 상대 이미지
+                                    .isRead(notification.getIsRead())
+                                    .build();
     }
 
         private Notification createNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {

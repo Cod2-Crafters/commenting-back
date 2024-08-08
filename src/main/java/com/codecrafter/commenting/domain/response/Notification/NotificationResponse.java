@@ -7,11 +7,14 @@ import lombok.Builder;
 @Builder
 public record NotificationResponse(
     Long id,
-    String name,
+    String senderNickName,
     String message,
+    String content,
     NotificationType type,
     LocalDateTime createdAt,
-    String url
+    String url,
+    String image,
+    Boolean isRead
 ) {
 
 }
