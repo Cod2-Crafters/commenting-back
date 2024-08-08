@@ -98,42 +98,38 @@ public class NotificationService {
                                     .build();
     }
 
-        private Notification createNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {
-            String message = "";
-            String url = "";
+    private Notification createNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {
+        String senderName = sender == null ? "익명회원" : sender.getNickname();
+        String message = "";
+        String url = "";
 
-            Notification.NotificationBuilder builder = Notification.builder();
-            builder
-                .receiverInfo(receiver)
-                .isRead(false)
-                .notificationType(type);
-
-            if (NotificationType.LIKES == type) {
-                message = sender.getNickname() + "님이 회원님의 글을 좋아합니다.";
+        switch (type) {
+            case LIKES -> {
+                message = senderName + "님이 회원님의 글을 좋아합니다.";
                 url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
-
-            } else if (NotificationType.COMMENT == type) {
-                message = sender.getNickname() + "님이 회원님의 글에 답변을 남겼습니다.";
-                url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
-            } else if (NotificationType.THANKED == type) {
-                message = sender.getNickname() + "님이 회원님의 글을 고마워합니다.";
-                url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
-            } else if(NotificationType.QUESTION == type){
-                message = sender.getNickname() + "님이 회원님께 질문을 남겼습니다.";
-                url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
             }
+            case COMMENT -> {
+                message = senderName + "님이 회원님의 글에 답변을 남겼습니다.";
+                url = "/api/conversations/question/" + typeId;
+            }
+            case THANKED -> {
+                message = senderName + "님이 회원님의 글을 고마워합니다.";
+                url = "/api/conversations/question/" + typeId;
+            }
+            case QUESTION -> {
+                message = senderName + "님이 회원님께 질문을 남겼습니다.";
+                url = "/api/conversations/question/" + typeId;
+            }
+        }
+
+        return Notification.builder()
+                            .receiverInfo(receiver)
+                            .notificationType(type)
+                            .message(message)
+                            .url(url)
+                            .isRead(false)
+                            .build();
+    }
 
         return builder.build();
     }
