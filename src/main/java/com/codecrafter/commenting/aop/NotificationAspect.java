@@ -39,7 +39,7 @@ public class NotificationAspect {
                 if (result instanceof List<?> responses) {
                     if (!responses.isEmpty() && responses.get(0) instanceof ConversationProfileResponse) {
                         List<ConversationProfileResponse> list = (List<ConversationProfileResponse>) responses;
-                        ConversationProfileResponse conversationProfileResponse = list.get(responses.size() - 1);
+                        ConversationProfileResponse conversationProfileResponse = list.get(0);
                         Long guestId = conversationProfileResponse.guestId();
                         Long ownerId = conversationProfileResponse.ownerId();
                         MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
