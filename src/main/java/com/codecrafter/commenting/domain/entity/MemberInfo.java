@@ -5,6 +5,7 @@ import static lombok.AccessLevel.*;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.PrePersist;
 import lombok.Builder;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -97,6 +98,13 @@ public class MemberInfo extends BaseEntity {
 	public MemberInfo update(String email) {
 		this.email = email;
 		return this;
+	}
+
+	@PrePersist
+	protected void onCreate() {
+		if (this.id == null) {
+			this.id = 0L;
+		}
 	}
 
 }
