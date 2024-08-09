@@ -132,8 +132,4 @@ public class NotificationService {
                             .isRead(false)
                             .build();
     }
-
-        return builder.build();
-    }
-
 }
