@@ -3,6 +3,8 @@ package com.codecrafter.commenting.aop;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
+import com.codecrafter.commenting.domain.request.RecommendRequest;
+import com.codecrafter.commenting.domain.response.RecommendResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
@@ -63,6 +65,21 @@ public class NotificationAspect {
                     Long conId = conversationResponse.conId();
                     Conversation conversation = conversationRepository.findById(conId).orElse(null);
                     notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conversation);
+                }
+            }
+            // 조와요
+            case "updateLikes" -> {
+                if (result instanceof RecommendResponse recommendResponse) {
+                    RecommendRequest request = (RecommendRequest) joinPoint.getArgs()[0];
+                    Long conId = request.conId();
+                    Long guestId = request.userId();
+                    if (recommendResponse.action().equals("insert")) {
+                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Long ownerId = conversation.getMemberInfo().getId();
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                        notificationService.saveAndSendNotification(owner, guest, NotificationType.LIKES, conversation);
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.annotation.Notification;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
@@ -30,6 +31,7 @@ public class RecommendService {
     private final MemberInfoRepository memberInfoRepository;
     private final TokenProvider tokenProvider;
     @Transactional
+    @Notification
     public RecommendResponse updateLikes(RecommendRequest request) {
         Conversation conversation = conversationRepository.findById(request.conId())
                                                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
