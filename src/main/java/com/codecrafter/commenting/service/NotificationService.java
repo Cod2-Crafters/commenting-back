@@ -1,5 +1,6 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
@@ -68,67 +70,68 @@ public class NotificationService {
             .forEach(entry -> sendToClient(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    public void saveAndSendNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {
-        Notification notification = notificationRepository.save(createNotification(receiver, sender, type, typeId));
+    @Transactional
+    public void saveAndSendNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Conversation conversation) {
+        Notification notification = notificationRepository.save(createNotification(receiver, sender, type, conversation.getId()));
         String receiverEmail = receiver.getEmail();
         String eventId = makeTimeIncludeId(receiverEmail);
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(receiverEmail);
         emitters.forEach(
             (key, emitter) -> {
-                emitterRepository.saveEventCache(key, notification);
-                sendToClient(emitter, eventId, key, toNotificationResponse(notification));
+                NotificationResponse notificationResponse = toNotificationResponse(notification, conversation);
+                emitterRepository.saveEventCache(key, notificationResponse);
+                sendToClient(emitter, eventId, key, notificationResponse);
             }
         );
     }
 
-    private NotificationResponse toNotificationResponse(Notification notification) {
+    private NotificationResponse toNotificationResponse(Notification notification, Conversation conversation) {
         return NotificationResponse.builder()
-            .id(notification.getId())
-            .name(notification.getReceiverInfo().getNickname())
-            .message(notification.getMessage())
-            .type(notification.getNotificationType())
-            .createdAt(notification.getCreatedAt())
-            .url(notification.getUrl())
-            .build();
+                                    .id(notification.getId())
+                                    .senderNickName(conversation.getMemberInfo().getNickname()) // 상대 닉네임이
+                                    .message(notification.getMessage())
+                                    .content(conversation.getContent())  // 질문, 답변 내용
+                                    .type(notification.getNotificationType())
+                                    .createdAt(notification.getCreatedAt())
+                                    .url(notification.getUrl())
+                                    .image(conversation.getMemberInfo().getAvatarPath()) // 상대 이미지
+                                    .isRead(notification.getIsRead())
+                                    .build();
     }
 
-        private Notification createNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {
-            String message = "";
-            String url = "";
+    private Notification createNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Long typeId) {
+        String senderName = sender == null ? "익명회원" : sender.getNickname();
+        String message = "";
+        String url = "";
 
-            Notification.NotificationBuilder builder = Notification.builder();
-            builder
-                .receiverInfo(receiver)
-                .isRead(false)
-                .notificationType(type);
-
-            if (NotificationType.LIKES == type) {
-                message = sender.getNickname() + "님이 회원님의 글을 좋아합니다.";
+        switch (type) {
+            case LIKES -> {
+                message = senderName + "님이 회원님의 글을 좋아합니다.";
                 url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
-
-            } else if (NotificationType.COMMENT == type) {
-                message = sender.getNickname() + "님이 회원님의 글에 답변을 남겼습니다.";
-                url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
-            } else if (NotificationType.THANKED == type) {
-                message = sender.getNickname() + "님이 회원님의 글을 고마워합니다.";
-                url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
-            } else if(NotificationType.QUESTION == type){
-                message = sender.getNickname() + "님이 회원님께 질문을 남겼습니다.";
-                url = "/api/conversations/question/" + typeId;
-                builder
-                    .message(message)
-                    .url(url);
             }
+            case COMMENT -> {
+                message = senderName + "님이 회원님의 글에 답변을 남겼습니다.";
+                url = "/api/conversations/question/" + typeId;
+            }
+            case THANKED -> {
+                message = senderName + "님이 회원님의 글을 고마워합니다.";
+                url = "/api/conversations/question/" + typeId;
+            }
+            case QUESTION -> {
+                message = senderName + "님이 회원님께 질문을 남겼습니다.";
+                url = "/api/conversations/question/" + typeId;
+            }
+        }
+
+        return Notification.builder()
+                            .receiverInfo(receiver)
+                            .notificationType(type)
+                            .message(message)
+                            .url(url)
+                            .isRead(false)
+                            .build();
+    }
 
         return builder.build();
     }

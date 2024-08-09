@@ -1,10 +1,14 @@
 package com.codecrafter.commenting.aop;
 
+import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
+import com.codecrafter.commenting.domain.request.RecommendRequest;
+import com.codecrafter.commenting.domain.response.RecommendResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
+import com.codecrafter.commenting.repository.conversation.ConversationRepository;
 import com.codecrafter.commenting.service.NotificationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -12,24 +16,25 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Aspect
 @Component
-@EnableAsync
+//@EnableAsync
 @RequiredArgsConstructor
 public class NotificationAspect {
 
     private final NotificationService notificationService;
     private final MemberInfoRepository memberInfoRepository;
+    private final ConversationRepository conversationRepository;
 
     @Pointcut("@annotation(com.codecrafter.commenting.annotation.Notification)")
     public void annotationPointcut() {
     }
 
-    @Async
+//    @Async // TODO: 비동기로 수정
+    @Transactional
     @AfterReturning(pointcut = "annotationPointcut()", returning = "result")
     public void checkNotification(JoinPoint joinPoint, Object result) {
         String methodName = joinPoint.getSignature().getName();
@@ -45,7 +50,8 @@ public class NotificationAspect {
                         MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
                         MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
                         Long conId = conversationProfileResponse.conId();
-                        notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conId);
+                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conversation);
                     }
                 }
             }
@@ -57,7 +63,38 @@ public class NotificationAspect {
                     MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
                     MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
                     Long conId = conversationResponse.conId();
-                    notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conId);
+                    Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                    notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conversation);
+                }
+            }
+            // 조와요
+            case "updateLikes" -> {
+                if (result instanceof RecommendResponse recommendResponse) {
+                    RecommendRequest request = (RecommendRequest) joinPoint.getArgs()[0];
+                    Long conId = request.conId();
+                    Long guestId = request.userId();
+                    if (recommendResponse.action().equals("insert")) {
+                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Long ownerId = conversation.getMemberInfo().getId();
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                        notificationService.saveAndSendNotification(owner, guest, NotificationType.LIKES, conversation);
+                    }
+                }
+            }
+            // 고마와요
+            case "updateThanked" -> {
+                if (result instanceof RecommendResponse recommendResponse) {
+                    RecommendRequest request = (RecommendRequest) joinPoint.getArgs()[0];
+                    Long conId = request.conId();
+                    Long guestId = request.userId();
+                    if (recommendResponse.action().equals("insert")) {
+                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Long ownerId = conversation.getMemberInfo().getId();
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                        notificationService.saveAndSendNotification(owner, guest, NotificationType.THANKED, conversation);
+                    }
                 }
             }
         }
