@@ -58,6 +58,7 @@ public class RecommendService {
     }
 
     @Transactional
+    @Notification
     public RecommendResponse updateThanked(RecommendRequest request) {
         // 익명추천관련해서 추후 구현시 좋아요와 로직 달리할 예정
         Conversation conversation = conversationRepository.findById(request.conId())

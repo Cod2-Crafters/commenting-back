@@ -82,6 +82,21 @@ public class NotificationAspect {
                     }
                 }
             }
+            // 고마와요
+            case "updateThanked" -> {
+                if (result instanceof RecommendResponse recommendResponse) {
+                    RecommendRequest request = (RecommendRequest) joinPoint.getArgs()[0];
+                    Long conId = request.conId();
+                    Long guestId = request.userId();
+                    if (recommendResponse.action().equals("insert")) {
+                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Long ownerId = conversation.getMemberInfo().getId();
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                        notificationService.saveAndSendNotification(owner, guest, NotificationType.THANKED, conversation);
+                    }
+                }
+            }
         }
     }
 }
