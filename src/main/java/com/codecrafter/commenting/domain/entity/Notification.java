@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.DynamicInsert;
 
 /**
  * 알림 엔티티
@@ -43,6 +42,9 @@ public class Notification extends BaseEntity {
     @NotNull
     private NotificationType notificationType;
 
+    @Comment("알림 원인 id")
+    private Long notificationTypeId;
+
     @Comment("알림 내용")
     @NotNull
     private String message;
@@ -55,11 +57,12 @@ public class Notification extends BaseEntity {
     private Boolean isRead;
 
     @Builder
-    public Notification(MemberInfo receiverInfo, NotificationType notificationType, String message, Boolean isRead, String url) {
+    public Notification(MemberInfo receiverInfo, NotificationType notificationType, String message, Boolean isRead, String url, Long notificationTypeId) {
         this.receiverInfo = receiverInfo;
         this.notificationType = notificationType;
         this.message = message;
         this.isRead = isRead;
         this.url = url;
+        this.notificationTypeId = notificationTypeId;
     }
 }
