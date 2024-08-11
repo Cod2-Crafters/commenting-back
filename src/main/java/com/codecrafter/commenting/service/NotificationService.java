@@ -1,5 +1,6 @@
 package com.codecrafter.commenting.service;
 
+import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
@@ -9,6 +10,7 @@ import com.codecrafter.commenting.exception.SseEmitterSendException;
 import com.codecrafter.commenting.repository.EmitterRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -130,6 +132,13 @@ public class NotificationService {
                             .message(message)
                             .url(url)
                             .isRead(false)
+                            .notificationTypeId(typeId)
                             .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NotificationResponse> getNotifications() {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
+        return notificationRepository.findByReceiverId(getCurrentMemberId);
     }
 }
