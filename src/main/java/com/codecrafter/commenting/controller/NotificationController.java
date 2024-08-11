@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +49,17 @@ public class NotificationController {
     @GetMapping("/notifications")
     public ResponseEntity<ApiResponse> getNotifications() {
         List<NotificationResponse> notificationResponses = notificationService.getNotifications();
+        return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
+    }
+
+    @Operation(summary = "알림 목록 일괄 읽음 처리",
+        description = """
+            ★로그인한 사용자가 버튼을 눌러 알림 목록 일괄 읽음 처리</br>
+            {host}/api/notifications/mark-read</br>
+            """)
+    @PutMapping("/notifications/mark-read")
+    public ResponseEntity<ApiResponse> markAllNotificationsAsRead() {
+        List<NotificationResponse> notificationResponses = notificationService.markAllNotificationsAsRead();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
     }
 }

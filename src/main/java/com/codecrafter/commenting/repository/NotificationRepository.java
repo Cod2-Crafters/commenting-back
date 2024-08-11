@@ -4,6 +4,7 @@ import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,4 +29,13 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                 "ORDER BY n.id DESC"
     )
     List<NotificationResponse> findByReceiverId(@Param("id") Long id);
+
+    @Modifying
+    @Query(
+        value = "UPDATE Notification n " +
+                "SET n.isRead = true " +
+                "WHERE n.receiverInfo.id = :id " +
+                "AND n.isRead = false"
+    )
+    void markAllNotificationsAsRead(@Param("id") Long id);
 }
