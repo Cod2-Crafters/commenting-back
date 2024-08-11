@@ -141,4 +141,11 @@ public class NotificationService {
         Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
         return notificationRepository.findByReceiverId(getCurrentMemberId);
     }
+
+    @Transactional
+    public List<NotificationResponse> markAllNotificationsAsRead() {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
+        notificationRepository.markAllNotificationsAsRead(getCurrentMemberId);
+        return notificationRepository.findByReceiverId(getCurrentMemberId);
+    }
 }
