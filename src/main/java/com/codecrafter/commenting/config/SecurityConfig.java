@@ -51,6 +51,10 @@ public class SecurityConfig {
                 .requestMatchers("/oauth/google").authenticated()
                 .anyRequest().permitAll()
             )
+            .requiresChannel(channel -> channel
+                .requestMatchers("/swagger-ui/**", "/v3/**").requiresSecure()
+                .anyRequest().requiresSecure()
+            )
 //            .sessionManagement(sessionManagement -> sessionManagement
 //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -62,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://commenting.duckdns.org"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
