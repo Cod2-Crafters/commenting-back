@@ -51,10 +51,10 @@ public class SecurityConfig {
                 .requestMatchers("/oauth/google").authenticated()
                 .anyRequest().permitAll()
             )
-            .requiresChannel(channel -> channel
-                .requestMatchers("/swagger-ui/**", "/v3/**").requiresSecure()
-                .anyRequest().requiresSecure()
-            )
+//            .requiresChannel(channel -> channel
+//                .requestMatchers("/swagger-ui/**", "/v3/**").requiresSecure()
+//                .anyRequest().requiresSecure()
+//            )
 //            .sessionManagement(sessionManagement -> sessionManagement
 //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
