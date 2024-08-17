@@ -64,12 +64,15 @@ springdoc:
     groups-order: desc
     operations-sorter: alpha
     disable-swagger-default-url: true
+    urls:
+      - url: http://localhost:8080/v3/api-docs
+        name: Default
   api-docs:
     groups:
       enabled: true
 logging:
-  level:
+  le슈vel:
     org.springframework.security: DEBUG
 server:
   port: 8080
-  timezone: UTC
+  timezone: KST
