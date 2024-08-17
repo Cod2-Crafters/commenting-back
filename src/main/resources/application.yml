@@ -64,9 +64,10 @@ springdoc:
     groups-order: desc
     operations-sorter: alpha
     disable-swagger-default-url: true
-#    urls:
+    urls:
 #      - url: https://commenting.duckdns.org/v3/api-docs
-#        name: Default
+      - url: http://localhost:8080/v3/api-docs
+        name: Default
   api-docs:
     groups:
       enabled: true
