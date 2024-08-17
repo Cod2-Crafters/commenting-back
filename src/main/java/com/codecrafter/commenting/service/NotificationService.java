@@ -30,7 +30,8 @@ public class NotificationService {
         String emitterId = makeTimeIncludeId(email);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
-        emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
+        emitter.onTimeout(() -> emitter.complete());
+        emitter.onError(e -> emitter.complete());
 
         // 503 에러를 방지하기 위한 더미 이벤트 전송
         String eventId = makeTimeIncludeId(email);
@@ -56,8 +57,11 @@ public class NotificationService {
                 .data(data)
             );
         } catch (IOException exception) {
-            emitterRepository.deleteById(emitterId);
-            throw new SseEmitterSendException("Send Failed: " + "Event ID: " + eventId + ", Emitter ID: " + emitterId, exception);
+            emitter.complete();
+            throw new SseEmitterSendException("Send Failed: 연결 객체를 제거하였습니다. 재연결 해 주세요. " + "Event ID: " + eventId + ", Emitter ID: " + emitterId, exception);
+        } catch (IllegalStateException exception) {
+            emitter.complete();
+            throw new SseEmitterSendException("Send Failed: 연결 객체를 제거하였습니다. 재연결 해 주세요." + " Event ID: " + eventId + ", Emitter ID: " + emitterId, exception);
         }
     }
 
@@ -79,6 +83,9 @@ public class NotificationService {
         String eventId = makeTimeIncludeId(receiverEmail);
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(receiverEmail);
+        if (emitters.isEmpty()) {
+            return;
+        }
         emitters.forEach(
             (key, emitter) -> {
                 NotificationResponse notificationResponse = toNotificationResponse(notification, conversation);
