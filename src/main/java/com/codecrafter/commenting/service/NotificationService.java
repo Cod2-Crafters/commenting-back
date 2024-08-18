@@ -30,8 +30,12 @@ public class NotificationService {
         String emitterId = makeTimeIncludeId(email);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
-        emitter.onTimeout(() -> emitter.complete());
-        emitter.onError(e -> emitter.complete());
+        emitter.onTimeout(() -> emitter.complete()); // 필수
+        emitter.onError(e -> {
+            emitter.complete();
+            emitterRepository.deleteById(emitterId); // 필수
+        });
+
 
         // 503 에러를 방지하기 위한 더미 이벤트 전송
         String eventId = makeTimeIncludeId(email);
@@ -56,12 +60,9 @@ public class NotificationService {
                 .name("sse")
                 .data(data)
             );
-        } catch (IOException exception) {
+        } catch (IOException | IllegalStateException e) {
             emitter.complete();
-            throw new SseEmitterSendException("Send Failed: 연결 객체를 제거하였습니다. 재연결 해 주세요. " + "Event ID: " + eventId + ", Emitter ID: " + emitterId, exception);
-        } catch (IllegalStateException exception) {
-            emitter.complete();
-            throw new SseEmitterSendException("Send Failed: 연결 객체를 제거하였습니다. 재연결 해 주세요." + " Event ID: " + eventId + ", Emitter ID: " + emitterId, exception);
+            throw new SseEmitterSendException("Send Failed: 연결 객체를 제거하였습니다. 재연결 해 주세요. " + "Event ID: " + eventId + ", Emitter ID: " + emitterId, e);
         }
     }
 
