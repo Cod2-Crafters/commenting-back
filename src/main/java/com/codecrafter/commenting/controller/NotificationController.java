@@ -5,6 +5,7 @@ import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import com.codecrafter.commenting.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,12 +34,14 @@ public class NotificationController {
             =======================================
             """)
     @GetMapping(value = "/subscribe", produces = "text/event-stream")
-    public ResponseEntity<SseEmitter> subscribe(
+    public SseEmitter subscribe(
         @AuthenticationPrincipal MemberAuth memberAuth,
-        @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId
+        @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId,
+        HttpServletResponse response
     ) {
+        response.setHeader("X-Accel-Buffering", "no");
         SseEmitter sseEmitter = notificationService.subscribe(memberAuth.getEmail(), lastEventId);
-        return ResponseEntity.ok(sseEmitter);
+        return sseEmitter;
     }
 
     @Operation(summary = "알림 목록 조회",
