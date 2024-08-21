@@ -24,6 +24,7 @@ spring:
           google:
             clientId: ${COMMENTING_GOOGLE_CLIENT_ID}
             clientSecret: ${COMMENTING_GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${COMMENTING_GOOGLE_REDIRECT_URI}
             scope: ['email', 'profile']
         provider:
           google:
@@ -65,8 +66,7 @@ springdoc:
     operations-sorter: alpha
     disable-swagger-default-url: true
     urls:
-#      - url: https://commenting.duckdns.org/v3/api-docs
-      - url: http://localhost:8080/v3/api-docs
+      - url: https://commenting.duckdns.org/v3/api-docs
         name: Default
   api-docs:
     groups:
