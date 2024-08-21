@@ -24,6 +24,7 @@ spring:
           google:
             clientId: ${COMMENTING_GOOGLE_CLIENT_ID}
             clientSecret: ${COMMENTING_GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${COMMENTING_GOOGLE_REDIRECT_URI}
             scope: ['email', 'profile']
         provider:
           google:
