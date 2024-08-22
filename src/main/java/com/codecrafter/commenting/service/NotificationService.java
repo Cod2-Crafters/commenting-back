@@ -6,7 +6,6 @@ import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
-import com.codecrafter.commenting.exception.SseEmitterSendException;
 import com.codecrafter.commenting.repository.EmitterRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
 import java.io.IOException;
@@ -32,7 +31,6 @@ public class NotificationService {
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitter.complete()); // 필수
         emitter.onError(e -> {
-            emitter.complete();
             emitterRepository.deleteById(emitterId); // 필수
         });
 
@@ -61,8 +59,6 @@ public class NotificationService {
                 .data(data)
             );
         } catch (IOException | IllegalStateException e) {
-            emitter.complete();
-            throw new SseEmitterSendException("Send Failed: 연결 객체를 제거하였습니다. 재연결 해 주세요. " + "Event ID: " + eventId + ", Emitter ID: " + emitterId, e);
         }
     }
 
