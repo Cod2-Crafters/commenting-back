@@ -218,6 +218,9 @@ public class ConversationService {
 	@Transactional
 	public void deleteAnswer(Long answerId) {
 		Conversation answer = findConversationById(answerId);
+		if(answer.isQuestion()) {
+			throw new IllegalArgumentException("질문은 삭제할 수 없습니다.");
+		}
 		conversationRepository.delete(answer);
 	}
 
