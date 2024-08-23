@@ -59,7 +59,9 @@ public class NotificationAspect {
                         Conversation conversation = conversationRepository.findById(conId).orElse(null);
                         Long mstId = conversation.getConversationMST().getId();
                         notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conversation);
-                        mailSendService.sendEmailNotice(owner.getEmail(), httpServletRequest, "질문", "/api/conversations/details/" +mstId, conversation.getContent(), owner.getNickname());
+                        if (owner.getEmailNotice()) {
+                            mailSendService.sendEmailNotice(owner.getEmail(), httpServletRequest, "질문", "/api/conversations/details/" + mstId, conversation.getContent(), owner.getNickname());
+                        }
                     }
                 }
             }
@@ -74,7 +76,9 @@ public class NotificationAspect {
                     Conversation conversation = conversationRepository.findById(conId).orElse(null);
                     Long mstId = conversation.getConversationMST().getId();
                     notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conversation);
-                    mailSendService.sendEmailNotice(owner.getEmail(), httpServletRequest, "답변", "/api/conversations/details/" + mstId, conversation.getContent(), owner.getNickname());
+                    if (guest.getEmailNotice()) {
+                        mailSendService.sendEmailNotice(guest.getEmail(), httpServletRequest, "답변", "/api/conversations/details/" + mstId, conversation.getContent(), guest.getNickname());
+                    }
                 }
             }
             // 조와요
