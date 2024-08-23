@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div style="margin:100px;">
+    <h1 th:text="|안녕하세여 ${nickName}님|">안녕하세여 ${받는사람아이디}님</h1>
+    <br>
+    <p th:text="|${cause}이 도착했어요|">{알림원인}이 도착했어요</p>
+    <br>
+    <p th:text="|${content}|">내용</p>
+    <br>
+    <p th:text="|${url}|">{url}</p>
+</div>
+</body>
+</html>

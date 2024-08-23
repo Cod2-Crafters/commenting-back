@@ -42,7 +42,10 @@ spring:
         debug: true
         smtp.auth: true
         smtp.timeout: 50000
+        smtp.connectiontimeout: 5000
+        smtp.starttls.required: true
         smtp.starttls.enable: true
+        smtp.writetimeout: 5000
   data:
     redis:
       mail:

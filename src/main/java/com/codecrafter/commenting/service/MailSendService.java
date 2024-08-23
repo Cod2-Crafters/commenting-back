@@ -7,13 +7,19 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MailSendService {
 
     private static final String MAIL_TITLE_CERTIFICATION = "코멘팅 회원가입 인증 메일입니다.";    // 메일제목
@@ -21,6 +27,7 @@ public class MailSendService {
     private final JavaMailSender mailSender;
     private final CertificationNumberRepository certificationNumberDao;
     private final CertificationGenerator generator;
+    private final SpringTemplateEngine templateEngine;
 
     public EmailCertificationResponse sendEmailForCertification(String email, HttpServletRequest request) throws NoSuchAlgorithmException,
         MessagingException {
@@ -62,5 +69,35 @@ public class MailSendService {
         int serverPort = request.getServerPort();
 
         return String.format("%s://%s:%d", scheme, serverName, serverPort);
+    }
+
+    public void sendEmailNotice(String email, HttpServletRequest httpServletRequest, String cause, String url, String content, String nickName /*원인 + 원인주소 + 내용 + 아이디 */) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        String domainName = getDomainName(httpServletRequest);
+        Map<String, String> map = new HashMap<>();
+
+        map.put("nickName", nickName);
+        map.put("cause", cause);
+        map.put("content", content);
+        map.put("url", domainName + url); // 해당 주소로 갈 수 잇게 해야함
+
+        try {
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(email); // 메일 수신자
+            mimeMessageHelper.setSubject("새로운 " + cause + "이 도착했어요"); // 메일 제목
+            mimeMessageHelper.setText(setContext(map), true); // 메일 본문 내용, HTML 여부
+            mailSender.send(mimeMessage);
+
+            log.info("Succeeded to send Email");
+        } catch (Exception e) {
+            log.info("Failed to send Email");
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String setContext(Map<String, String> map) {
+        Context context = new Context();
+        map.forEach(context::setVariable);
+        return templateEngine.process("notification", context);
     }
 }

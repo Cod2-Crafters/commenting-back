@@ -9,7 +9,9 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationProfi
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.conversation.ConversationRepository;
+import com.codecrafter.commenting.service.MailSendService;
 import com.codecrafter.commenting.service.NotificationService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
@@ -18,6 +20,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 @Component
@@ -28,6 +32,7 @@ public class NotificationAspect {
     private final NotificationService notificationService;
     private final MemberInfoRepository memberInfoRepository;
     private final ConversationRepository conversationRepository;
+    private final MailSendService mailSendService;
 
     @Pointcut("@annotation(com.codecrafter.commenting.annotation.Notification)")
     public void annotationPointcut() {
@@ -37,6 +42,7 @@ public class NotificationAspect {
     @Transactional
     @AfterReturning(pointcut = "annotationPointcut()", returning = "result")
     public void checkNotification(JoinPoint joinPoint, Object result) {
+        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String methodName = joinPoint.getSignature().getName();
         switch (methodName) {
             // 질문작성
@@ -51,7 +57,9 @@ public class NotificationAspect {
                         MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
                         Long conId = conversationProfileResponse.conId();
                         Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Long mstId = conversation.getConversationMST().getId();
                         notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conversation);
+                        mailSendService.sendEmailNotice(owner.getEmail(), httpServletRequest, "질문", "/api/conversations/details/" +mstId, conversation.getContent(), owner.getNickname());
                     }
                 }
             }
@@ -64,7 +72,9 @@ public class NotificationAspect {
                     MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
                     Long conId = conversationResponse.conId();
                     Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                    Long mstId = conversation.getConversationMST().getId();
                     notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conversation);
+                    mailSendService.sendEmailNotice(owner.getEmail(), httpServletRequest, "답변", "/api/conversations/details/" + mstId, conversation.getContent(), owner.getNickname());
                 }
             }
             // 조와요
