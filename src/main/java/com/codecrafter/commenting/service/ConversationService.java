@@ -50,7 +50,7 @@ public class ConversationService {
 	}
 
 	/**
-	 * mstId로 대화 블럭 1건을 조회합니다.
+	 * 대화 블럭 1건을 조회합니다.
 	 *
 	 * @param mstId 대화 마스터 ID
 	 * @return 대화 상세 응답 객체 목록
@@ -157,7 +157,7 @@ public class ConversationService {
 	}
 
 	/**
-	 * mstId로 대화블럭 1건을 삭제합니다
+	 * 대화블럭 1건을 삭제합니다
 	 *
 	 * @param mstId 대화 마스터 ID
 	 */
@@ -248,6 +248,7 @@ public class ConversationService {
 										conversation.getConversationMST().getGuest() != null ? conversation.getConversationMST().getGuest().getId() : 0,
 										conversation.getContent(),
 										conversation.isGood(),
+										conversation.isThanked(),
 										conversation.isPrivate(),
 										conversation.isQuestion(),
 										conversation.getConversationMST().getId()
@@ -260,6 +261,7 @@ public class ConversationService {
 												tuple.get("guestId", Long.class),
 												tuple.get("content", String.class),
 												tuple.get("isGood", Boolean.class),
+												tuple.get("isThanked", Boolean.class),
 												tuple.get("isPrivate", Boolean.class),
 												tuple.get("isQuestion", Boolean.class),
 												tuple.get("mstId", Long.class),

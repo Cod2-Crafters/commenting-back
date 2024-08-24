@@ -103,6 +103,7 @@ public class RecommendService {
                                     conversation.getConversationMST().getGuest() != null ? conversation.getConversationMST().getGuest().getId() : null,
                                     conversation.getContent(),
                                     conversation.isGood(),
+                                    conversation.isThanked(),
                                     conversation.isPrivate(),
                                     conversation.isQuestion(),
                                     conversation.getConversationMST().getId()))

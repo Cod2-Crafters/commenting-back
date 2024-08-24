@@ -16,96 +16,49 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
 
-    @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
-                    "FROM (" +
-                    "    SELECT a.id AS mstId, " +
-                    "           a.guest_id AS guestId, " +
-                    "           a.owner_id AS ownerId, " +
-                    "           b.id AS conId, " +
-                    "           b.content, " +
-                    "           CASE "+
-                    "           WHEN r.recommend_count > 0 THEN true "+
-                    "           ELSE false "+
-                    "           END AS isGood, "+
-                    "           b.is_private AS isPrivate, " +
-                    "           b.is_question AS isQuestion, " +
-                    "           b.modified_at AS modifiedAt " +
-                    "    FROM conversation_mst a " +
-                    "    JOIN conversation b ON a.id = b.mst_id " +
-                    "    LEFT JOIN ( " +
-                    "        SELECT conversation_id, COUNT(*) AS recommend_count " +
-                    "        FROM recommend " +
-                    "          WHERE recommend_status = 'LIKES' " +
-                    "            AND user_id = :userId " +
-                    "        GROUP BY conversation_id " +
-                    "    ) r ON b.id = r.conversation_id " +
+    final static String BASE_QUERY = "SELECT cd.*, mi.avatar_path AS avatarPath " +
+                        "FROM (" +
+                        "    SELECT a.id AS mstId, " +
+                        "           a.guest_id AS guestId, " +
+                        "           a.owner_id AS ownerId, " +
+                        "           b.id AS conId, " +
+                        "           b.content, " +
+                        "           CASE WHEN (SELECT COUNT(*) FROM recommend WHERE recommend_status = 'LIKES'  AND user_id = :userId AND conversation_id = b.id) > 0 THEN true " +
+                        "               ELSE false END AS isGood, " +
+                        "           CASE  WHEN (SELECT COUNT(*)  FROM recommend  WHERE recommend_status = 'THANKED'  AND user_id = :userId  AND conversation_id = b.id) > 0 THEN true " +
+                        "               ELSE false END AS isThanked, " +
+                        "           b.is_private AS isPrivate, " +
+                        "           b.is_question AS isQuestion, " +
+                        "           b.modified_at AS modifiedAt " +
+                        "    FROM conversation_mst a " +
+                        "    JOIN conversation b ON a.id = b.mst_id "
+                        ;
+
+    final static String IS_QUESTIONER = "JOIN member_info mi " +
+                                            "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
+                                            "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) "
+                                            ;
+
+    @Query(value = BASE_QUERY +
                     "    WHERE b.mst_id = :mstId " +
                     ") cd " +
-                    "JOIN member_info mi " +
-                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
+                    IS_QUESTIONER +
                     "WHERE cd.mstId = :mstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationDetailsByMstId(@Param("mstId") Long mstId, @Param("userId") Long userId);
 
-    @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
-                    "FROM (" +
-                    "    SELECT a.id AS mstId, " +
-                    "           a.guest_id AS guestId, " +
-                    "           a.owner_id AS ownerId, " +
-                    "           b.id AS conId, " +
-                    "           b.content, " +
-                    "           CASE "+
-                    "           WHEN r.recommend_count > 0 THEN true "+
-                    "           ELSE false "+
-                    "           END AS isGood, "+
-                    "           b.is_private AS isPrivate, " +
-                    "           b.is_question AS isQuestion, " +
-                    "           b.modified_at AS modifiedAt " +
-                    "    FROM conversation_mst a " +
-                    "    JOIN conversation b ON a.id = b.mst_id " +
-                    "    LEFT JOIN ( " +
-                    "        SELECT conversation_id, COUNT(*) AS recommend_count " +
-                    "        FROM recommend " +
-                    "          WHERE recommend_status = 'LIKES' " +
-                    "            AND user_id = :userId " +
-                    "        GROUP BY conversation_id " +
-                    "    ) r ON b.id = r.conversation_id " +
+    @Query(value = BASE_QUERY +
                     "    WHERE a.owner_id = :ownerId " +
                     ") cd " +
-                    "JOIN member_info mi " +
-                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
+                    IS_QUESTIONER +
                     "WHERE cd.ownerId = :ownerId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerId(@Param("ownerId") Long ownerId, @Param("userId") Long userId);
 
 
-    @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
-                    "FROM (" +
-                    "    SELECT a.id AS mstId, " +
-                    "           a.guest_id AS guestId, " +
-                    "           a.owner_id AS ownerId, " +
-                    "           b.id AS conId, " +
-                    "           b.content, " +
-                    "           CASE "+
-                    "           WHEN r.recommend_count > 0 THEN true "+
-                    "           ELSE false "+
-                    "           END AS isGood, "+
-                    "           b.is_private AS isPrivate, " +
-                    "           b.is_question AS isQuestion, " +
-                    "           b.modified_at AS modifiedAt " +
-                    "    FROM conversation_mst a " +
-                    "    JOIN conversation b ON a.id = b.mst_id " +
-                    "    LEFT JOIN ( " +
-                    "        SELECT conversation_id, COUNT(*) AS recommend_count " +
-                    "        FROM recommend " +
-                    "          WHERE recommend_status = 'LIKES' " +
-                    "            AND user_id = :userId " +
-                    "        GROUP BY conversation_id " +
-                    "    ) r ON b.id = r.conversation_id " +
+    @Query(value = BASE_QUERY +
                     "    WHERE a.owner_id = :ownerId AND a.id IN ( " +
                     "         SELECT id FROM conversation_mst " +
                     "         WHERE owner_id = :ownerId " +
@@ -113,9 +66,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "         LIMIT :pageSize OFFSET :offset " +
                     "    )" +
                     ") cd " +
-                    "JOIN member_info mi " +
-                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
+                    IS_QUESTIONER +
                     "WHERE cd.ownerId = :ownerId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
@@ -126,66 +77,19 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     @Query(value = "DELETE FROM conversation WHERE mst_id = :mstId", nativeQuery = true)
     void deleteByConversationMSTId(@Param("mstId") Long mstId);
 
-    @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
-                    "FROM (" +
-                    "    SELECT a.id AS mstId, " +
-                    "           a.guest_id AS guestId, " +
-                    "           a.owner_id AS ownerId, " +
-                    "           b.id AS conId, " +
-                    "           b.content, " +
-                    "           CASE " +
-                    "           WHEN r.recommend_count > 0 THEN true " +
-                    "           ELSE false " +
-                    "           END AS isGood, " +
-                    "           b.is_private AS isPrivate, " +
-                    "           b.is_question AS isQuestion, " +
-                    "           b.modified_at AS modifiedAt " +
-                    "    FROM conversation_mst a " +
-                    "    JOIN conversation b ON a.id = b.mst_id " +
-                    "    LEFT JOIN ( " +
-                    "        SELECT conversation_id, COUNT(*) AS recommend_count " +
-                    "        FROM recommend " +
-                    "        WHERE recommend_status = 'LIKES' " +
-                    "        GROUP BY conversation_id " +
-                    "    ) r ON b.id = r.conversation_id " +
+    @Query(value = BASE_QUERY +
                     "    WHERE b.mst_id BETWEEN :startMstId AND :endMstId " +
                     ") cd " +
-                    "JOIN member_info mi " +
-                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
+                    IS_QUESTIONER +
                     "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<Tuple> findByConversationAdd(@Param("maxId") Long startMstId, @Param("id") Long endMstId);
 
-    @Query(value = "SELECT cd.*, mi.avatar_path AS avatarPath " +
-                    "FROM (" +
-                    "    SELECT a.id AS mstId, " +
-                    "           a.guest_id AS guestId, " +
-                    "           a.owner_id AS ownerId, " +
-                    "           b.id AS conId, " +
-                    "           b.content, " +
-                    "           CASE "+
-                    "           WHEN r.recommend_count > 0 THEN true "+
-                    "           ELSE false "+
-                    "           END AS isGood, "+
-                    "           b.is_private AS isPrivate, " +
-                    "           b.is_question AS isQuestion, " +
-                    "           b.modified_at AS modifiedAt " +
-                    "    FROM conversation_mst a " +
-                    "    JOIN conversation b ON a.id = b.mst_id " +
-                    "    LEFT JOIN ( " +
-                    "        SELECT conversation_id, COUNT(*) AS recommend_count " +
-                    "        FROM recommend " +
-                    "          WHERE recommend_status = 'LIKES' " +
-                    "            AND user_id = :guestId " +
-                    "        GROUP BY conversation_id " +
-                    "    ) r ON b.id = r.conversation_id " +
+    @Query(value = BASE_QUERY +
                     "    WHERE a.guest_id = :guestId " +
                     ") cd " +
-                    "JOIN member_info mi " +
-                    "ON (cd.isQuestion = FALSE AND cd.ownerId = mi.id) " +
-                    "OR (cd.isQuestion = TRUE AND cd.guestId = mi.id) " +
+                    IS_QUESTIONER +
                     "WHERE cd.guestId = :guestId " +
                     "ORDER BY cd.conId DESC",
                     nativeQuery = true)

@@ -52,6 +52,12 @@ public class Conversation extends BaseEntity {
 	@Setter
 	private boolean isGood = false;
 
+	@Comment("고마워요 여부")
+	@ColumnDefault("false")
+	@Column(name = "is_thanked")
+	@Setter
+	private boolean isThanked = false;
+
 	@Comment("비공개 여부")
 	@ColumnDefault("false")
 	@Column(name = "is_private")
