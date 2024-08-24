@@ -40,7 +40,7 @@ public class ConversationController {
                         """)
     @GetMapping("/question/{id}")
     public ResponseEntity<ApiResponse> getQuestion(@PathVariable Long id) {
-        ConversationResponse conversation = conversationService.getConversation(id);
+        ConversationProfileResponse conversation = conversationService.getConversation(id);
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 

@@ -1,6 +1,7 @@
 package com.codecrafter.commenting.repository.conversation;
 
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
@@ -94,5 +95,15 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "ORDER BY cd.conId DESC",
                     nativeQuery = true)
     List<Tuple> findByGuestId(@Param("guestId") Long guestId);
+
+
+    @Query(value = BASE_QUERY +
+                "    WHERE b.id = :conId " +
+                ") cd " +
+                IS_QUESTIONER +
+                "WHERE cd.conId = :conId " +
+                "ORDER BY cd.mstId DESC, cd.conId ASC",
+                nativeQuery = true)
+    Tuple findConversationResponseById(@Param("conId") Long conId, @Param("userId") Long userId);
 
 }

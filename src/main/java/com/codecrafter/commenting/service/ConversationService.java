@@ -44,9 +44,13 @@ public class ConversationService {
 	 * @return 대화 응답 객체
 	 */
 	@Transactional(readOnly = true)
-	public ConversationResponse getConversation(Long conId) {
-		Conversation conversation = findConversationById(conId);
-		return convertToResponse(conversation);
+	public ConversationProfileResponse getConversation(Long conId) {
+		Long userId = getCurrentUserId();
+		Tuple tuple = findConversationByIdWithWriter(conId, userId);
+		if (tuple == null) {
+			throw new IllegalArgumentException("존재하지 않는 대화입니다.");
+		}
+		return mapToConversationResponse(tuple);
 	}
 
 	/**
@@ -240,6 +244,10 @@ public class ConversationService {
 	private Conversation findConversationById(Long conId) {
 		return conversationRepository.findById(conId)
 									.orElseThrow(() -> new IllegalArgumentException("존재하지않는 대화입니다."));
+	}
+
+	public Tuple findConversationByIdWithWriter(Long conId, Long userId) {
+		return conversationRepository.findConversationResponseById(conId, userId);
 	}
 
 	private ConversationResponse convertToResponse(Conversation conversation) {
