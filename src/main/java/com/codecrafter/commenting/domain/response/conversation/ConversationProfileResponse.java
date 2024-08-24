@@ -6,6 +6,7 @@ public record ConversationProfileResponse(
     Long guestId,
     String content,
     Boolean isGood,
+    Boolean isThanked,
     boolean isPrivate,
     boolean isQuestion,
     Long mstId,

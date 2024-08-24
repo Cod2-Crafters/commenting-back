@@ -9,6 +9,7 @@ public interface ConversationDetailsResponse {
     Long getConId();
     String getContent();
     Boolean getIsGood();
+    Boolean getIsThanked();
     Boolean getIsPrivate();
     Boolean getIsQuestion();
     LocalDateTime getModifiedAt();
