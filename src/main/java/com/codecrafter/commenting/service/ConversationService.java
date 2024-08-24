@@ -110,6 +110,7 @@ public class ConversationService {
 	@Transactional
 	@Notification
 	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
+		Long userId = getCurrentUserId();
 		MemberInfo owner = MemberInfo.builder()
 										.id(request.ownerId())
 //										.nickname("")
@@ -135,7 +136,7 @@ public class ConversationService {
 		// 대화슬레이브 저장
 		Long id = conversationRepository.save(conversation).getId();
 
-		return conversationRepository.findByConversationAdd(maxId, id)
+		return conversationRepository.findByConversationAdd(maxId, id, userId)
 										.stream()
 										.map(this::mapToConversationResponse)
 										.collect(Collectors.toList());
@@ -235,7 +236,8 @@ public class ConversationService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ConversationProfileResponse> getQuestionsByGuestId(Long guestId) {
-		return conversationRepository.findByGuestId(guestId)
+		Long userId = getCurrentUserId();
+		return conversationRepository.findByGuestId(guestId, userId)
 										.stream()
 										.map(this::mapToConversationResponse)
 										.collect(Collectors.toList());
