@@ -85,7 +85,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
-    List<Tuple> findByConversationAdd(@Param("maxId") Long startMstId, @Param("id") Long endMstId);
+    List<Tuple> findByConversationAdd(@Param("maxId") Long startMstId, @Param("id") Long endMstId, @Param("userId") Long userId);
 
     @Query(value = BASE_QUERY +
                     "    WHERE a.guest_id = :guestId " +
@@ -94,7 +94,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE cd.guestId = :guestId " +
                     "ORDER BY cd.conId DESC",
                     nativeQuery = true)
-    List<Tuple> findByGuestId(@Param("guestId") Long guestId);
+    List<Tuple> findByGuestId(@Param("guestId") Long guestId, @Param("userId") Long userId);
 
 
     @Query(value = BASE_QUERY +
