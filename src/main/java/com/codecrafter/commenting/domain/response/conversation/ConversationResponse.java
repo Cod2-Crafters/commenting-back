@@ -10,6 +10,7 @@ public record ConversationResponse(
     boolean isPrivate,
     boolean isQuestion,
     Long mstId
+
 ) {
 
 }
