@@ -295,20 +295,21 @@ public class ConversationService {
 	public void createGlobalQuestion(CreateGlobalQuestionRequest request) {
 		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
 		List<MemberInfo> allMember = memberInfoRepository.findAll();
-		allMember.stream().filter(e -> e.getId() != guest.getId())
-			.forEach(e -> {
-				// 대화마스터 저장
-				ConversationMST conversationMST = ConversationMST.create(e, guest);
-				conversationMST = conversationMSTRepository.save(conversationMST);
+		allMember.stream()
+				.filter(e -> e.getId() != guest.getId() && e.getAllowGlobalQuestion())
+				.forEach(e -> {
+					// 대화마스터 저장
+					ConversationMST conversationMST = ConversationMST.create(e, guest);
+					conversationMST = conversationMSTRepository.save(conversationMST);
 
-				Conversation question = Conversation.builder()
-													.content(request.question())
-													.isPrivate(false)
-													.isQuestion(true) // true = 질문, false = 답변
-													.memberInfo(guest)
-													.build();
-				question.setConversationMST(conversationMST);
-				conversationRepository.save(question);
-			});
+					Conversation question = Conversation.builder()
+														.content(request.question())
+														.isPrivate(false)
+														.isQuestion(true) // true = 질문, false = 답변
+														.memberInfo(guest)
+														.build();
+					question.setConversationMST(conversationMST);
+					conversationRepository.save(question);
+				});
 	}
 }
