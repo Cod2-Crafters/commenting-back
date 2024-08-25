@@ -79,6 +79,11 @@ public class MemberInfo extends BaseEntity {
 	@Column(name = "email_notice", nullable = true)
 	private Boolean emailNotice = true;
 
+	@Comment("광역 질문 수신 여부")
+	@ColumnDefault("true")
+	@Column(nullable = false)
+	private Boolean allowGlobalQuestion;
+
 	@Builder
 	public MemberInfo(Long id, MemberAuth memberAuth, String email, String nickname, String introduce, String link1, String link2, String link3, String avatarPath, Boolean allowAnonymous, Boolean emailNotice) {
 		this.id = id;

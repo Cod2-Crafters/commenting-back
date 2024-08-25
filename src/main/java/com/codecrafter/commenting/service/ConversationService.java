@@ -6,11 +6,13 @@ import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
+import com.codecrafter.commenting.domain.request.conversation.CreateGlobalQuestionRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
+import com.codecrafter.commenting.repository.MemberInfoRepository;
 import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +36,7 @@ public class ConversationService {
 
 	private final ConversationMSTRepository conversationMSTRepository;
 	private final ConversationRepository conversationRepository;
-	private final NotificationService notificationService;
+	private final MemberInfoRepository memberInfoRepository;
 	static final int timelinePageSize = 3;
 
 	/**
@@ -281,5 +283,33 @@ public class ConversationService {
 
 	private Long getCurrentUserId() {
 		return SecurityUtil.getCurrentMember().getId();
+	}
+
+	/**
+	 * 광역 질문을 생성합니다.
+	 *
+	 * @param request 광역 질문 요청 객체
+	 */
+	// Todo: 쿼리 최적화
+	@Transactional
+	public void createGlobalQuestion(CreateGlobalQuestionRequest request) {
+		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
+		List<MemberInfo> allMember = memberInfoRepository.findAll();
+		allMember.stream()
+				.filter(e -> e.getId() != guest.getId() && e.getAllowGlobalQuestion())
+				.forEach(e -> {
+					// 대화마스터 저장
+					ConversationMST conversationMST = ConversationMST.create(e, guest);
+					conversationMST = conversationMSTRepository.save(conversationMST);
+
+					Conversation question = Conversation.builder()
+														.content(request.question())
+														.isPrivate(false)
+														.isQuestion(true) // true = 질문, false = 답변
+														.memberInfo(guest)
+														.build();
+					question.setConversationMST(conversationMST);
+					conversationRepository.save(question);
+				});
 	}
 }

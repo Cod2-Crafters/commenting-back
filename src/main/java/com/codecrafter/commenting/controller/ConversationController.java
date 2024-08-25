@@ -2,6 +2,7 @@ package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
+import com.codecrafter.commenting.domain.request.conversation.CreateGlobalQuestionRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
@@ -168,6 +169,16 @@ public class ConversationController {
 //                                                       @PathVariable(required = false) Integer page) {
         List<ConversationProfileResponse> details = conversationService.getQuestionsByGuestId(ownerId);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
+    }
+    @Operation(summary = "광역 질문",
+        description = """
+                        ★운영자를 제외한 전체에 광역 질문 </br>
+                        {host}/api/conversations/global-question
+                        """)
+    @PostMapping("/global-question")
+    public ResponseEntity<Void> createGlobalQuestion(@RequestBody CreateGlobalQuestionRequest request) {
+        conversationService.createGlobalQuestion(request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
