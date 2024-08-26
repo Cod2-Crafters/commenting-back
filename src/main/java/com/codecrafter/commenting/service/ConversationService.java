@@ -113,11 +113,13 @@ public class ConversationService {
 	@Notification
 	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
 		Long userId = getCurrentUserId();
-		MemberInfo owner = MemberInfo.builder()
-										.id(request.ownerId())
-//										.nickname("")
-//										.email("")
-										.build();
+		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
+												.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+		if (userId == 0L && !owner.getAllowAnonymous()) {
+			throw new IllegalArgumentException("익명 유저의 질문을 거부한 회원입니다.");
+		}
+
 		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
 
 		// 변경전 대화 마스터 최대값
