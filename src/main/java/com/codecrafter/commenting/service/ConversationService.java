@@ -120,6 +120,10 @@ public class ConversationService {
 			throw new IllegalArgumentException("익명 유저의 질문을 거부한 회원입니다.");
 		}
 
+        if (owner.getIsSpacePaused()) {
+			throw new IllegalStateException("스페이스 일시 중지한 회원입니다.");
+		}
+
 		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
 
 		// 변경전 대화 마스터 최대값

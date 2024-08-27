@@ -84,6 +84,11 @@ public class MemberInfo extends BaseEntity {
 	@Column(nullable = false)
 	private Boolean allowGlobalQuestion;
 
+	@Comment("스페이스 일시 중지")
+	@ColumnDefault("false")
+	@Column(nullable = false)
+	private Boolean isSpacePaused;
+
 	@Builder
 	public MemberInfo(Long id, MemberAuth memberAuth, String email, String nickname, String introduce, String link1, String link2, String link3, String avatarPath, Boolean allowAnonymous, Boolean emailNotice) {
 		this.id = id;
