@@ -10,7 +10,8 @@ public record ConversationProfileResponse(
     boolean isPrivate,
     boolean isQuestion,
     Long mstId,
-    String avatarPath
+    String avatarPath,
+    String nickname
 ) {
 
 }

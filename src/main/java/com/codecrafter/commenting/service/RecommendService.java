@@ -106,7 +106,9 @@ public class RecommendService {
                                     conversation.isThanked(),
                                     conversation.isPrivate(),
                                     conversation.isQuestion(),
-                                    conversation.getConversationMST().getId()))
+                                    conversation.getConversationMST().getId(),
+                                    conversation.getMemberInfo().getNickname()
+                            ))
             .collect(Collectors.toList());
     }
 

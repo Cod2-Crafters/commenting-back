@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
 
-    final static String BASE_QUERY = "SELECT cd.*, mi.avatar_path AS avatarPath " +
+    final static String BASE_QUERY = "SELECT cd.*, mi.avatar_path AS avatarPath, mi.nickname AS nickname " +
                         "FROM (" +
                         "    SELECT a.id AS mstId, " +
                         "           a.guest_id AS guestId, " +

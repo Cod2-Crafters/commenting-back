@@ -9,7 +9,8 @@ public record ConversationResponse(
     Boolean isThanked,
     boolean isPrivate,
     boolean isQuestion,
-    Long mstId
+    Long mstId,
+    String nickname
 
 ) {
 
