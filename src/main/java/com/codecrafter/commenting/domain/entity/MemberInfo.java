@@ -5,6 +5,7 @@ import static lombok.AccessLevel.*;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.PrePersist;
 import lombok.Builder;
 import lombok.Setter;
@@ -71,12 +72,12 @@ public class MemberInfo extends BaseEntity {
 
 	@Comment("익명 댓글 허용 여부")
 	@ColumnDefault("true")
-	@Column(name = "allow_anonymous", nullable = true)
+	@Column(name = "allow_anonymous", nullable = false)
 	private Boolean allowAnonymous = true;
 
 	@Comment("이메일 알림 수신 여부")
 	@ColumnDefault("true")
-	@Column(name = "email_notice", nullable = true)
+	@Column(name = "email_notice", nullable = false)
 	private Boolean emailNotice = true;
 
 	@Comment("광역 질문 수신 여부")
@@ -104,16 +105,35 @@ public class MemberInfo extends BaseEntity {
 		this.emailNotice = emailNotice;
 	}
 
-
 	public MemberInfo update(String email) {
 		this.email = email;
 		return this;
 	}
 
+
 	@PrePersist
 	protected void onCreate() {
-		if (this.id == null) {
+		if(this.id == null) {
 			this.id = 0L;
+		}
+		if(this.emailNotice == null) {
+			this.emailNotice = false;
+		}
+		if(this.allowAnonymous == null) {
+			this.allowAnonymous = false;
+		}
+		if(this.allowGlobalQuestion == null) {
+			this.allowGlobalQuestion = false;
+		}
+		if(this.isSpacePaused == null) {
+			this.isSpacePaused = false;
+		}
+	}
+
+	@PostPersist
+	private void onLoadOrPersist() {
+		if (this.nickname == null || this.nickname.isEmpty()) {
+			this.nickname = this.email;
 		}
 	}
 
