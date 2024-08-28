@@ -22,6 +22,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * 회원 일반 정보 엔티티
@@ -31,6 +32,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Setter
+@DynamicUpdate
 public class MemberInfo extends BaseEntity {
 
 	@Id
