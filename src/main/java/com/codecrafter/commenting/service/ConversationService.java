@@ -269,7 +269,8 @@ public class ConversationService {
 										conversation.isThanked(),
 										conversation.isPrivate(),
 										conversation.isQuestion(),
-										conversation.getConversationMST().getId()
+										conversation.getConversationMST().getId(),
+										conversation.getMemberInfo().getNickname()
 		);
 	}
 
@@ -283,7 +284,8 @@ public class ConversationService {
 												tuple.get("isPrivate", Boolean.class),
 												tuple.get("isQuestion", Boolean.class),
 												tuple.get("mstId", Long.class),
-												tuple.get("avatarPath", String.class)
+												tuple.get("avatarPath", String.class),
+												tuple.get("nickname", String.class)
 		);
 	}
 
