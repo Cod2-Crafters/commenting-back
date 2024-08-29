@@ -32,7 +32,7 @@ public class ProfileController {
     @Operation(summary = "프로필 조회",
         description = """
                         ★프로필 조회</br>
-                        {host}/api/profile/profile/{id}
+                        {host}/api/profile/profile/{ownerId}
                         """)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProfile(@PathVariable Long id) {
@@ -43,6 +43,7 @@ public class ProfileController {
     @Operation(summary = "프로필 수정",
         description = """
                         ★프로필 수정</br>
+                        토큰 필수</br>
                         {host}/api/profile
                         """)
     @PutMapping(value = "/{id}")
@@ -58,6 +59,7 @@ public class ProfileController {
     @Operation(summary = "프로필썸네일 파일 업로드",
         description = """
                         ★프로필 아바타 이미지 업로드</br>
+                        토큰 필수</br>
                         {host}/api/profile/{filename}/avatar
                         """)
     @PostMapping(path = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
