@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +38,7 @@ public class ConversationController {
     @Operation(summary = "질문조회",
         description = """
                         ★질문 단건조회</br>
-                        {host}/api/conversations/question/{id}
+                        {host}/api/conversations/question/{ownerId}
                         """)
     @GetMapping("/question/{id}")
     public ResponseEntity<ApiResponse> getQuestion(@PathVariable Long id) {
@@ -87,7 +88,8 @@ public class ConversationController {
                         입력값 ==================================</br>
                                  "ownerId": 주인장아이디,</br>
                                  "guestId": 질문자아이디,</br>
-                                 "content": 내용</br>
+                                 "content": 내용</br>,
+                                 "maxMstId": 마지막대화의식별자</br>
                         ==================================
                         """)
     @PostMapping("/question")
@@ -110,7 +112,7 @@ public class ConversationController {
     @Operation(summary = "질문삭제",
         description = """
                         ★질문 삭제시 관련대화(질문1 + 답변n) 일괄 삭제</br>
-                        {host}/api/conversations/question/{id}</br>
+                        {host}/api/conversations/question/{mstId}</br>
                         """)
     @DeleteMapping("/question/{id}")
     public ResponseEntity<ApiResponse> deleteQuestion(@PathVariable Long id) {
@@ -149,8 +151,7 @@ public class ConversationController {
     @Operation(summary = "답변삭제",
         description = """
                         ★답변 단건삭제</br>
-                        {host}/api/conversations/answer/{id}</br>
-                        id = con_id(== sub_id)
+                        {host}/api/conversations/answer/{conId}</br>
                         """)
     @DeleteMapping("/answer/{id}")
     public ResponseEntity<ApiResponse> deleteAnswer(@PathVariable Long id) {

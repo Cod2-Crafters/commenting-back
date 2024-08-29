@@ -2,8 +2,10 @@ package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.annotation.Notification;
 import com.codecrafter.commenting.config.SecurityUtil;
+import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
+import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.CreateGlobalQuestionRequest;
@@ -49,7 +51,7 @@ public class ConversationService {
 	public ConversationProfileResponse getConversation(Long conId) {
 		Long userId = getCurrentUserId();
 		Tuple tuple = findConversationByIdWithWriter(conId, userId);
-		if (tuple == null) {
+		if(tuple == null) {
 			throw new IllegalArgumentException("존재하지 않는 대화입니다.");
 		}
 		return mapToConversationResponse(tuple);
@@ -158,7 +160,11 @@ public class ConversationService {
 	 */
 	@Transactional
 	public ConversationResponse updateConversation(UpdateConversationRequest request) {
-		Conversation conversation = findConversationById(request.conId());
+		Conversation conversation = conversationRepository.findById(request.conId())
+																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
+		Long userId = conversation.getMemberInfo().getId();
+		Long loginId = getCurrentUserId();
+		chkUserToToken(userId, loginId);
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());
@@ -176,6 +182,12 @@ public class ConversationService {
 	 */
 	@Transactional
 	public void deleteConversationAndDetails(Long mstId) {
+		ConversationMST conversationMST = conversationMSTRepository.findById(mstId)
+																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
+		Long userId = conversationMST.getOwner().getId();
+		Long loginId = getCurrentUserId();
+		chkUserToToken(userId, loginId);
+
 		conversationRepository.deleteByConversationMSTId(mstId);
 		conversationMSTRepository.deleteById(mstId);
 	}
@@ -213,6 +225,10 @@ public class ConversationService {
 	 */
 	public ConversationResponse updateAddAnswer(UpdateConversationRequest request) {
 		Conversation conversation = findConversationById(request.conId());
+		Long userId = conversation.getMemberInfo().getId();
+		Long loginId = getCurrentUserId();
+
+		chkUserToToken(userId, loginId);
 
 		conversation.setContent(request.content());
 		conversation.setPrivate(request.isPrivate());
@@ -230,11 +246,16 @@ public class ConversationService {
 	 */
 	@Transactional
 	public void deleteAnswer(Long answerId) {
-		Conversation answer = findConversationById(answerId);
-		if(answer.isQuestion()) {
-			throw new IllegalArgumentException("질문은 삭제할 수 없습니다.");
+		Conversation conversation = findConversationById(answerId);
+		Long userId = conversation.getMemberInfo().getId();
+		Long loginId = getCurrentUserId();
+
+		chkUserToToken(userId, loginId);
+
+		if(conversation.isQuestion()) {
+			throw new IllegalArgumentException("답변자는 질문을 삭제할 수 없습니다.");
 		}
-		conversationRepository.delete(answer);
+		conversationRepository.delete(conversation);
 	}
 
 	/**
@@ -319,5 +340,15 @@ public class ConversationService {
 					question.setConversationMST(conversationMST);
 					conversationRepository.save(question);
 				});
+	}
+
+	private boolean chkUserToToken(Long userId, Long loginId) {
+		if(userId == 0) {
+			throw new IllegalArgumentException("익명의 사용자가 작성한 게시물입니다.");
+		}
+		if(userId != loginId) {
+			throw new IllegalArgumentException("권한이 없습니다.");
+		}
+		return true;
 	}
 }
