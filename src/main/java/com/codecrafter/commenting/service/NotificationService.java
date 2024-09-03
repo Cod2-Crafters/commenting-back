@@ -12,12 +12,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @RequiredArgsConstructor
+@EnableAsync
 public class NotificationService {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 10;
@@ -73,7 +76,7 @@ public class NotificationService {
             .forEach(entry -> sendToClient(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    @Transactional
+    @Async("notificationTaskExecutor")
     public void saveAndSendNotification(MemberInfo receiver, MemberInfo sender, NotificationType type, Conversation conversation) {
         Notification notification = notificationRepository.save(createNotification(receiver, sender, type, conversation.getId()));
         String receiverEmail = receiver.getEmail();
