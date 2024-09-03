@@ -38,8 +38,6 @@ public class NotificationAspect {
     public void annotationPointcut() {
     }
 
-//    @Async // TODO: 비동기로 수정
-    @Transactional
     @AfterReturning(pointcut = "annotationPointcut()", returning = "result")
     public void checkNotification(JoinPoint joinPoint, Object result) {
         HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -53,14 +51,16 @@ public class NotificationAspect {
                         ConversationProfileResponse conversationProfileResponse = list.get(0);
                         Long guestId = conversationProfileResponse.guestId();
                         Long ownerId = conversationProfileResponse.ownerId();
-                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
-                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
                         Long conId = conversationProfileResponse.conId();
-                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElseThrow();
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElseThrow();
+                        Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                         Long mstId = conversation.getConversationMST().getId();
                         notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conversation);
                         if (owner.getEmailNotice()) {
-                            mailSendService.sendEmailNotice(owner.getEmail(), httpServletRequest, "질문", "/api/conversations/details/" + mstId, conversation.getContent(), owner.getNickname());
+                            String domainName = mailSendService.getDomainName(httpServletRequest);
+                            mailSendService.sendEmailNotice(owner.getEmail(), domainName, "질문", "/api/conversations/details/" + mstId, conversation.getContent(), owner.getNickname());
                         }
                     }
                 }
@@ -70,14 +70,15 @@ public class NotificationAspect {
                 if (result instanceof ConversationResponse conversationResponse) {
                     Long guestId = conversationResponse.guestId();
                     Long ownerId = conversationResponse.ownerId();
-                    MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
-                    MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                    MemberInfo guest = memberInfoRepository.findById(guestId).orElseThrow();
+                    MemberInfo owner = memberInfoRepository.findById(ownerId).orElseThrow();
                     Long conId = conversationResponse.conId();
-                    Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                    Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                     Long mstId = conversation.getConversationMST().getId();
                     notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conversation);
                     if (guest.getEmailNotice()) {
-                        mailSendService.sendEmailNotice(guest.getEmail(), httpServletRequest, "답변", "/api/conversations/details/" + mstId, conversation.getContent(), guest.getNickname());
+                        String domainName = mailSendService.getDomainName(httpServletRequest);
+                        mailSendService.sendEmailNotice(guest.getEmail(), domainName, "답변", "/api/conversations/details/" + mstId, conversation.getContent(), guest.getNickname());
                     }
                 }
             }
@@ -88,10 +89,10 @@ public class NotificationAspect {
                     Long conId = request.conId();
                     Long guestId = request.userId();
                     if (recommendResponse.action().equals("insert")) {
-                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                         Long ownerId = conversation.getMemberInfo().getId();
-                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
-                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElseThrow();
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElseThrow();
                         notificationService.saveAndSendNotification(owner, guest, NotificationType.LIKES, conversation);
                     }
                 }
@@ -103,10 +104,10 @@ public class NotificationAspect {
                     Long conId = request.conId();
                     Long guestId = request.userId();
                     if (recommendResponse.action().equals("insert")) {
-                        Conversation conversation = conversationRepository.findById(conId).orElse(null);
+                        Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                         Long ownerId = conversation.getMemberInfo().getId();
-                        MemberInfo guest = memberInfoRepository.findById(guestId).orElse(null);
-                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElse(null);
+                        MemberInfo guest = memberInfoRepository.findById(guestId).orElseThrow();
+                        MemberInfo owner = memberInfoRepository.findById(ownerId).orElseThrow();
                         notificationService.saveAndSendNotification(owner, guest, NotificationType.THANKED, conversation);
                     }
                 }

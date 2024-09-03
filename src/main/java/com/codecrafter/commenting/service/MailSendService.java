@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -20,6 +22,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@EnableAsync
 public class MailSendService {
 
     private static final String MAIL_TITLE_CERTIFICATION = "코멘팅 회원가입 인증 메일입니다.";    // 메일제목
@@ -63,7 +66,7 @@ public class MailSendService {
     }
 
 
-    private String getDomainName(HttpServletRequest request) {
+    public String getDomainName(HttpServletRequest request) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
@@ -71,9 +74,9 @@ public class MailSendService {
         return String.format("%s://%s:%d", scheme, serverName, serverPort);
     }
 
-    public void sendEmailNotice(String email, HttpServletRequest httpServletRequest, String cause, String url, String content, String nickName /*원인 + 원인주소 + 내용 + 아이디 */) {
+    @Async("eMailTaskExecutor")
+    public void sendEmailNotice(String email, String domainName, String cause, String url, String content, String nickName /*원인 + 원인주소 + 내용 + 아이디 */) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        String domainName = getDomainName(httpServletRequest);
         Map<String, String> map = new HashMap<>();
 
         map.put("nickName", nickName);
