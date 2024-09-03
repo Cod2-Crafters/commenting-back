@@ -14,7 +14,8 @@ public record NotificationResponse(
     LocalDateTime createdAt,
     String url,
     String image,
-    Boolean isRead
+    Boolean isRead,
+    Long mstId
 ) {
 
 }

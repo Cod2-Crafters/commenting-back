@@ -20,7 +20,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                 "n.createdAt, " +
                 "n.url, " +
                 "mi.avatarPath, " +
-                "n.isRead" +
+                "n.isRead, " +
+                "c.conversationMST.id" +
                 ") " +
                 "FROM Notification n " +
                 "LEFT JOIN Conversation c ON n.notificationTypeId = c.id " +
