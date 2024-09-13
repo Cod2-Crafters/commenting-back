@@ -57,7 +57,7 @@ public class MemberController {
         return ResponseEntity.ok().headers(headers).body(ApiResponse.success(signInResponse));
     }
 
-    @Operation(summary = "로그아웃",
+    @Operation(summary = "로그아웃 ★",
         description = """
                         ★로그아웃</br>
                         {host}/api/member/sign-out
@@ -68,7 +68,7 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success("로그아웃이 성공적으로 완료되었습니다."));
     }
 
-    @Operation(summary = "탈퇴",
+    @Operation(summary = "탈퇴 ★",
         description = """
                         ★회원탈퇴</br>
                         {host}/api/member/unregister
