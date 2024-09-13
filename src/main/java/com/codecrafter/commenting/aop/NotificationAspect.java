@@ -58,7 +58,7 @@ public class NotificationAspect {
                         Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                         Long mstId = conversation.getConversationMST().getId();
                         notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conversation);
-                        if (owner.getEmailNotice()) {
+                        if (owner.getMemberSetting().getEmailNotice()) {
                             String domainName = mailSendService.getDomainName(httpServletRequest);
                             mailSendService.sendEmailNotice(owner.getEmail(), domainName, "질문", "/api/conversations/details/" + mstId, conversation.getContent(), owner.getNickname());
                         }
@@ -76,7 +76,7 @@ public class NotificationAspect {
                     Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                     Long mstId = conversation.getConversationMST().getId();
                     notificationService.saveAndSendNotification(guest, owner, NotificationType.COMMENT, conversation);
-                    if (guest.getEmailNotice()) {
+                    if (guest.getMemberSetting().getEmailNotice()) {
                         String domainName = mailSendService.getDomainName(httpServletRequest);
                         mailSendService.sendEmailNotice(guest.getEmail(), domainName, "답변", "/api/conversations/details/" + mstId, conversation.getContent(), guest.getNickname());
                     }

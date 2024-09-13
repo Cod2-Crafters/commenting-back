@@ -118,11 +118,11 @@ public class ConversationService {
 		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
 												.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-		if (userId == 0L && !owner.getAllowAnonymous()) {
+		if (userId == 0L && !owner.getMemberSetting().getAllowAnonymous()) {
 			throw new IllegalArgumentException("익명 유저의 질문을 거부한 회원입니다.");
 		}
 
-        if (owner.getIsSpacePaused()) {
+        if (owner.getMemberSetting().getIsSpacePaused()) {
 			throw new IllegalStateException("스페이스 일시 중지한 회원입니다.");
 		}
 
@@ -325,7 +325,7 @@ public class ConversationService {
 		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
 		List<MemberInfo> allMember = memberInfoRepository.findAll();
 		allMember.stream()
-				.filter(e -> e.getId() != guest.getId() && e.getAllowGlobalQuestion())
+				.filter(e -> e.getId() != guest.getId() && e.getMemberSetting().getAllowGlobalQuestion())
 				.forEach(e -> {
 					// 대화마스터 저장
 					ConversationMST conversationMST = ConversationMST.create(e, guest);

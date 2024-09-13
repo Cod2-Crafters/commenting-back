@@ -56,8 +56,8 @@ public class ProfileService {
         memberInfo.setLink2(request.link2());
         memberInfo.setLink3(request.link3());
 
-        memberInfo.setAllowAnonymous(request.allowAnonymous());
-        memberInfo.setEmailNotice(request.emailNotice());
+        memberInfo.getMemberSetting().setAllowAnonymous(request.allowAnonymous());
+        memberInfo.getMemberSetting().setEmailNotice(request.emailNotice());
 
 //        memberInfo.update(request.email());
         memberInfo = profileRepository.save(memberInfo);
