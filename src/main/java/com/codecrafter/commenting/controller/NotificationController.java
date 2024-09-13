@@ -25,7 +25,7 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @Operation(summary = "알림 구독",
+    @Operation(summary = "알림 구독 ★",
         description = """
             ★현재 사용자가 알림을 실시간으로 스트리밍하기 위한 구독 설정</br>
             {host}/api/subscribe</br>
@@ -44,7 +44,7 @@ public class NotificationController {
         return sseEmitter;
     }
 
-    @Operation(summary = "알림 목록 조회",
+    @Operation(summary = "알림 목록 조회 ★",
         description = """
             ★로그인한 사용자에게 온 알림 목록 조회</br>
             {host}/api/notifications</br>
@@ -55,7 +55,7 @@ public class NotificationController {
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
     }
 
-    @Operation(summary = "알림 목록 일괄 읽음 처리",
+    @Operation(summary = "알림 목록 일괄 읽음 처리 ★",
         description = """
             ★로그인한 사용자가 버튼을 눌러 알림 목록 일괄 읽음 처리</br>
             {host}/api/notifications/mark-read</br>

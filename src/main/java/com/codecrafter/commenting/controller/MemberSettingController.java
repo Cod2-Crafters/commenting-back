@@ -17,10 +17,9 @@ public class MemberSettingController {
 
     private final MemberSettingService memberSettingService;
 
-    @Operation(summary = "광역 질문 승인 설정",
+    @Operation(summary = "광역 질문 승인 설정 ★",
         description = """
                             ★광역 질문 승인 설정</br>
-                            토큰 필수</br>
                             {host}/api/member/allow-global-question
                             """)
     @PutMapping("/allow-global-question")
@@ -29,10 +28,9 @@ public class MemberSettingController {
         return ResponseEntity.ok(ApiResponse.success(settingResponse));
     }
 
-    @Operation(summary = "이메일 알림 수신 설정",
+    @Operation(summary = "이메일 알림 수신 설정 ★",
         description = """
                         ★이메일 알림 수신 설정</br>
-                        토큰 필수</br>
                         {host}/api/member/email-notification
                         """)
     @PutMapping("/email-notification")
@@ -41,10 +39,9 @@ public class MemberSettingController {
         return ResponseEntity.ok(ApiResponse.success(settingResponse));
     }
 
-    @Operation(summary = "스페이스 일시 중지 설정",
+    @Operation(summary = "스페이스 일시 중지 설정 ★",
         description = """
                         ★스페이스 일시 중지 설정</br>
-                        토큰 필수</br>
                         {host}/api/member/space-pause
                         """)
     @PutMapping("/space-pause")
@@ -53,10 +50,9 @@ public class MemberSettingController {
         return ResponseEntity.ok(ApiResponse.success(settingResponse));
     }
 
-    @Operation(summary = "비로그인 질문 제한 설정",
+    @Operation(summary = "비로그인 질문 제한 설정 ★",
         description = """
                         ★비로그인 질문 제한 설정</br>
-                        토큰 필수</br>
                         {host}/api/member/allow-anonymous
                         """)
     @PutMapping("/allow-anonymous")

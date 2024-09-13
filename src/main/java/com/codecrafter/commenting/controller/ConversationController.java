@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConversationController {
     private final ConversationService conversationService;
 
-    @Operation(summary = "질문조회",
+    @Operation(summary = "질문조회 ★",
         description = """
                         ★질문 단건조회</br>
                         {host}/api/conversations/question/{ownerId}
@@ -46,7 +46,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 상세조회",
+    @Operation(summary = "대화 상세조회 ★",
         description = """
                         ★질/답 상세조회</br>
                         {host}/api/conversations/details/{mstId}
@@ -57,7 +57,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 전체조회(삭제예정/조회용으로 남겨둠)",
+    @Operation(summary = "대화 전체조회(삭제예정/조회용으로 남겨둠) ★",
         description = """
                         ★해당 스페이스의 모든 대화 조회</br>
                         {host}/api/conversations/timeline/{ownerId}
@@ -68,7 +68,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
 
-    @Operation(summary = "대화 전체조회(페이징)",
+    @Operation(summary = "대화 전체조회(페이징) ★",
         description = """
                         ★대화 블럭단위로 스페이스의 대화 조회</br>
                         초기 블럭 3개, 추가 요청시 블럭 3개</br>
@@ -81,7 +81,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
-    @Operation(summary = "질문작성",
+    @Operation(summary = "질문작성 ★",
         description = """
                         ★스페이스에 불특정 다수의 질문자가 질문</br>
                         {host}/api/conversations/question</br>
@@ -98,7 +98,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "질문수정",
+    @Operation(summary = "질문수정 ★",
         description = """
                         ★질문자가 질문내용 수정</br>
                         {host}/api/conversations/question/update
@@ -109,7 +109,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
-    @Operation(summary = "질문삭제",
+    @Operation(summary = "질문삭제 ★",
         description = """
                         ★질문 삭제시 관련대화(질문1 + 답변n) 일괄 삭제</br>
                         {host}/api/conversations/question/{mstId}</br>
@@ -120,7 +120,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(id), HttpStatus.OK);
     }
 
-    @Operation(summary = "답변작성",
+    @Operation(summary = "답변작성 ★",
         description = """
                         ★스페이스 주인이 질문에 대한 답변 작성</br>
                         {host}/api/conversations/answer</br>
@@ -137,7 +137,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "답변수정",
+    @Operation(summary = "답변수정 ★",
         description = """
                         ★답변자가 답변내용 수정</br>
                         {host}/api/conversations/answer/update
@@ -148,7 +148,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
     }
 
-    @Operation(summary = "답변삭제",
+    @Operation(summary = "답변삭제 ★",
         description = """
                         ★답변 단건삭제</br>
                         {host}/api/conversations/answer/{conId}</br>
@@ -159,7 +159,7 @@ public class ConversationController {
         return new ResponseEntity<>(ApiResponse.success(id), HttpStatus.OK);
     }
 
-    @Operation(summary = "보낸질문(페이징)",
+    @Operation(summary = "보낸질문(페이징) ★",
         description = """
                         ★내가 작성한 보낸질문(답변포함) 블럭단위로 조회</br>
                         초기 블럭 3개, 추가 요청시 블럭 3개</br>
@@ -171,7 +171,7 @@ public class ConversationController {
         List<ConversationProfileResponse> details = conversationService.getQuestionsByGuestId(ownerId);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
-    @Operation(summary = "광역 질문",
+    @Operation(summary = "광역 질문 ★",
         description = """
                         ★운영자를 제외한 전체에 광역 질문 </br>
                         {host}/api/conversations/global-question

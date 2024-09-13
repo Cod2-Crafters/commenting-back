@@ -51,7 +51,7 @@ public class RecommendController {
         return new ResponseEntity<>(ApiResponse.success(response), HttpStatus.OK);
     }
 
-    @Operation(summary = "좋은질문들",
+    @Operation(summary = "좋은질문들 ★",
         description = """
                         ★내가 좋아요누른 대화 조회</br>
                         {host}/api/recommends/user
