@@ -26,7 +26,7 @@ public class MemberSettingService {
             memberSetting.setAllowGlobalQuestion(true);
         }
         memberSettingRepository.save(memberSetting);
-        return new SettingResponse(SettingName.ALLOW_GLOBAL_QUESTION, memberInfo.getMemberSetting().getAllowGlobalQuestion());
+        return new SettingResponse(SettingName.ALLOW_GLOBAL_QUESTION, memberSetting.getAllowGlobalQuestion());
     }
 
     @Transactional
@@ -39,7 +39,7 @@ public class MemberSettingService {
             memberSetting.setEmailNotice(true);
         }
         memberSettingRepository.save(memberSetting);
-        return new SettingResponse(SettingName.ALLOW_EMAIL_NOTIFICATION, memberInfo.getMemberSetting().getEmailNotice());
+        return new SettingResponse(SettingName.ALLOW_EMAIL_NOTIFICATION, memberSetting.getEmailNotice());
     }
 
     @Transactional
@@ -52,7 +52,7 @@ public class MemberSettingService {
             memberSetting.setIsSpacePaused(true);
         }
         memberSettingRepository.save(memberSetting);
-        return new SettingResponse(SettingName.SPACE_PAUSE, memberInfo.getMemberSetting().getIsSpacePaused());
+        return new SettingResponse(SettingName.SPACE_PAUSE, memberSetting.getIsSpacePaused());
     }
 
     @Transactional
@@ -65,6 +65,6 @@ public class MemberSettingService {
             memberSetting.setAllowAnonymous(true);
         }
         memberSettingRepository.save(memberSetting);
-        return new SettingResponse(SettingName.ALLOW_ANONYMOUS_QUESTION, memberInfo.getMemberSetting().getAllowAnonymous());
+        return new SettingResponse(SettingName.ALLOW_ANONYMOUS_QUESTION, memberSetting.getAllowAnonymous());
     }
 }
