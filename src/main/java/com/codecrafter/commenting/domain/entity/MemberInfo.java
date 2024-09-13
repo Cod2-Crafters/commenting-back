@@ -72,28 +72,12 @@ public class MemberInfo extends BaseEntity {
 	@Column(name = "avatar_path", nullable = true)
 	private String avatarPath;
 
-	@Comment("익명 댓글 허용 여부")
-	@ColumnDefault("true")
-	@Column(name = "allow_anonymous", nullable = false)
-	private Boolean allowAnonymous = true;
-
-	@Comment("이메일 알림 수신 여부")
-	@ColumnDefault("true")
-	@Column(name = "email_notice", nullable = false)
-	private Boolean emailNotice = true;
-
-	@Comment("광역 질문 수신 여부")
-	@ColumnDefault("true")
-	@Column(nullable = false)
-	private Boolean allowGlobalQuestion;
-
-	@Comment("스페이스 일시 중지")
-	@ColumnDefault("false")
-	@Column(nullable = false)
-	private Boolean isSpacePaused;
+	@Comment("회원 세팅")
+	@OneToOne(mappedBy = "memberInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private MemberSetting memberSetting;
 
 	@Builder
-	public MemberInfo(Long id, MemberAuth memberAuth, String email, String nickname, String introduce, String link1, String link2, String link3, String avatarPath, Boolean allowAnonymous, Boolean emailNotice) {
+	public MemberInfo(Long id, MemberAuth memberAuth, String email, String nickname, String introduce, String link1, String link2, String link3, String avatarPath) {
 		this.id = id;
 		this.memberAuth = memberAuth;
 		this.email = email;
@@ -103,8 +87,6 @@ public class MemberInfo extends BaseEntity {
 		this.link2 = link2;
 		this.link3 = link3;
 		this.avatarPath = avatarPath;
-		this.allowAnonymous = allowAnonymous;
-		this.emailNotice = emailNotice;
 	}
 
 	public MemberInfo update(String email) {
@@ -117,18 +99,6 @@ public class MemberInfo extends BaseEntity {
 	protected void onCreate() {
 		if(this.id == null) {
 			this.id = 0L;
-		}
-		if(this.emailNotice == null) {
-			this.emailNotice = false;
-		}
-		if(this.allowAnonymous == null) {
-			this.allowAnonymous = false;
-		}
-		if(this.allowGlobalQuestion == null) {
-			this.allowGlobalQuestion = false;
-		}
-		if(this.isSpacePaused == null) {
-			this.isSpacePaused = false;
 		}
 	}
 

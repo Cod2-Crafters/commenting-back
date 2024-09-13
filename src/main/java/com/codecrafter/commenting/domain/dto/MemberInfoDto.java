@@ -33,8 +33,8 @@ public class MemberInfoDto {
         this.link2 = memberInfo.getLink2();
         this.link3 = memberInfo.getLink3();
         this.avatarPath = memberInfo.getAvatarPath();
-        this.allowAnonymous = memberInfo.getAllowAnonymous();
-        this.emailNotice = memberInfo.getEmailNotice();
+        this.allowAnonymous = memberInfo.getMemberSetting().getAllowAnonymous();
+        this.emailNotice = memberInfo.getMemberSetting().getEmailNotice();
         this.answerCnt = answerCnt;
         this.likesCnt = likesCnt;
     }
