@@ -4,16 +4,16 @@ import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
+import com.codecrafter.commenting.domain.entity.MemberSetting;
 import com.codecrafter.commenting.domain.enumeration.Provider;
-import com.codecrafter.commenting.domain.enumeration.SettingName;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
-import com.codecrafter.commenting.domain.response.SettingResponse;
 import com.codecrafter.commenting.domain.response.SignInResponse;
 import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.exception.AuthenticationFailedException;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
+import com.codecrafter.commenting.repository.MemberSettingRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import java.util.Optional;
@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
     private final MemberAuthRepository memberAuthRepository;
     private final MemberInfoRepository memberInfoRepository;
+    private final MemberSettingRepository memberSettingRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
@@ -48,7 +49,7 @@ public class MemberService {
                                             .memberAuth(memberAuth)
                                             .build();
         memberInfoRepository.save(memberInfo);
-
+        memberSettingRepository.save(new MemberSetting(memberInfo));
         try {
             memberAuthRepository.flush();
         } catch (DataIntegrityViolationException e) {
@@ -100,55 +101,6 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
         return false;
-    }
-
-    @Transactional
-    public SettingResponse setAllowGlobalQuestion() {
-        MemberInfo memberInfo = SecurityUtil.getCurrentMember().getMemberInfo();
-
-        if (memberInfo.getAllowGlobalQuestion()) {
-            memberInfo.setAllowGlobalQuestion(false);
-        } else {
-            memberInfo.setAllowGlobalQuestion(true);
-        }
-        memberInfoRepository.save(memberInfo);
-        return new SettingResponse(SettingName.ALLOW_GLOBAL_QUESTION, memberInfo.getAllowGlobalQuestion());
-    }
-
-    @Transactional
-    public SettingResponse setEmailNotification() {
-        MemberInfo memberInfo = SecurityUtil.getCurrentMember().getMemberInfo();
-        if (memberInfo.getEmailNotice()) {
-            memberInfo.setEmailNotice(false);
-        } else {
-            memberInfo.setEmailNotice(true);
-        }
-        memberInfoRepository.save(memberInfo);
-        return new SettingResponse(SettingName.ALLOW_EMAIL_NOTIFICATION, memberInfo.getEmailNotice());
-    }
-
-    @Transactional
-    public SettingResponse setSpacePause() {
-        MemberInfo memberInfo = SecurityUtil.getCurrentMember().getMemberInfo();
-        if (memberInfo.getIsSpacePaused()) {
-            memberInfo.setIsSpacePaused(false);
-        } else {
-            memberInfo.setIsSpacePaused(true);
-        }
-        memberInfoRepository.save(memberInfo);
-        return new SettingResponse(SettingName.SPACE_PAUSE, memberInfo.getIsSpacePaused());
-    }
-
-    @Transactional
-    public SettingResponse setAllowAnonymous() {
-        MemberInfo memberInfo = SecurityUtil.getCurrentMember().getMemberInfo();
-        if (memberInfo.getAllowAnonymous()) {
-            memberInfo.setAllowAnonymous(false);
-        } else {
-            memberInfo.setAllowAnonymous(true);
-        }
-        memberInfoRepository.save(memberInfo);
-        return new SettingResponse(SettingName.ALLOW_ANONYMOUS_QUESTION, memberInfo.getAllowAnonymous());
     }
 
 }
