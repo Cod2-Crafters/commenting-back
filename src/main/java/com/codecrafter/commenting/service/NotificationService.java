@@ -65,8 +65,19 @@ public class NotificationService {
                 .name("sse")
                 .data(data)
             );
-        } catch (IOException | IllegalStateException e) {
-        }
+        } catch (IOException | IllegalStateException e) {}
+    }
+
+    private void sendToClient(SseEmitter emitter, String eventId, String emitterId, Object data, Long unreadCount) {
+        try {
+            emitter.send(SseEmitter.event()
+                .id(eventId)
+                .name("sse")
+                .data(data)
+//                .data(Map.of("unreadCount", unreadCount))
+                .data(unreadCount)
+            );
+        } catch (IOException | IllegalStateException e) {}
     }
 
     private boolean hasLostData(String lastEventId) {
@@ -85,6 +96,7 @@ public class NotificationService {
         Notification notification = notificationRepository.save(createNotification(receiver, sender, type, conversation.getId()));
         String receiverEmail = receiver.getEmail();
         String eventId = makeTimeIncludeId(receiverEmail);
+        long countIsRead = notificationRepository.countByIsReadFalseAndReceiverInfo(receiver);
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(receiverEmail);
         if (emitters.isEmpty()) {
@@ -94,7 +106,7 @@ public class NotificationService {
             (key, emitter) -> {
                 NotificationResponse notificationResponse = toNotificationResponse(notification, conversation);
                 emitterRepository.saveEventCache(key, notificationResponse);
-                sendToClient(emitter, eventId, key, notificationResponse);
+                sendToClient(emitter, eventId, key, notificationResponse, countIsRead);
             }
         );
     }
