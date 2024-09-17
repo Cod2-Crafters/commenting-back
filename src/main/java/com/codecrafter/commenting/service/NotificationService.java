@@ -5,9 +5,12 @@ import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
+import com.codecrafter.commenting.domain.request.ReadNotificationRequest;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.repository.EmitterRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
+import com.codecrafter.commenting.repository.conversation.ConversationRepository;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,7 @@ public class NotificationService {
 
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final ConversationRepository conversationRepository;
 
     public SseEmitter subscribe(String email, String lastEventId) {
         String emitterId = makeTimeIncludeId(email);
@@ -61,8 +65,19 @@ public class NotificationService {
                 .name("sse")
                 .data(data)
             );
-        } catch (IOException | IllegalStateException e) {
-        }
+        } catch (IOException | IllegalStateException e) {}
+    }
+
+    private void sendToClient(SseEmitter emitter, String eventId, String emitterId, Object data, Long unreadCount) {
+        try {
+            emitter.send(SseEmitter.event()
+                .id(eventId)
+                .name("sse")
+                .data(data)
+//                .data(Map.of("unreadCount", unreadCount))
+                .data(unreadCount)
+            );
+        } catch (IOException | IllegalStateException e) {}
     }
 
     private boolean hasLostData(String lastEventId) {
@@ -81,6 +96,7 @@ public class NotificationService {
         Notification notification = notificationRepository.save(createNotification(receiver, sender, type, conversation.getId()));
         String receiverEmail = receiver.getEmail();
         String eventId = makeTimeIncludeId(receiverEmail);
+        long countIsRead = notificationRepository.countByIsReadFalseAndReceiverInfo(receiver);
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(receiverEmail);
         if (emitters.isEmpty()) {
@@ -90,7 +106,7 @@ public class NotificationService {
             (key, emitter) -> {
                 NotificationResponse notificationResponse = toNotificationResponse(notification, conversation);
                 emitterRepository.saveEventCache(key, notificationResponse);
-                sendToClient(emitter, eventId, key, notificationResponse);
+                sendToClient(emitter, eventId, key, notificationResponse, countIsRead);
             }
         );
     }
@@ -155,4 +171,19 @@ public class NotificationService {
         notificationRepository.markAllNotificationsAsRead(getCurrentMemberId);
         return notificationRepository.findByReceiverId(getCurrentMemberId);
     }
+
+    @Transactional
+    public List<ConversationDetailsResponse> getConversationsAndMarkNotificationAsRead(
+        ReadNotificationRequest readNotificationRequest,
+        Long notificationId
+    ) {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId();
+
+        if (!readNotificationRequest.isRead()) {
+            Notification notification = notificationRepository.findById(notificationId).orElseThrow();
+            notification.markAsRead();
+        }
+        return conversationRepository.findConversationDetailsByMstId(readNotificationRequest.mstId(), getCurrentMemberId);
+    }
+
 }

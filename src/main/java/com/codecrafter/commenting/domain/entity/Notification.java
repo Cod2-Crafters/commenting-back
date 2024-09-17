@@ -65,4 +65,8 @@ public class Notification extends BaseEntity {
         this.url = url;
         this.notificationTypeId = notificationTypeId;
     }
+
+    public void markAsRead() {
+        this.isRead = true;
+    }
 }

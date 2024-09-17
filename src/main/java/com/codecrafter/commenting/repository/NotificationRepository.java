@@ -1,5 +1,6 @@
 package com.codecrafter.commenting.repository;
 
+import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import java.util.List;
@@ -39,4 +40,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                 "AND n.isRead = false"
     )
     void markAllNotificationsAsRead(@Param("id") Long id);
+
+    long countByIsReadFalseAndReceiverInfo(MemberInfo info);
+
 }

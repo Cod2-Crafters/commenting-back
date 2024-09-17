@@ -2,7 +2,9 @@ package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
+import com.codecrafter.commenting.domain.request.ReadNotificationRequest;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
+import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,5 +68,20 @@ public class NotificationController {
     public ResponseEntity<ApiResponse> markAllNotificationsAsRead() {
         List<NotificationResponse> notificationResponses = notificationService.markAllNotificationsAsRead();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
+    }
+
+    @Operation(summary = "알림 읽음 처리 및 조회 ★",
+        description = """
+            ★로그인한 사용자가 알림을 눌러 읽음 처리를 하고 해당 내용을 반환합니다.</br>
+            {host}/api/notifications/{notificationId}/mark-read</br>
+            """)
+    @GetMapping("/notifications/{notificationId}/mark-read")
+    public ResponseEntity<ApiResponse> getConversationsAndMarkNotificationAsRead(
+        @RequestBody ReadNotificationRequest readNotificationRequest,
+        @PathVariable Long notificationId
+    ) {
+        List<ConversationDetailsResponse> conversations =
+                notificationService.getConversationsAndMarkNotificationAsRead(readNotificationRequest, notificationId);
+        return ResponseEntity.ok(ApiResponse.success(conversations));
     }
 }
