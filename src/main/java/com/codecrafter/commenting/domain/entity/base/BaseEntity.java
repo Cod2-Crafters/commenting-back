@@ -2,6 +2,7 @@ package com.codecrafter.commenting.domain.entity.base;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -23,5 +24,8 @@ public abstract class BaseEntity {
 	@UpdateTimestamp
 	@Column(name = "modified_at")
 	private LocalDateTime modifiedAt;
+
+	@ColumnDefault("false")
+	private Boolean isDeleted;
 
 }
