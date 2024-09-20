@@ -18,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 /**
  * 알림 엔티티
@@ -25,6 +27,8 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
+@SQLDelete(sql = "UPDATE notification SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class Notification extends BaseEntity {
 
     @Id

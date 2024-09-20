@@ -24,6 +24,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 /**
  * 대화 관리 테이블
@@ -33,6 +35,8 @@ import lombok.NonNull;
 @NoArgsConstructor(access = PROTECTED)
 @Entity
 @Getter
+@SQLDelete(sql = "UPDATE conversation_mst SET is_deleted = true WHERE id = ? AND version = ?")
+@Where(clause = "is_deleted = false")
 public class ConversationMST extends BaseEntity {
 
 	@Comment("PK")
@@ -50,7 +54,7 @@ public class ConversationMST extends BaseEntity {
 	@JoinColumn(name = "guest_id", nullable = true)
 	private MemberInfo guest;
 
-	@OneToMany(mappedBy = "conversationMST", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "conversationMST", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private List<Conversation> conversations = new ArrayList<>();
 
 	@Version
