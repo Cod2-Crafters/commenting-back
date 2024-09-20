@@ -73,10 +73,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerIdPaging(@Param("ownerId") Long ownerId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
 
-    @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM conversation WHERE mst_id = :mstId", nativeQuery = true)
-    void deleteByConversationMSTId(@Param("mstId") Long mstId);
+    void deleteByConversationMSTId(Long mstId);
 
     @Query(value = BASE_QUERY +
                     "    WHERE b.mst_id BETWEEN :startMstId AND :endMstId " +
