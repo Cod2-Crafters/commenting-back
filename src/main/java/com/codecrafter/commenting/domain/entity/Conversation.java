@@ -3,6 +3,10 @@ package com.codecrafter.commenting.domain.entity;
 import static jakarta.persistence.FetchType.*;
 import static lombok.AccessLevel.*;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -21,6 +25,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 /**
  * 단일 대화 엔티티
@@ -28,6 +34,8 @@ import lombok.Setter;
 @NoArgsConstructor(access = PROTECTED)
 @Entity
 @Getter
+@SQLDelete(sql = "UPDATE conversation SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class Conversation extends BaseEntity {
 
 	@Comment("PK")
@@ -74,6 +82,9 @@ public class Conversation extends BaseEntity {
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "writer_info_id")
 	private MemberInfo memberInfo;
+
+	@OneToMany(mappedBy = "conversation", cascade = CascadeType.REMOVE)
+	private List<Recommend> recommends = new ArrayList<>();
 
 	@Builder
 	public Conversation(String content, boolean isPrivate, boolean isQuestion, MemberInfo memberInfo) {

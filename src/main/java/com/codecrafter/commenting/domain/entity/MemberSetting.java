@@ -17,6 +17,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -24,6 +26,8 @@ import org.hibernate.annotations.DynamicUpdate;
 @Setter
 @DynamicInsert
 @DynamicUpdate
+@SQLDelete(sql = "UPDATE member_setting SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class MemberSetting extends BaseEntity {
 
     @Id
@@ -31,7 +35,7 @@ public class MemberSetting extends BaseEntity {
     private Long id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
     private MemberInfo memberInfo;
 
