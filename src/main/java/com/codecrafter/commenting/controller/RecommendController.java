@@ -3,6 +3,7 @@ package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.request.RecommendRequest;
+import com.codecrafter.commenting.domain.response.GoodQuestionResponse;
 import com.codecrafter.commenting.domain.response.RecommendResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.service.RecommendService;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/recommend")
+@RequestMapping("/api/recommends")
 @RequiredArgsConstructor
 @Slf4j
 public class RecommendController {
@@ -30,7 +31,7 @@ public class RecommendController {
     @Operation(summary = "좋아요",
         description = """
                         ★좋아요 증/감</br>
-                        {host}/api/recommend/likes
+                        {host}/api/recommends/likes
                         
                         """)
     @PostMapping("/likes")
@@ -42,7 +43,7 @@ public class RecommendController {
     @Operation(summary = "고마워요",
         description = """
                         ★고마워요 증/감</br>
-                        {host}/api/recommend/thanked
+                        {host}/api/recommends/thanked
                         
                         """)
     @PostMapping("/thanked")
@@ -60,6 +61,17 @@ public class RecommendController {
     public ResponseEntity<ApiResponse> getRecommendedConversations(@RequestHeader("Authorization") String token) {
         List<ConversationResponse> conversations = recommendService.getRecommendedConversations(token);
         return new ResponseEntity<>(ApiResponse.success(conversations), HttpStatus.OK);
+    }
+
+    @Operation(summary = "좋은질문들 ★",
+        description = """
+                        ★내가 좋아요누른 대화 조회</br>
+                        {host}/api/recommends/good-questions
+                        """)
+    @GetMapping("/good-questions")
+    public ResponseEntity<ApiResponse> getRecommendedConversations() {
+        List<GoodQuestionResponse> goodQuestionResponses = recommendService.getRecommendedConversations();
+        return new ResponseEntity<>(ApiResponse.success(goodQuestionResponses), HttpStatus.OK);
     }
 
 }
