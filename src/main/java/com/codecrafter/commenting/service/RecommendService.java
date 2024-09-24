@@ -1,12 +1,15 @@
 package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.annotation.Notification;
+import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.Conversation;
+import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Recommend;
 import com.codecrafter.commenting.domain.enumeration.RecommendStatus;
 import com.codecrafter.commenting.domain.request.RecommendRequest;
+import com.codecrafter.commenting.domain.response.GoodQuestionResponse;
 import com.codecrafter.commenting.domain.response.RecommendResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.repository.conversation.ConversationRepository;
@@ -112,4 +115,21 @@ public class RecommendService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<GoodQuestionResponse> getRecommendedConversations() {
+        Long memberId = SecurityUtil.getCurrentMember().getId();
+        List<Conversation> conversations = recommendRepository.findLikedConversationsByUserId(memberId, RecommendStatus.LIKES);
+
+        return conversations.stream()
+                            .map(conversation -> {
+                                ConversationMST conversationMST = conversation.getConversationMST();
+                                return GoodQuestionResponse.builder()
+                                                            .createAt(conversation.getCreatedAt())
+                                                            .content(conversation.getContent())
+                                                            .writerNickName(conversationMST.getGuest().getNickname())
+                                                            .receiverNickName(conversationMST.getOwner().getNickname())
+                                                            .MstId(conversationMST.getId())
+                                                            .build();
+                            }).toList();
+    }
 }
