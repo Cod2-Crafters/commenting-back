@@ -122,6 +122,7 @@ public class NotificationService {
                                     .url(notification.getUrl())
                                     .image(conversation.getMemberInfo().getAvatarPath()) // 상대 이미지
                                     .isRead(notification.getIsRead())
+                                    .mstId(conversation.getConversationMST().getId())
                                     .build();
     }
 
