@@ -126,9 +126,11 @@ public class RecommendService {
                                 return GoodQuestionResponse.builder()
                                                             .createAt(conversation.getCreatedAt())
                                                             .content(conversation.getContent())
-                                                            .writerNickName(conversationMST.getGuest().getNickname())
-                                                            .receiverNickName(conversationMST.getOwner().getNickname())
-                                                            .MstId(conversationMST.getId())
+                                                            .guestNickname(conversationMST.getGuest().getNickname())
+                                                            .ownerNickName(conversationMST.getOwner().getNickname())
+                                                            .ownerId(conversationMST.getOwner().getId())
+                                                            .guestId(conversationMST.getGuest().getId())
+                                                            .mstId(conversationMST.getId())
                                                             .build();
                             }).toList();
     }

@@ -7,9 +7,11 @@ import lombok.Builder;
 public record GoodQuestionResponse(
     LocalDateTime createAt,
     String content,
-    String writerNickName,
-    String receiverNickName,
-    Long MstId
+    String ownerNickName,
+    String guestNickname,
+    Long mstId,
+    Long guestId,
+    Long ownerId
 ) {
 
 }
