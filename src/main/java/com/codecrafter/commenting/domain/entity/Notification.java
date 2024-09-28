@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -29,6 +30,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @SQLDelete(sql = "UPDATE notification SET is_deleted = true WHERE id = ?")
 @Where(clause = "is_deleted = false")
+@DynamicInsert
 public class Notification extends BaseEntity {
 
     @Id

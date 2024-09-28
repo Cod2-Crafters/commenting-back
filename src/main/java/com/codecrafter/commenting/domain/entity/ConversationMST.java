@@ -24,6 +24,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -37,6 +38,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @SQLDelete(sql = "UPDATE conversation_mst SET is_deleted = true WHERE id = ? AND version = ?")
 @Where(clause = "is_deleted = false")
+@DynamicInsert
 public class ConversationMST extends BaseEntity {
 
 	@Comment("PK")
