@@ -1,11 +1,9 @@
 package com.codecrafter.commenting.domain.response;
 
 import java.util.List;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class StatisticsResponse {
 
     private Long goodQuestionCount;
@@ -15,4 +13,19 @@ public class StatisticsResponse {
     private Long unansweredQuestionCount;
     private Double answerRate;
     private List<QuestionedUser> questionedUsers;
+
+    public StatisticsResponse(Long goodQuestionCount, Long receivedQuestionCount, Long sentQuestionCount,
+        Long answerCount,
+        Long unansweredQuestionCount) {
+        this.goodQuestionCount = goodQuestionCount;
+        this.receivedQuestionCount = receivedQuestionCount;
+        this.sentQuestionCount = sentQuestionCount;
+        this.answerCount = answerCount;
+        this.unansweredQuestionCount = unansweredQuestionCount;
+    }
+
+    public void setAnswerRateAndQuestionedUsers(List<QuestionedUser> questionedUsers) {
+        this.answerRate = (receivedQuestionCount - unansweredQuestionCount) / (double)receivedQuestionCount * 100;
+        this.questionedUsers = questionedUsers;
+    }
 }
