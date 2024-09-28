@@ -1,14 +1,11 @@
 package com.codecrafter.commenting.repository.conversation;
 
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
-import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.persistence.Tuple;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.codecrafter.commenting.domain.entity.Conversation;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 /**
@@ -102,5 +99,16 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                 "ORDER BY cd.mstId DESC, cd.conId ASC",
                 nativeQuery = true)
     Tuple findConversationResponseById(@Param("conId") Long conId, @Param("userId") Long userId);
+
+    @Query(
+        value = "SELECT COUNT(*) " +
+                "FROM conversation c " +
+                "JOIN recommend r " +
+                "ON r.conversation_id = c.id " +
+                "WHERE c.is_deleted = false AND c.writer_info_id = :id AND c.is_question = true AND r.is_deleted = false AND r.recommend_status = 'LIKES'",
+        nativeQuery = true)
+    long countGoodQuestionByMemberId(Long id);
+
+    long countByMemberInfoIdAndIsQuestionFalse(Long id);
 
 }
