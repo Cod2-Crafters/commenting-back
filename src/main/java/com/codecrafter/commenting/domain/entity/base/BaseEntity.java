@@ -1,5 +1,6 @@
 package com.codecrafter.commenting.domain.entity.base;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
@@ -26,6 +27,7 @@ public abstract class BaseEntity {
 	private LocalDateTime modifiedAt;
 
 	@ColumnDefault("false")
+	@NotNull
 	private Boolean isDeleted;
 
 }
