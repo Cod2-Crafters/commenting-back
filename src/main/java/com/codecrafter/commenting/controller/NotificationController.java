@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -75,7 +76,7 @@ public class NotificationController {
             ★로그인한 사용자가 알림을 눌러 읽음 처리를 하고 해당 내용을 반환합니다.</br>
             {host}/api/notifications/{notificationId}/mark-read</br>
             """)
-    @GetMapping("/notifications/{notificationId}/mark-read")
+    @PostMapping("/notifications/{notificationId}/mark-read")
     public ResponseEntity<ApiResponse> getConversationsAndMarkNotificationAsRead(
         @RequestBody ReadNotificationRequest readNotificationRequest,
         @PathVariable Long notificationId
