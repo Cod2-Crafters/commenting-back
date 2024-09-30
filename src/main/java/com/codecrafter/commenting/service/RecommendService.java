@@ -118,20 +118,6 @@ public class RecommendService {
     @Transactional(readOnly = true)
     public List<GoodQuestionResponse> getRecommendedConversations() {
         Long memberId = SecurityUtil.getCurrentMember().getId();
-        List<Conversation> conversations = recommendRepository.findLikedConversationsByUserId(memberId, RecommendStatus.LIKES);
-
-        return conversations.stream()
-                            .map(conversation -> {
-                                ConversationMST conversationMST = conversation.getConversationMST();
-                                return GoodQuestionResponse.builder()
-                                                            .createAt(conversation.getCreatedAt())
-                                                            .content(conversation.getContent())
-                                                            .guestNickname(conversationMST.getGuest().getNickname())
-                                                            .ownerNickName(conversationMST.getOwner().getNickname())
-                                                            .ownerId(conversationMST.getOwner().getId())
-                                                            .guestId(conversationMST.getGuest().getId())
-                                                            .mstId(conversationMST.getId())
-                                                            .build();
-                            }).toList();
+        return recommendRepository.findLikedRecommendationByMemberId(memberId);
     }
 }
