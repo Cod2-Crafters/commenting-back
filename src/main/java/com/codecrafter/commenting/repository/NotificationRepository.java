@@ -43,4 +43,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByIsReadFalseAndReceiverInfo(MemberInfo info);
 
+    long countByIsReadFalseAndReceiverInfoEmail(String email);
+
 }
