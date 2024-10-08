@@ -1,11 +1,13 @@
 package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
+import com.codecrafter.commenting.domain.response.SettingDataResponse;
 import com.codecrafter.commenting.domain.response.SettingResponse;
 import com.codecrafter.commenting.service.MemberSettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberSettingController {
 
     private final MemberSettingService memberSettingService;
+
+    @Operation(summary = "설정 데이터 조회 ★",
+        description = """
+                        ★설정 데이터 조회</br>
+                        {host}/api/member/setting
+                      """)
+    @GetMapping
+    public ResponseEntity<ApiResponse> getSettingData() {
+        SettingDataResponse settingDataResponse = memberSettingService.getSettingData();
+        return ResponseEntity.ok(ApiResponse.success(settingDataResponse));
+    }
 
     @Operation(summary = "광역 질문 승인 설정 ★",
         description = """

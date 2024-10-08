@@ -4,6 +4,7 @@ import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.MemberSetting;
 import com.codecrafter.commenting.domain.enumeration.SettingName;
+import com.codecrafter.commenting.domain.response.SettingDataResponse;
 import com.codecrafter.commenting.domain.response.SettingResponse;
 import com.codecrafter.commenting.repository.MemberSettingRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberSettingService {
 
     private final MemberSettingRepository memberSettingRepository;
+
+    @Transactional(readOnly = true)
+    public SettingDataResponse getSettingData() {
+        MemberInfo memberInfo = SecurityUtil.getCurrentMember().getMemberInfo();
+        MemberSetting memberSetting = memberInfo.getMemberSetting();
+
+        return SettingDataResponse.builder()
+                                .allowAnonymous(memberSetting.getAllowAnonymous())
+                                .emailNotice(memberSetting.getEmailNotice())
+                                .isSpacePaused(memberSetting.getIsSpacePaused())
+                                .allowGlobalQuestion(memberSetting.getAllowGlobalQuestion())
+                                .build();
+    }
 
     @Transactional
     public SettingResponse setAllowGlobalQuestion() {
