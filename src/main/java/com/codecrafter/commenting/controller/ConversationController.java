@@ -165,10 +165,10 @@ public class ConversationController {
                         초기 블럭 3개, 추가 요청시 블럭 3개</br>
                         {host}/api/conversations/send-question/{ownerId}/{page}
                         """)
-    @GetMapping("/send-question/{ownerId}")
-    public ResponseEntity<ApiResponse> getSendQuestion(@PathVariable Long ownerId) {
-//                                                       @PathVariable(required = false) Integer page) {
-        List<ConversationProfileResponse> details = conversationService.getQuestionsByGuestId(ownerId);
+    @GetMapping("/send-question/{ownerId}/{page}")
+    public ResponseEntity<ApiResponse> getSendQuestion(@PathVariable Long ownerId,
+                                                       @PathVariable(required = false) Integer page) {
+            ConversationPageResponse details = conversationService.getQuestionsByGuestId(ownerId, page);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
     @Operation(summary = "광역 질문 ★",
