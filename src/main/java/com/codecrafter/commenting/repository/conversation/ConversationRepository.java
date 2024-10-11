@@ -70,6 +70,20 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerIdPaging(@Param("ownerId") Long ownerId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
 
+    @Query(value = BASE_QUERY +
+                   "    WHERE a.guest_id = :guestId AND a.id IN ( " +
+                   "         SELECT id FROM conversation_mst " +
+                   "         WHERE guest_id = :guestId " +
+                   "         ORDER BY id " +
+                   "         LIMIT :pageSize OFFSET :offset " +
+                   "    )" +
+                   ") cd " +
+                   IS_QUESTIONER +
+                   "WHERE cd.guestId = :guestId " +
+                   "ORDER BY cd.mstId DESC, cd.conId ASC",
+        nativeQuery = true)
+    List<ConversationDetailsResponse> findConversationByGuestIdPaging(@Param("guestId") Long guestId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
+
     void deleteByConversationMSTId(Long mstId);
 
     @Query(value = BASE_QUERY +

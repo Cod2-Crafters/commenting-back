@@ -264,12 +264,21 @@ public class ConversationService {
 	 * @param guestId 주인 ID
 	 */
 	@Transactional(readOnly = true)
-	public List<ConversationProfileResponse> getQuestionsByGuestId(Long guestId) {
+	public ConversationPageResponse getQuestionsByGuestId(Long guestId, Integer page) {
 		Long userId = getCurrentUserId();
-		return conversationRepository.findByGuestId(guestId, userId)
-										.stream()
-										.map(this::mapToConversationResponse)
-										.collect(Collectors.toList());
+		int pageNumber = (page != null) ? page - 1 : 0;	// 페이지 인덱스
+		int pageSize = timelinePageSize;	// 보여줄 블럭 수
+		int offset = pageNumber * pageSize;	// 페이징 시작 위치
+		boolean lastPage = false;	// 마지막 페이지 여부
+		long totalRecords = conversationMSTRepository.countByGuestId(guestId);
+
+		// 더이상 페이지가 없으면 마지막페이지
+		if(offset + pageSize > totalRecords) {
+			lastPage = true;
+		}
+
+		List<ConversationDetailsResponse> result = conversationRepository.findConversationByGuestIdPaging(guestId, pageSize, offset, userId);
+		return new ConversationPageResponse(result, lastPage);
 	}
 
 	private Conversation findConversationById(Long conId) {
