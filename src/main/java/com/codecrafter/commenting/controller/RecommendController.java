@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecommendController {
     private final RecommendService recommendService;
 
-    @Operation(summary = "좋아요2222",
+    @Operation(summary = "좋아요",
         description = """
                         ★좋아요 증/감</br>
                         {host}/api/recommends/likes
