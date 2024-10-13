@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function redirectToGoogleLogin() {
+            const googleAuthUrl = `/oauth2/authorization/google`;
+            window.location.href = googleAuthUrl;
+        }
+    </script>
+</head>
+<body onload="redirectToGoogleLogin()">
+</body>
+</html>
