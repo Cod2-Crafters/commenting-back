@@ -2,10 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>구글 로그인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        let messageListenerAdded = false;
+        function openPopup() {
+            const width = 500;
+            const height = 600;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+
+            const popup = window.open(
+                'popup.html',
+                'Google Login',
+                `width=${width},height=${height},top=${top},left=${left}`
+            );
+            if (!messageListenerAdded) {
+                window.addEventListener('message', (event) => {
+                    if (event.data.success) {
+                        console.log('로그인 성공 id: ' + event.data.id);
+                        console.log('로그인 성공 email: ' + event.data.email);
+                        console.log('로그인 성공 token: ' + event.data.token);
+                        console.log('로그인 성공 avatarPath: ' + event.data.avatarPath);
+                    } else {
+                        console.log('로그인 실패');
+                    }
+                }, false);
+                messageListenerAdded = true;
+            }
+        }
+    </script>
 </head>
 <body>
-<a href="/oauth2/authorization/google" class="btn btn-sm btn-success active" role="button">Google Login</a><br>
-
+<button onclick="openPopup()">로그인</button>
 </body>
 </html>

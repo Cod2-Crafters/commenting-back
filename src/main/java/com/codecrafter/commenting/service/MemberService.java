@@ -78,6 +78,14 @@ public class MemberService {
         tokenProvider.invalidateToken(token);
     }
 
+    // 이메일로 아이디찾기
+    public Long getUserId(String email) {
+        MemberAuth memberAuth = memberAuthRepository.findByEmail(email)
+                                                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        return memberAuth.getId();
+    }
+
     @Transactional
     public void unregister(String email, String token) {
         Claims claims = tokenProvider.validateToken(token);
