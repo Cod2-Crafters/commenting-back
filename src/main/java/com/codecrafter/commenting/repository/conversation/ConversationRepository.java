@@ -55,12 +55,11 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerId(@Param("ownerId") Long ownerId, @Param("userId") Long userId);
 
-
     @Query(value = BASE_QUERY +
                     "    WHERE a.owner_id = :ownerId AND a.id IN ( " +
                     "         SELECT id FROM conversation_mst " +
                     "         WHERE owner_id = :ownerId " +
-                    "         ORDER BY id " +
+                    "         ORDER BY id DESC " +
                     "         LIMIT :pageSize OFFSET :offset " +
                     "    )" +
                     ") cd " +
@@ -74,7 +73,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                    "    WHERE a.guest_id = :guestId AND a.id IN ( " +
                    "         SELECT id FROM conversation_mst " +
                    "         WHERE guest_id = :guestId " +
-                   "         ORDER BY id " +
+                   "         ORDER BY id DESC " +
                    "         LIMIT :pageSize OFFSET :offset " +
                    "    )" +
                    ") cd " +

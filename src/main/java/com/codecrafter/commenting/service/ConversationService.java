@@ -97,7 +97,7 @@ public class ConversationService {
 		long totalRecords = conversationMSTRepository.countByOwnerId(ownerId);
 
 		// 더이상 페이지가 없으면 마지막페이지
-		if(offset + pageSize > totalRecords) {
+		if(offset + pageSize >= totalRecords) {
 			lastPage = true;
 		}
 
@@ -273,7 +273,7 @@ public class ConversationService {
 		long totalRecords = conversationMSTRepository.countByGuestId(guestId);
 
 		// 더이상 페이지가 없으면 마지막페이지
-		if(offset + pageSize > totalRecords) {
+		if(offset + pageSize >= totalRecords) {
 			lastPage = true;
 		}
 
