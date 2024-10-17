@@ -163,12 +163,12 @@ public class ConversationController {
         description = """
                         ★내가 작성한 보낸질문(답변포함) 블럭단위로 조회</br>
                         초기 블럭 3개, 추가 요청시 블럭 3개</br>
-                        {host}/api/conversations/send-question/{ownerId}/{page}
+                        {host}/api/conversations/send-question/{guestId}/{page}
                         """)
-    @GetMapping("/send-question/{ownerId}/{page}")
-    public ResponseEntity<ApiResponse> getSendQuestion(@PathVariable Long ownerId,
+    @GetMapping("/send-question/{guestId}/{page}")
+    public ResponseEntity<ApiResponse> getSendQuestion(@PathVariable Long guestId,
                                                        @PathVariable(required = false) Integer page) {
-            ConversationPageResponse details = conversationService.getQuestionsByGuestId(ownerId, page);
+            ConversationPageResponse details = conversationService.getQuestionsByGuestId(guestId, page);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
     @Operation(summary = "광역 질문 ★",

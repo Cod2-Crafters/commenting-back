@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record GoodQuestionResponse(
-    LocalDateTime createAt,
+    LocalDateTime createdAt,
     String content,
     String ownerNickName,
     String guestNickname,
