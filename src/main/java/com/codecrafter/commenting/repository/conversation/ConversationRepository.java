@@ -27,7 +27,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                         "               ELSE false END AS isThanked, " +
                         "           b.is_private AS isPrivate, " +
                         "           b.is_question AS isQuestion, " +
-                        "           b.modified_at AS modifiedAt " +
+                        "           b.modified_at AS modifiedAt, " +
+                        "           b.writer_info_id AS writerId " +
                         "    FROM conversation_mst a " +
                         "    JOIN conversation b ON a.id = b.mst_id "
                         ;
