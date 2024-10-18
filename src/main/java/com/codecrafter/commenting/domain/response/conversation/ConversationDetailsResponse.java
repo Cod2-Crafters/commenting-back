@@ -15,4 +15,5 @@ public interface ConversationDetailsResponse {
     LocalDateTime getModifiedAt();
     String getAvatarPath();
     String getNickname();
+    Long getWriterId();
 }
