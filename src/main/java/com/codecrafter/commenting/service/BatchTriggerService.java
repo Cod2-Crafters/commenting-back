@@ -1,4 +1,4 @@
-package com.codecrafter.commenting.config.batch;
+package com.codecrafter.commenting.service;
 
 import lombok.RequiredArgsConstructor;
 import org.quartz.JobKey;
