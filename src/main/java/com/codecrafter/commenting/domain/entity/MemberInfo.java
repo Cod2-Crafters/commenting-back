@@ -7,6 +7,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreRemove;
 import lombok.Builder;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -94,6 +95,13 @@ public class MemberInfo extends BaseEntity {
 		return this;
 	}
 
+
+	@PreRemove
+	public void preRemove() {
+		//this.deleted = true;
+		this.nickname = null;
+		this.introduce = null;
+	}
 
 	@PrePersist
 	protected void onCreate() {
