@@ -25,7 +25,7 @@ spring:
             clientId: ${COMMENTING_GOOGLE_CLIENT_ID}
             clientSecret: ${COMMENTING_GOOGLE_CLIENT_SECRET}
             redirect-uri: ${COMMENTING_GOOGLE_REDIRECT_URI}
-            scope: ['email', 'profile']
+            scope: ['openid', 'email', 'profile']
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
@@ -56,6 +56,21 @@ spring:
     web:
       resources:
         static-locations: file:${COMMENTING_AVATAR_UPLOAD_PATH}
+  quartz:
+    job-store-type: memory
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: MyScheduler
+          threadPool:
+            threadCount: 10
+          jobStore:
+            class: org.quartz.simpl.RAMJobStore
+  task:
+    scheduling:
+      pool:
+        size: 10
 custom:
   avatar-location: ${COMMENTING_AVATAR_UPLOAD_PATH}
 springdoc:
