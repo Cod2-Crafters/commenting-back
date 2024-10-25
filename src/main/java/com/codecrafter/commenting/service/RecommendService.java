@@ -33,6 +33,7 @@ public class RecommendService {
     private final ConversationRepository conversationRepository;
     private final MemberInfoRepository memberInfoRepository;
     private final TokenProvider tokenProvider;
+
     @Transactional
     @Notification
     public RecommendResponse updateLikes(RecommendRequest request) {
