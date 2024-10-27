@@ -1,7 +1,7 @@
 package com.codecrafter.commenting.repository.conversation;
 
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;
 import jakarta.persistence.Tuple;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -93,7 +93,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
-    List<Tuple> findByConversationAdd(@Param("maxId") Long startMstId, @Param("id") Long endMstId, @Param("userId") Long userId);
+    List<Tuple> findByConversationAdd(@Param("startMstId") Long maxId, @Param("endMstId") Long conId, @Param("userId") Long userId);
 
     @Query(value = BASE_QUERY +
                     "    WHERE a.guest_id = :guestId " +
