@@ -144,12 +144,12 @@ public class ConversationService {
 		conversation.setConversationMST(conversationMST);
 
 		// 대화슬레이브 저장
-		Long id = conversationRepository.save(conversation).getId();
+		Long conId = conversationRepository.save(conversation).getId();
 
-		return conversationRepository.findByConversationAdd(maxId, id, userId)
+		return conversationRepository.findByConversationAdd(maxId, conId, userId)
 										.stream()
 										.map(this::mapToConversationResponse)
-										.collect(Collectors.toList());
+										.toList();
 	}
 
 	/**
