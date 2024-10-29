@@ -184,7 +184,7 @@ public class ConversationService {
 	public void deleteConversationAndDetails(Long mstId) {
 		ConversationMST conversationMST = conversationMSTRepository.findById(mstId)
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
-		Long userId = conversationMST.getOwner().getId();
+		Long userId = conversationMST.getGuest().getId();
 		Long loginId = getCurrentUserId();
 		chkUserToToken(userId, loginId);
 
