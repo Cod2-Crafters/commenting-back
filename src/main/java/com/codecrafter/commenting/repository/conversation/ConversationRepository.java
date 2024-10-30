@@ -39,47 +39,47 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                                             ;
 
     @Query(value = BASE_QUERY +
-                    "    WHERE b.mst_id = :mstId " +
+                    "    WHERE b.mst_id = :mstId AND a.is_deleted = false AND b.is_deleted = false " +
                     ") cd " +
                     IS_QUESTIONER +
-                    "WHERE cd.mstId = :mstId " +
+                    "WHERE cd.mstId = :mstId AND mi.is_deleted = false " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationDetailsByMstId(@Param("mstId") Long mstId, @Param("userId") Long userId);
 
     @Query(value = BASE_QUERY +
-                    "    WHERE a.owner_id = :ownerId " +
+                    "    WHERE a.owner_id = :ownerId AND a.is_deleted = false AND b.is_deleted = false " +
                     ") cd " +
                     IS_QUESTIONER +
-                    "WHERE cd.ownerId = :ownerId " +
+                    "WHERE cd.ownerId = :ownerId AND mi.is_deleted = false " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerId(@Param("ownerId") Long ownerId, @Param("userId") Long userId);
 
     @Query(value = BASE_QUERY +
-                    "    WHERE a.owner_id = :ownerId AND a.id IN ( " +
+                    "    WHERE a.owner_id = :ownerId AND a.is_deleted = false AND b.is_deleted = false AND a.id IN ( " +
                     "         SELECT id FROM conversation_mst " +
-                    "         WHERE owner_id = :ownerId " +
+                    "         WHERE owner_id = :ownerId AND is_deleted = false " +
                     "         ORDER BY id DESC " +
                     "         LIMIT :pageSize OFFSET :offset " +
                     "    )" +
                     ") cd " +
                     IS_QUESTIONER +
-                    "WHERE cd.ownerId = :ownerId " +
+                    "WHERE cd.ownerId = :ownerId AND mi.is_deleted = false " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerIdPaging(@Param("ownerId") Long ownerId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
 
     @Query(value = BASE_QUERY +
-                   "    WHERE a.guest_id = :guestId AND a.id IN ( " +
+                   "    WHERE a.guest_id = :guestId AND a.is_deleted = false AND b.is_deleted = false AND a.id IN ( " +
                    "         SELECT id FROM conversation_mst " +
-                   "         WHERE guest_id = :guestId " +
+                   "         WHERE guest_id = :guestId AND is_deleted = false " +
                    "         ORDER BY id DESC " +
                    "         LIMIT :pageSize OFFSET :offset " +
                    "    )" +
                    ") cd " +
                    IS_QUESTIONER +
-                   "WHERE cd.guestId = :guestId " +
+                   "WHERE cd.guestId = :guestId AND mi.is_deleted = false " +
                    "ORDER BY cd.mstId DESC, cd.conId ASC",
         nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByGuestIdPaging(@Param("guestId") Long guestId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
@@ -87,29 +87,29 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     void deleteByConversationMSTId(Long mstId);
 
     @Query(value = BASE_QUERY +
-                    "    WHERE b.mst_id BETWEEN :startMstId AND :endMstId " +
+                    "    WHERE b.mst_id BETWEEN :startMstId AND :endMstId AND a.is_deleted = false AND b.is_deleted = false " +
                     ") cd " +
                     IS_QUESTIONER +
-                    "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId " +
+                    "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId AND mi.is_deleted = false " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<Tuple> findByConversationAdd(@Param("startMstId") Long maxId, @Param("endMstId") Long conId, @Param("userId") Long userId);
 
     @Query(value = BASE_QUERY +
-                    "    WHERE a.guest_id = :guestId " +
+                    "    WHERE a.guest_id = :guestId AND a.is_deleted = false AND b.is_deleted = false " +
                     ") cd " +
                     IS_QUESTIONER +
-                    "WHERE cd.guestId = :guestId " +
+                    "WHERE cd.guestId = :guestId AND mi.is_deleted = false " +
                     "ORDER BY cd.conId DESC",
                     nativeQuery = true)
     List<Tuple> findByGuestId(@Param("guestId") Long guestId, @Param("userId") Long userId);
 
 
     @Query(value = BASE_QUERY +
-                "    WHERE b.id = :conId " +
+                "    WHERE b.id = :conId AND a.is_deleted = false AND b.is_deleted = false " +
                 ") cd " +
                 IS_QUESTIONER +
-                "WHERE cd.conId = :conId " +
+                "WHERE cd.conId = :conId AND mi.is_deleted = false " +
                 "ORDER BY cd.mstId DESC, cd.conId ASC",
                 nativeQuery = true)
     Tuple findConversationResponseById(@Param("conId") Long conId, @Param("userId") Long userId);
