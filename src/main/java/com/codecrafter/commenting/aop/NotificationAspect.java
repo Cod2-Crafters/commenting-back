@@ -53,7 +53,10 @@ public class NotificationAspect {
                         Long ownerId = conversationProfileResponse.ownerId();
                         Long conId = conversationProfileResponse.conId();
 
-                        MemberInfo guest = memberInfoRepository.findById(guestId).orElseThrow();
+                        MemberInfo guest = null;
+                        if (guestId != null) {
+                            guest = memberInfoRepository.findById(guestId).orElseThrow();
+                        }
                         MemberInfo owner = memberInfoRepository.findById(ownerId).orElseThrow();
                         Conversation conversation = conversationRepository.findById(conId).orElseThrow();
                         Long mstId = conversation.getConversationMST().getId();
