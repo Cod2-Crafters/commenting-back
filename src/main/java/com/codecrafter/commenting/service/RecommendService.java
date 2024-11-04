@@ -111,7 +111,9 @@ public class RecommendService {
                                     conversation.isPrivate(),
                                     conversation.isQuestion(),
                                     conversation.getConversationMST().getId(),
-                                    conversation.getMemberInfo().getNickname()
+                                    conversation.getMemberInfo().getNickname(),
+                                    conversation.getMemberInfo().getId(),
+                                    conversation.getMemberInfo().getAvatarPath()
                             ))
             .collect(Collectors.toList());
     }

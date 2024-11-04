@@ -146,7 +146,7 @@ public class ConversationService {
 		// 대화슬레이브 저장
 		Long conId = conversationRepository.save(conversation).getId();
 
-		return conversationRepository.findByConversationAdd(maxId, conId, userId)
+		return conversationRepository.findByConversationAdd(maxId, conversationMST.getId(), userId, request.ownerId())
 										.stream()
 										.map(this::mapToConversationResponse)
 										.toList();
@@ -300,7 +300,10 @@ public class ConversationService {
 										conversation.isPrivate(),
 										conversation.isQuestion(),
 										conversation.getConversationMST().getId(),
-										conversation.getMemberInfo().getNickname()
+										conversation.getMemberInfo().getNickname(),
+										conversation.getMemberInfo().getId(),
+										conversation.getMemberInfo().getAvatarPath()
+
 		);
 	}
 
@@ -315,7 +318,8 @@ public class ConversationService {
 												tuple.get("isQuestion", Boolean.class),
 												tuple.get("mstId", Long.class),
 												tuple.get("avatarPath", String.class),
-												tuple.get("nickname", String.class)
+												tuple.get("nickname", String.class),
+												tuple.get("writerId", Long.class) != null ? tuple.get("writerId", Long.class) : 0L
 		);
 	}
 
