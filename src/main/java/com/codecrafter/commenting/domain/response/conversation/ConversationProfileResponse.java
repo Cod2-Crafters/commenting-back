@@ -11,7 +11,8 @@ public record ConversationProfileResponse(
     boolean isQuestion,
     Long mstId,
     String avatarPath,
-    String nickname
+    String nickname,
+    Long writerId
 ) {
 
 }

@@ -315,7 +315,8 @@ public class ConversationService {
 												tuple.get("isQuestion", Boolean.class),
 												tuple.get("mstId", Long.class),
 												tuple.get("avatarPath", String.class),
-												tuple.get("nickname", String.class)
+												tuple.get("nickname", String.class),
+												tuple.get("writerId", Long.class) != null ? tuple.get("writerId", Long.class) : 0L
 		);
 	}
 
