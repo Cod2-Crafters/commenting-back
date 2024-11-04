@@ -146,7 +146,7 @@ public class ConversationService {
 		// 대화슬레이브 저장
 		Long conId = conversationRepository.save(conversation).getId();
 
-		return conversationRepository.findByConversationAdd(maxId, conId, userId)
+		return conversationRepository.findByConversationAdd(maxId, conversationMST.getId(), userId, request.ownerId())
 										.stream()
 										.map(this::mapToConversationResponse)
 										.toList();

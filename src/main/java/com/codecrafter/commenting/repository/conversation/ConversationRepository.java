@@ -8,10 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import org.springframework.data.jpa.repository.Query;
 
-/**
- * @author jiheon
- * Conversation 관리 Repository
- */
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
 
     final static String BASE_QUERY = "SELECT cd.*, mi.avatar_path AS avatarPath, mi.nickname AS nickname " +
@@ -87,13 +83,14 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     void deleteByConversationMSTId(Long mstId);
 
     @Query(value = BASE_QUERY +
-                    "    WHERE b.mst_id BETWEEN :startMstId AND :endMstId AND a.is_deleted = false AND b.is_deleted = false " +
+                    "    WHERE b.mst_id BETWEEN :startMstId + 1 AND :endMstId AND a.is_deleted = false AND b.is_deleted = false AND a.owner_id = :ownerId " +
                     ") cd " +
+                   "LEFT " +
                     IS_QUESTIONER +
-                    "WHERE cd.mstId BETWEEN :startMstId + 1 AND :endMstId AND mi.is_deleted = false " +
+                    "WHERE cd.guestId IS NULL OR mi.is_deleted = false " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
-    List<Tuple> findByConversationAdd(@Param("startMstId") Long maxId, @Param("endMstId") Long conId, @Param("userId") Long userId);
+    List<Tuple> findByConversationAdd(@Param("startMstId") Long maxId, @Param("endMstId") Long conId, @Param("userId") Long userId, @Param("ownerId") Long ownerId);
 
     @Query(value = BASE_QUERY +
                     "    WHERE a.guest_id = :guestId AND a.is_deleted = false AND b.is_deleted = false " +
