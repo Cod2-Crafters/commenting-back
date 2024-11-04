@@ -10,7 +10,9 @@ public record ConversationResponse(
     boolean isPrivate,
     boolean isQuestion,
     Long mstId,
-    String nickname
+    String nickname,
+    Long writerId,
+    String avatarPath
 
 ) {
 
