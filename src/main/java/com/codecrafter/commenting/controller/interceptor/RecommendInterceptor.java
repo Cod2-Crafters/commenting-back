@@ -40,47 +40,54 @@ public class RecommendInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        String json = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
-        JsonNode jsonNode = objectMapper.readTree(json);
+        String requestMethod = request.getMethod();
 
-        Long conId = jsonNode.get("conId").asLong();
-        Long userId = jsonNode.get("userId").asLong();
+        if (requestMethod.equals("POST")) {
+            String json = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
+            JsonNode jsonNode = objectMapper.readTree(json);
 
-        Conversation conversation = conversationRepository.findById(conId).orElseThrow();
-        boolean isQuestion = conversation.isQuestion();
+            Long conId = jsonNode.get("conId").asLong();
+            Long userId = jsonNode.get("userId").asLong();
 
-        AntPathMatcher pathMatcher = new AntPathMatcher();
-        String requestUri = request.getRequestURI();
+            Conversation conversation = conversationRepository.findById(conId).orElseThrow();
+            boolean isQuestion = conversation.isQuestion();
 
-        // 좋아요일때
-        if (pathMatcher.match("/api/recommends/likes", requestUri)) {
-            if (isQuestion) {
-                //정상적으로 좋아요 실행
-                return true;
+            AntPathMatcher pathMatcher = new AntPathMatcher();
+            String requestUri = request.getRequestURI();
+
+            // 좋아요일때
+            if (pathMatcher.match("/api/recommends/likes", requestUri)) {
+                if (isQuestion) {
+                    //정상적으로 좋아요 실행
+                    return true;
+                }
+
+                createResponseBody(
+                    response,
+                    new ApiResponse(ApiStatus.ERROR,"답변에 좋아요를 누를 수 없습니다.", null, null),
+                    HttpStatus.BAD_REQUEST
+                );
+                return false;
             }
 
-            createResponseBody(
-                response,
-                new ApiResponse(ApiStatus.ERROR,"답변에 좋아요를 누를 수 없습니다.", null, null),
-                HttpStatus.BAD_REQUEST
-            );
-            return false;
+            // 고마워요일때
+            if (pathMatcher.match("/api/recommends/thanked", requestUri)) {
+                if (!isQuestion) {
+                    //정상적으로 고마워요 실행
+                    return true;
+                }
+
+                createResponseBody(
+                    response,
+                    new ApiResponse(ApiStatus.ERROR,"질문에 고마워요를 누를 수 없습니다.", null, null),
+                    HttpStatus.BAD_REQUEST
+                );
+                return false;
+            }
         }
 
-
-        // 고마워요일때
-        if (pathMatcher.match("/api/recommends/thanked", requestUri)) {
-            if (!isQuestion) {
-                //정상적으로 고마워요 실행
-                return true;
-            }
-
-            createResponseBody(
-                response,
-                new ApiResponse(ApiStatus.ERROR,"질문에 고마워요를 누를 수 없습니다.", null, null),
-                HttpStatus.BAD_REQUEST
-            );
-            return false;
+        if (requestMethod.equals("GET")) {
+            return true;
         }
 
         return false;
