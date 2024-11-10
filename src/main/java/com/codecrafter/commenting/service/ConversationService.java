@@ -1,6 +1,7 @@
 package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.annotation.Notification;
+import com.codecrafter.commenting.common.event.dto.NotificationEvent;
 import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.Conversation;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.codecrafter.commenting.repository.conversation.ConversationMSTRepository;
@@ -39,6 +41,7 @@ public class ConversationService {
 	private final ConversationMSTRepository conversationMSTRepository;
 	private final ConversationRepository conversationRepository;
 	private final MemberInfoRepository memberInfoRepository;
+	private final ApplicationEventPublisher applicationEventPublisher;
 	static final int timelinePageSize = 3;
 
 	/**
@@ -112,7 +115,7 @@ public class ConversationService {
 	 * @return 대화/프로필 응답 객체 목록
 	 */
 	@Transactional
-	@Notification
+//	@Notification
 	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
 		Long userId = getCurrentUserId();
 		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
@@ -145,6 +148,10 @@ public class ConversationService {
 
 		// 대화슬레이브 저장
 		Long conId = conversationRepository.save(conversation).getId();
+
+		applicationEventPublisher.publishEvent(
+				new NotificationEvent(SecurityUtil.getCurrentMember().getMemberInfo(), owner, conversation)
+		);
 
 		return conversationRepository.findByConversationAdd(maxId, conversationMST.getId(), userId, request.ownerId())
 										.stream()
