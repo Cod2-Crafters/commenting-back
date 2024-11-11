@@ -222,7 +222,7 @@ public class ConversationService {
 		Conversation conversation = conversationRepository.save(answer);
 
 		applicationEventPublisher.publishEvent(
-			new NotificationEvent(writer, conversationMST.getGuest(), conversation, NotificationType.QUESTION)
+			new NotificationEvent(writer, conversationMST.getGuest(), conversation, NotificationType.COMMENT)
 		);
 
 		return convertToResponse(conversation);
