@@ -23,18 +23,27 @@ public class NotificationEventHandler {
     private final MailSendService mailSendService;
 
     @TransactionalEventListener
-    public void question(NotificationEvent notificationEvent) {
+    public void notification(NotificationEvent notificationEvent) {
         Conversation conversation = notificationEvent.getConversation();
-        MemberInfo guest = notificationEvent.getGuest();
-        MemberInfo owner = notificationEvent.getOwner();
+        MemberInfo sender = notificationEvent.getSender();
+        MemberInfo receiver = notificationEvent.getReceiver();
+        NotificationType notificationType = notificationEvent.getNotificationType();
 
-        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        notificationService.saveAndSendNotification(receiver, sender, notificationType, conversation);
 
-        notificationService.saveAndSendNotification(owner, guest, NotificationType.QUESTION, conversation);
-        if (owner.getMemberSetting().getEmailNotice()) {
-            String domainName = mailSendService.getDomainName(httpServletRequest);
-            mailSendService.sendEmailNotice(owner.getEmail(), domainName, "질문", "/api/conversations/details/" + conversation.getConversationMST().getId(), conversation.getContent(), owner.getNickname());
+        if (notificationType == NotificationType.QUESTION || notificationType == NotificationType.COMMENT) {
+            if (receiver != null && receiver.getMemberSetting().getEmailNotice()) {
+                HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                String domainName = mailSendService.getDomainName(httpServletRequest);
+                mailSendService.sendEmailNotice(
+                    receiver.getEmail(),
+                    domainName,
+                    notificationType.label(),
+                    "/api/conversations/details/" + conversation.getConversationMST().getId(),
+                    conversation.getContent(),
+                    receiver.getNickname()
+                );
+            }
         }
     }
-
 }
