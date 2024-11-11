@@ -1,12 +1,12 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.annotation.Notification;
+import com.codecrafter.commenting.common.event.dto.NotificationEvent;
 import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.Conversation;
-import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Recommend;
+import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.enumeration.RecommendStatus;
 import com.codecrafter.commenting.domain.request.RecommendRequest;
 import com.codecrafter.commenting.domain.response.GoodQuestionResponse;
@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +30,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Slf4j
 public class RecommendService {
+
     private final RecommendRepository recommendRepository;
     private final ConversationRepository conversationRepository;
     private final MemberInfoRepository memberInfoRepository;
     private final TokenProvider tokenProvider;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
-    @Notification
+//    @Notification
     public RecommendResponse updateLikes(RecommendRequest request) {
         Conversation conversation = conversationRepository.findById(request.conId())
                                                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
@@ -43,6 +46,10 @@ public class RecommendService {
                                                             .orElseThrow(() -> new IllegalArgumentException("로그인이 필요한 서비스입니다."));
 
         Optional<Recommend> existingRecommend = recommendRepository.findRecommend(conversation, memberInfo, RecommendStatus.LIKES);
+
+        applicationEventPublisher.publishEvent(
+            new NotificationEvent(memberInfo, conversation.getMemberInfo(), conversation, NotificationType.LIKES)
+        );
 
         // 선택한 대화에 좋아요가 이미 있을 경우 제거
         if (existingRecommend.isPresent()) {
@@ -62,7 +69,7 @@ public class RecommendService {
     }
 
     @Transactional
-    @Notification
+//    @Notification
     public RecommendResponse updateThanked(RecommendRequest request) {
         // 익명추천관련해서 추후 구현시 좋아요와 로직 달리할 예정
         Conversation conversation = conversationRepository.findById(request.conId())
@@ -71,6 +78,10 @@ public class RecommendService {
                                                             .orElseThrow(() -> new IllegalArgumentException("로그인이 필요한 서비스입니다."));
 
         Optional<Recommend> existingRecommend = recommendRepository.findRecommend(conversation, memberInfo, RecommendStatus.THANKED);
+
+        applicationEventPublisher.publishEvent(
+            new NotificationEvent(memberInfo, conversation.getMemberInfo(), conversation, NotificationType.THANKED)
+        );
 
         // 선택한 대화에 고마워요가 이미 있을 경우 제거
         if (existingRecommend.isPresent()) {
