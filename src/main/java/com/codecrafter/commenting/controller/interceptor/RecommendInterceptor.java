@@ -49,7 +49,8 @@ public class RecommendInterceptor implements HandlerInterceptor {
             Long conId = jsonNode.get("conId").asLong();
             Long userId = jsonNode.get("userId").asLong();
 
-            Conversation conversation = conversationRepository.findById(conId).orElseThrow();
+            Conversation conversation = conversationRepository.findById(conId)
+                                                                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
             boolean isQuestion = conversation.isQuestion();
 
             AntPathMatcher pathMatcher = new AntPathMatcher();
