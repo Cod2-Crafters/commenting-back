@@ -112,15 +112,19 @@ public class NotificationService {
     }
 
     private NotificationResponse toNotificationResponse(Notification notification, Conversation conversation) {
+        MemberInfo sender = conversation.getMemberInfo();
+        String senderName = sender == null ? "익명회원" : sender.getNickname();
+        String senderAvatarPath = sender == null ? null : sender.getAvatarPath();
+
         return NotificationResponse.builder()
                                     .id(notification.getId())
-                                    .senderNickName(conversation.getMemberInfo().getNickname()) // 상대 닉네임이
+                                    .senderNickName(senderName) // 상대 닉네임이
                                     .message(notification.getMessage())
                                     .content(conversation.getContent())  // 질문, 답변 내용
                                     .type(notification.getNotificationType())
                                     .createdAt(notification.getCreatedAt())
                                     .url(notification.getUrl())
-                                    .image(conversation.getMemberInfo().getAvatarPath()) // 상대 이미지
+                                    .image(senderAvatarPath) // 상대 이미지
                                     .isRead(notification.getIsRead())
                                     .mstId(conversation.getConversationMST().getId())
                                     .build();

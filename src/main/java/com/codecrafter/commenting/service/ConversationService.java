@@ -1,12 +1,12 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.annotation.Notification;
+import com.codecrafter.commenting.common.event.dto.NotificationEvent;
 import com.codecrafter.commenting.config.SecurityUtil;
-import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
+import com.codecrafter.commenting.domain.enumeration.NotificationType;
 import com.codecrafter.commenting.domain.request.conversation.CreateConversationRequest;
 import com.codecrafter.commenting.domain.request.conversation.CreateGlobalQuestionRequest;
 import com.codecrafter.commenting.domain.request.conversation.UpdateConversationRequest;
@@ -18,8 +18,8 @@ import com.codecrafter.commenting.repository.MemberInfoRepository;
 import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.codecrafter.commenting.repository.conversation.ConversationMSTRepository;
@@ -39,6 +39,7 @@ public class ConversationService {
 	private final ConversationMSTRepository conversationMSTRepository;
 	private final ConversationRepository conversationRepository;
 	private final MemberInfoRepository memberInfoRepository;
+	private final ApplicationEventPublisher applicationEventPublisher;
 	static final int timelinePageSize = 3;
 
 	/**
@@ -112,9 +113,10 @@ public class ConversationService {
 	 * @return 대화/프로필 응답 객체 목록
 	 */
 	@Transactional
-	@Notification
+//	@Notification
 	public List<ConversationProfileResponse> createConversation(CreateConversationRequest request) {
-		Long userId = getCurrentUserId();
+		MemberAuth currentMember = SecurityUtil.getCurrentMember();
+		Long userId = currentMember.getId();
 		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
 												.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
@@ -126,7 +128,7 @@ public class ConversationService {
 			throw new IllegalStateException("스페이스 일시 중지한 회원입니다.");
 		}
 
-		MemberInfo guest = SecurityUtil.getCurrentMember().getMemberInfo();
+		MemberInfo guest = currentMember.getMemberInfo();
 
 		// 변경전 대화 마스터 최대값
 		Long maxId = Optional.ofNullable(request.maxMstId()).orElse(0L);
@@ -144,7 +146,11 @@ public class ConversationService {
 		conversation.setConversationMST(conversationMST);
 
 		// 대화슬레이브 저장
-		Long conId = conversationRepository.save(conversation).getId();
+		conversation = conversationRepository.save(conversation);
+
+		applicationEventPublisher.publishEvent(
+				new NotificationEvent(guest, owner, conversation, NotificationType.QUESTION)
+		);
 
 		return conversationRepository.findByConversationAdd(maxId, conversationMST.getId(), userId, request.ownerId())
 										.stream()
@@ -199,7 +205,7 @@ public class ConversationService {
 	 * @return 추가된 답변 객체
 	 */
 	@Transactional
-	@Notification
+//	@Notification
 	public ConversationResponse addAnswer(CreateConversationRequest request) {
 		ConversationMST conversationMST = conversationMSTRepository.findById(request.mstId())
 																	.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다."));
@@ -214,6 +220,11 @@ public class ConversationService {
 
 		answer.setConversationMST(conversationMST);
 		Conversation conversation = conversationRepository.save(answer);
+
+		applicationEventPublisher.publishEvent(
+			new NotificationEvent(writer, conversationMST.getGuest(), conversation, NotificationType.COMMENT)
+		);
+
 		return convertToResponse(conversation);
 	}
 
