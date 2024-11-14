@@ -29,6 +29,12 @@ public class NotificationEventHandler {
         MemberInfo receiver = notificationEvent.getReceiver();
         NotificationType notificationType = notificationEvent.getNotificationType();
 
+        // TODO: 해결 방법 찾기
+        // could not initialize proxy - no Session 에러 임시처리 (강제 초기화 방법)
+        // 1. Hibernate.initialize(receiver);
+        // 2. ↓
+        receiver.getEmail(); // 강제 초기화
+
         notificationService.saveAndSendNotification(receiver, sender, notificationType, conversation);
 
         if (notificationType == NotificationType.QUESTION || notificationType == NotificationType.COMMENT) {
