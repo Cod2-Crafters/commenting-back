@@ -88,16 +88,12 @@ public class MemberService {
     }
 
     @Transactional
-    public void unregister(String email, String token) {
+    public void unregister(String token) {
         Claims claims = tokenProvider.validateToken(token);
         Long memberId = Long.parseLong(claims.getSubject());
 
         MemberAuth member = memberAuthRepository.findById(memberId)
                                                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        if (!member.getEmail().equals(email)) {
-            throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
-        }
 
         memberAuthRepository.delete(member);
     }

@@ -74,9 +74,8 @@ public class MemberController {
                         {host}/api/member/unregister
                         """)
     @PostMapping("/unregister")
-    public ResponseEntity<Void> unregister(@RequestHeader("Authorization") String token,
-                                             @Parameter(description = "이메일", example = "jayce@crafter.com") @RequestParam String email) {
-        memberService.unregister(email, token);
+    public ResponseEntity<Void> unregister(@RequestHeader("Authorization") String token) {
+        memberService.unregister(token);
         return ResponseEntity.ok().build();
     }
 
