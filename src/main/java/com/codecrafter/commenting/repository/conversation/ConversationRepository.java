@@ -60,8 +60,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     "         LIMIT :pageSize OFFSET :offset " +
                     "    )" +
                     ") cd " +
-                    IS_QUESTIONER +
-                    "WHERE cd.ownerId = :ownerId AND mi.is_deleted = false " +
+                    "LEFT " + IS_QUESTIONER +
+                    "WHERE cd.ownerId = :ownerId AND (cd.guestId IS NOT NULL AND mi.is_deleted = false OR cd.guestId IS NULL) " +
                     "ORDER BY cd.mstId DESC, cd.conId ASC",
                     nativeQuery = true)
     List<ConversationDetailsResponse> findConversationByOwnerIdPaging(@Param("ownerId") Long ownerId, @Param("pageSize") int pageSize, @Param("offset") int offset, @Param("userId") Long userId);
