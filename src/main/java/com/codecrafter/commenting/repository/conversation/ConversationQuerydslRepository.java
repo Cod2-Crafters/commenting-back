@@ -7,6 +7,7 @@ import com.codecrafter.commenting.domain.entity.QRecommend;
 import com.codecrafter.commenting.domain.enumeration.RecommendStatus;
 import com.codecrafter.commenting.domain.response.conversation.ReceiveConversationResponse;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,15 +31,15 @@ public class ConversationQuerydslRepository {
     private QRecommend recommend = QRecommend.recommend;
 
     public List<ReceiveConversationResponse> findReceiveConversations(Long ownerId, Long cursor, Long currentMemberId) {
-        List<Long> temp = jpaQueryFactory
+        List<Long> conversationMstIds = jpaQueryFactory
             .select(conversationMst.id)
             .from(conversationMst)
-            .where(conversationMst.owner.id.eq(ownerId)
-                .and(conversationMst.isDeleted.isFalse())
-                .and(conversationMst.id.lt(cursor))
+            .where(
+                conversationMst.owner.id.eq(ownerId),
+                ltCursor(cursor)
             )
             .orderBy(conversationMst.id.desc())
-            .limit(PAGE_SIZE)
+            .limit(PAGE_SIZE + 1)
             .fetch();
 
         return jpaQueryFactory
@@ -55,18 +56,22 @@ public class ConversationQuerydslRepository {
                             .then(true)  // 고마워요 상태에 대한 조건
                             .otherwise(false)
                     ).from(recommend)
-                    .where(recommend.recommendStatus.eq(RecommendStatus.LIKES)
-                        .and(recommend.memberInfo.id.eq(currentMemberId))
-                        .and(recommend.conversation.id.eq(conversation.id))),
+                    .where(
+                        recommend.recommendStatus.eq(RecommendStatus.LIKES),
+                        recommend.memberInfo.id.eq(currentMemberId),
+                        recommend.conversation.id.eq(conversation.id)
+                    ),
                 JPAExpressions.select(
                         new CaseBuilder()
                             .when(recommend.count().gt(0))
                             .then(true)  // 고마워요 상태에 대한 조건
                             .otherwise(false)
                     ).from(recommend)
-                    .where(recommend.recommendStatus.eq(RecommendStatus.THANKED)
-                        .and(recommend.memberInfo.id.eq(currentMemberId))
-                        .and(recommend.conversation.id.eq(conversation.id))),
+                    .where(
+                        recommend.recommendStatus.eq(RecommendStatus.THANKED),
+                        recommend.memberInfo.id.eq(currentMemberId),
+                        recommend.conversation.id.eq(conversation.id)
+                    ),
 
                 conversation.isPrivate,
                 conversation.isQuestion,
@@ -82,13 +87,17 @@ public class ConversationQuerydslRepository {
                 (conversation.isQuestion.isFalse().and(conversationMst.owner.id.eq(memberInfo.id)))
                     .or(conversation.isQuestion.isTrue().and(conversationMst.guest.id.eq(memberInfo.id)))
             )
-            .where(conversationMst.owner.id.eq(ownerId)
-                .and(conversationMst.isDeleted.isFalse())
-                .and(conversation.isDeleted.isFalse())
-                .and(conversationMst.id.in(temp))
+            .where(
+                conversationMst.owner.id.eq(ownerId),
+                conversation.isDeleted.isFalse(),
+                conversationMst.id.in(conversationMstIds)
             )
             .orderBy(conversationMst.id.desc(), conversation.id.asc())
             .fetch();
+    }
+
+    private BooleanExpression ltCursor(Long cursor) {
+        return cursor != null ? conversationMst.id.lt(cursor) : null ;
     }
 
 }
