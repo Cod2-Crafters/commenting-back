@@ -14,7 +14,12 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationDetai
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
+import com.codecrafter.commenting.domain.response.conversation.ReceiveConversationPagingResponse;
+import com.codecrafter.commenting.domain.response.conversation.ReceiveConversationResponse;
+import com.codecrafter.commenting.domain.response.conversation.SendConversationPagingResponse;
+import com.codecrafter.commenting.domain.response.conversation.SendConversationResponse;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
+import com.codecrafter.commenting.repository.conversation.ConversationQuerydslRepository;
 import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +45,7 @@ public class ConversationService {
 	private final ConversationRepository conversationRepository;
 	private final MemberInfoRepository memberInfoRepository;
 	private final ApplicationEventPublisher applicationEventPublisher;
+	private final ConversationQuerydslRepository conversationQuerydslRepository;
 	static final int timelinePageSize = 3;
 
 	/**
@@ -104,6 +110,41 @@ public class ConversationService {
 
 		List<ConversationDetailsResponse> result = conversationRepository.findConversationByOwnerIdPaging(ownerId, pageSize, offset, userId);
 		return new ConversationPageResponse(result, lastPage);
+	}
+
+	/**
+	 * 받은 질문 페이지 조회
+	 *
+	 * @param ownerId 페이지 주인 Id
+	 * @param lastIndex 마지막 mstId
+	 * @return 받은 대화 페이지 응답 객체
+	 */
+	@Transactional(readOnly = true)
+	public ReceiveConversationPagingResponse getReceiveConversations(Long ownerId, Long lastIndex) {
+		Long userId = getCurrentUserId();
+		boolean lastPage = true;	// 마지막 페이지 여부
+
+		List<ReceiveConversationResponse> receiveConversations = conversationQuerydslRepository.findReceiveConversations(ownerId, lastIndex, userId);
+
+		if (receiveConversations.isEmpty()) {
+			return new ReceiveConversationPagingResponse(receiveConversations, lastPage);
+		}
+
+		long countUniqueMstId = receiveConversations.stream()
+													.map(ReceiveConversationResponse::getMstId)
+													.distinct()
+													.count();
+
+		if (countUniqueMstId > timelinePageSize) { // mstId가 3개를 초과(4개 조회)하면 다음페이지 있음
+			lastPage = false;
+			Long lastMstId = receiveConversations.get(receiveConversations.size() - 1).getMstId();
+
+			receiveConversations = receiveConversations.stream()
+														.filter(e -> !e.getMstId().equals(lastMstId))
+														.toList();
+		}
+		
+		return new ReceiveConversationPagingResponse(receiveConversations, lastPage);
 	}
 
 	/**
@@ -290,6 +331,45 @@ public class ConversationService {
 
 		List<ConversationDetailsResponse> result = conversationRepository.findConversationByGuestIdPaging(guestId, pageSize, offset, userId);
 		return new ConversationPageResponse(result, lastPage);
+	}
+
+	/**
+	 *
+	 * @param ownerId 페이지 주인 Id
+	 * @param lastIndex 마지막 mstId
+	 * @return 보낸 대화 페이지 응답 객체
+	 */
+	@Transactional(readOnly = true)
+	public SendConversationPagingResponse getSendConversations(Long ownerId, Long lastIndex) {
+		Long userId = getCurrentUserId();
+
+		if (userId != ownerId) {
+			// 권한 없음 본인만 볼 수 있음
+		}
+
+		boolean lastPage = true;  // 마지막 페이지
+
+		List<SendConversationResponse> sendConversations = conversationQuerydslRepository.findSendConversations(ownerId, lastIndex, userId);
+
+		if (sendConversations.isEmpty()) {
+			return new SendConversationPagingResponse(sendConversations, lastPage);
+		}
+
+		long countUniqueMstId = sendConversations.stream()
+												.map(SendConversationResponse::getMstId)
+												.distinct()
+												.count();
+
+		if (countUniqueMstId > timelinePageSize) { // mstId가 3개를 초과(4개 조회)하면 다음페이지 있음
+			lastPage = false;
+			Long lastMstId = sendConversations.get(sendConversations.size() - 1).getMstId();
+
+			sendConversations = sendConversations.stream()
+												.filter(e -> !e.getMstId().equals(lastMstId))
+												.toList();
+		}
+
+		return new SendConversationPagingResponse(sendConversations, lastPage);
 	}
 
 	private Conversation findConversationById(Long conId) {

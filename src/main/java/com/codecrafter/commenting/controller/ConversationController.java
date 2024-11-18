@@ -8,6 +8,8 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationDetai
 import com.codecrafter.commenting.domain.response.conversation.ConversationPageResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
+import com.codecrafter.commenting.domain.response.conversation.ReceiveConversationPagingResponse;
+import com.codecrafter.commenting.domain.response.conversation.SendConversationPagingResponse;
 import com.codecrafter.commenting.service.ConversationService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -21,8 +23,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -79,6 +81,22 @@ public class ConversationController {
                                                                @PathVariable(required = false) Integer page) {
         ConversationPageResponse conversation = conversationService.getConversationPage(ownerId, page);
         return new ResponseEntity<>(ApiResponse.success(conversation), HttpStatus.OK);
+    }
+
+    @Operation(summary = "받은 질문조회(페이징) ★",
+        description = """
+                        ★대화 블럭단위로 스페이스의 대화 조회</br>
+                        초기 블럭 3개, 추가 요청시 블럭 3개씩 추가</br>
+                        {host}/api/conversations/members/{ownerId}/receive?lastIndex={}</br>
+                        lastIndex 필수X 없으면 첫 페이지
+                        """)
+    @GetMapping("/members/{ownerId}/receive")
+    public ResponseEntity<ApiResponse> getReceiveConversations(
+        @PathVariable Long ownerId,
+        @RequestParam(required = false) Long lastIndex
+    ) {
+        ReceiveConversationPagingResponse conversations = conversationService.getReceiveConversations(ownerId, lastIndex);
+        return ResponseEntity.ok(ApiResponse.success(conversations));
     }
 
     @Operation(summary = "질문작성 ★",
@@ -171,6 +189,23 @@ public class ConversationController {
             ConversationPageResponse details = conversationService.getQuestionsByGuestId(guestId, page);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
+
+    @Operation(summary = "보낸 질문 조회(페이징) ★",
+        description = """
+                        ★내가 작성한 보낸질문(답변포함) 블럭단위로 조회</br>
+                        초기 블럭 3개, 추가 요청시 블럭 3개</br>
+                        {host}/api/conversations/members/{ownerId}/send?lastIndex={}<br>
+                        lastIndex 필수X 없으면 첫 페이지
+                        """)
+    @GetMapping("/members/{ownerId}/send")
+    public ResponseEntity<ApiResponse> getSendConversations(
+        @PathVariable Long ownerId,
+        @RequestParam(required = false) Long lastIndex
+    ) {
+        SendConversationPagingResponse conversations = conversationService.getSendConversations(ownerId, lastIndex);
+        return ResponseEntity.ok(ApiResponse.success(conversations));
+    }
+
     @Operation(summary = "광역 질문 ★",
         description = """
                         ★운영자를 제외한 전체에 광역 질문 </br>
