@@ -9,6 +9,7 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationPageR
 import com.codecrafter.commenting.domain.response.conversation.ConversationProfileResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationResponse;
 import com.codecrafter.commenting.domain.response.conversation.ReceiveConversationPagingResponse;
+import com.codecrafter.commenting.domain.response.conversation.SendConversationPagingResponse;
 import com.codecrafter.commenting.service.ConversationService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -188,6 +189,23 @@ public class ConversationController {
             ConversationPageResponse details = conversationService.getQuestionsByGuestId(guestId, page);
         return new ResponseEntity<>(ApiResponse.success(details), HttpStatus.OK);
     }
+
+    @Operation(summary = "보낸 질문 조회(페이징) ★",
+        description = """
+                        ★내가 작성한 보낸질문(답변포함) 블럭단위로 조회</br>
+                        초기 블럭 3개, 추가 요청시 블럭 3개</br>
+                        {host}/api/conversations/members/{ownerId}/send?lastIndex={}<br>
+                        lastIndex 필수X 없으면 첫 페이지
+                        """)
+    @GetMapping("/members/{ownerId}/send")
+    public ResponseEntity<ApiResponse> getSendConversations(
+        @PathVariable Long ownerId,
+        @RequestParam(required = false) Long lastIndex
+    ) {
+        SendConversationPagingResponse conversations = conversationService.getSendConversations(ownerId, lastIndex);
+        return ResponseEntity.ok(ApiResponse.success(conversations));
+    }
+
     @Operation(summary = "광역 질문 ★",
         description = """
                         ★운영자를 제외한 전체에 광역 질문 </br>
