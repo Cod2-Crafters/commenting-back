@@ -21,7 +21,6 @@ import com.codecrafter.commenting.domain.response.conversation.SendConversationR
 import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.conversation.ConversationQuerydslRepository;
 import jakarta.persistence.Tuple;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -125,27 +124,18 @@ public class ConversationService {
 	public ReceiveConversationPagingResponse getReceiveConversations(Long ownerId, Long lastIndex) {
 		Long userId = getCurrentUserId();
 		boolean lastPage = true;	// 마지막 페이지 여부
+		List<Long> mstIds = conversationQuerydslRepository.findReceiveMstIdsByOwnerIdAndCursor(ownerId, lastIndex);
 
-		List<ReceiveConversationResponse> receiveConversations = conversationQuerydslRepository.findReceiveConversations(ownerId, lastIndex, userId);
-
-		if (receiveConversations.isEmpty()) {
-			return new ReceiveConversationPagingResponse(receiveConversations, lastPage);
+		if (mstIds.isEmpty()) {
+			return new ReceiveConversationPagingResponse(Collections.emptyList(), lastPage);
 		}
 
-		long countUniqueMstId = receiveConversations.stream()
-													.map(ReceiveConversationResponse::getMstId)
-													.distinct()
-													.count();
-
-		if (countUniqueMstId > timelinePageSize) { // mstId가 3개를 초과(4개 조회)하면 다음페이지 있음
+		if (mstIds.size() > timelinePageSize) { // mstId가 3개를 초과(4개 조회)하면 다음페이지 있음
 			lastPage = false;
-			Long lastMstId = receiveConversations.get(receiveConversations.size() - 1).getMstId();
-
-			receiveConversations = receiveConversations.stream()
-														.filter(e -> !e.getMstId().equals(lastMstId))
-														.toList();
+			mstIds.remove(mstIds.size() - 1); // 마지막 요소 제거
 		}
-		
+
+		List<ReceiveConversationResponse> receiveConversations = conversationQuerydslRepository.findReceiveConversations(ownerId, mstIds, userId);
 		return new ReceiveConversationPagingResponse(receiveConversations, lastPage);
 	}
 

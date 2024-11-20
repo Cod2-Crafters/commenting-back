@@ -31,18 +31,7 @@ public class ConversationQuerydslRepository {
     private QConversationMST conversationMst = QConversationMST.conversationMST;
     private QRecommend recommend = QRecommend.recommend;
 
-    public List<ReceiveConversationResponse> findReceiveConversations(Long ownerId, Long cursor, Long currentMemberId) {
-        List<Long> conversationMstIds = jpaQueryFactory
-            .select(conversationMst.id)
-            .from(conversationMst)
-            .where(
-                conversationMst.owner.id.eq(ownerId),
-                ltCursor(cursor)
-            )
-            .orderBy(conversationMst.id.desc())
-            .limit(PAGE_SIZE + 1)
-            .fetch();
-
+    public List<ReceiveConversationResponse> findReceiveConversations(Long ownerId, List<Long> conversationMstIds, Long currentMemberId) {
         return jpaQueryFactory
             .select(Projections.constructor(
                 ReceiveConversationResponse.class,
@@ -169,5 +158,17 @@ public class ConversationQuerydslRepository {
             .fetch();
     }
 
+    public List<Long> findReceiveMstIdsByOwnerIdAndCursor(Long ownerId, Long cursor) {
+        return jpaQueryFactory
+            .select(conversationMst.id)
+            .from(conversationMst)
+            .where(
+                conversationMst.owner.id.eq(ownerId),
+                ltCursor(cursor)
+            )
+            .orderBy(conversationMst.id.desc())
+            .limit(PAGE_SIZE + 1)
+            .fetch();
+    }
 
 }
