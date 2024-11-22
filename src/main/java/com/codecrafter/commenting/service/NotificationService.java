@@ -11,12 +11,14 @@ import com.codecrafter.commenting.domain.response.conversation.ConversationDetai
 import com.codecrafter.commenting.repository.EmitterRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
 import com.codecrafter.commenting.repository.conversation.ConversationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -189,6 +191,18 @@ public class NotificationService {
             notification.markAsRead();
         }
         return conversationRepository.findConversationDetailsByMstId(readNotificationRequest.mstId(), getCurrentMemberId);
+    }
+
+    @Transactional
+    public void deleteNotification(Long id) {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId();
+        Notification notification = notificationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("해당 알림을 찾을 수 없습니다."));
+        Long receiverId = notification.getReceiverInfo().getId();
+
+        if (!getCurrentMemberId.equals(receiverId)) {
+            throw new AccessDeniedException("알림 삭제 권한이 없습니다.");
+        }
+        notificationRepository.deleteById(id);
     }
 
 }

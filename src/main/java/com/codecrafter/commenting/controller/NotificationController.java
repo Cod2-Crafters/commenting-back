@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,5 +85,16 @@ public class NotificationController {
         List<ConversationDetailsResponse> conversations =
                 notificationService.getConversationsAndMarkNotificationAsRead(readNotificationRequest, notificationId);
         return ResponseEntity.ok(ApiResponse.success(conversations));
+    }
+
+    @Operation(summary = "알림 삭제 ★",
+        description = """
+            ★로그인한 사용자가 알림을 삭제합니다.</br>
+            {host}/api/notifications/{notificationId}</br>
+            """)
+    @DeleteMapping("/notifications/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok().build();
     }
 }
