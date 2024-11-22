@@ -2,7 +2,9 @@ package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
+import com.codecrafter.commenting.domain.enumeration.Period;
 import com.codecrafter.commenting.domain.request.ReadNotificationRequest;
+import com.codecrafter.commenting.domain.response.Notification.NotificationPagingResponse;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.service.NotificationService;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -55,10 +58,26 @@ public class NotificationController {
             ★로그인한 사용자에게 온 알림 목록 조회</br>
             {host}/api/notifications</br>
             """)
-    @GetMapping("/notifications")
+    @GetMapping("/notifications/1")
     public ResponseEntity<ApiResponse> getNotifications() {
         List<NotificationResponse> notificationResponses = notificationService.getNotifications();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
+    }
+
+    @Operation(summary = "알림 목록 조회 ★",
+        description = """
+            ★로그인한 사용자에게 온 알림 목록 조회</br>
+            {host}/api/notifications?period={}&lastIndex={}</br>
+            첫 조회시 lastIndex 필요X 두번째 조회부터 가장 낮은 알림 id값 </br>
+            period 안주면 1주일로 필터링 WEEK, MONTH, THREE_MONTHS, SIX_MONTHS, YEAR, ALL
+            """)
+    @GetMapping("/notifications")
+    public ResponseEntity<ApiResponse> getNotifications(
+        @RequestParam(required = false) Period period,
+        @RequestParam(required = false) Long lastIndex
+    ) {
+        NotificationPagingResponse notificationPagingResponse = notificationService.getNotifications(period, lastIndex);
+        return ResponseEntity.ok(ApiResponse.success(notificationPagingResponse));
     }
 
     @Operation(summary = "알림 목록 일괄 읽음 처리 ★",

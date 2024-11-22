@@ -5,10 +5,13 @@ import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
+import com.codecrafter.commenting.domain.enumeration.Period;
 import com.codecrafter.commenting.domain.request.ReadNotificationRequest;
+import com.codecrafter.commenting.domain.response.Notification.NotificationPagingResponse;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.repository.EmitterRepository;
+import com.codecrafter.commenting.repository.NotificationQuerydslRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
 import com.codecrafter.commenting.repository.conversation.ConversationRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +36,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final ConversationRepository conversationRepository;
+    private final NotificationQuerydslRepository notificationQuerydslRepository;
 
     public SseEmitter subscribe(String email, String lastEventId) {
         String emitterId = makeTimeIncludeId(email);
@@ -170,6 +174,22 @@ public class NotificationService {
     public List<NotificationResponse> getNotifications() {
         Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
         return notificationRepository.findByReceiverId(getCurrentMemberId);
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationPagingResponse getNotifications(Period period, Long cursor) { // period=1week&periodStart=20241115&periodEnd=20241122  // 1week = 7 1month 30 3month 90  6month  180 1year 360
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
+        boolean lastPage = true;
+
+        List<NotificationResponse> notificationResponses = notificationQuerydslRepository.findByReceiverIdAndPeriod(getCurrentMemberId, period, cursor);
+
+        if ((cursor == null && notificationResponses.size() == 16) // 첫 조회 갯수는 16개, 반환은 15개
+            || (cursor != null && notificationResponses.size() == 6)) { // 첫 조회 아니면 갯수는 6개, 반환은 5개
+            lastPage = false;
+            notificationResponses.remove(notificationResponses.size() - 1);
+        }
+
+        return new NotificationPagingResponse(notificationResponses, lastPage);
     }
 
     @Transactional
