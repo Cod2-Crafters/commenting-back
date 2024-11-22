@@ -58,7 +58,7 @@ public class NotificationController {
             ★로그인한 사용자에게 온 알림 목록 조회</br>
             {host}/api/notifications</br>
             """)
-    @GetMapping("/notifications/1")
+    @GetMapping("/notifications/1") // 이전버전
     public ResponseEntity<ApiResponse> getNotifications() {
         List<NotificationResponse> notificationResponses = notificationService.getNotifications();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
@@ -85,10 +85,22 @@ public class NotificationController {
             ★로그인한 사용자가 버튼을 눌러 알림 목록 일괄 읽음 처리</br>
             {host}/api/notifications/mark-read</br>
             """)
-    @PutMapping("/notifications/mark-read")
+    @PutMapping("/notifications/mark-read/1") // 이전버전
     public ResponseEntity<ApiResponse> markAllNotificationsAsRead() {
         List<NotificationResponse> notificationResponses = notificationService.markAllNotificationsAsRead();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
+    }
+
+    @Operation(summary = "알림 목록 일괄 읽음 처리 ★",
+        description = """
+            ★로그인한 사용자가 버튼을 눌러 알림 목록 일괄 읽음 처리</br>
+            {host}/api/notifications/mark-read?period={}</br>
+            period: 이전에 보던 페이지 기간
+            """)
+    @PutMapping("/notifications/mark-read")
+    public ResponseEntity<ApiResponse> markAllNotificationsAsRead(@RequestParam(required = false) Period period) {
+        NotificationPagingResponse notificationResponses = notificationService.markAllNotificationsAsRead(period);
+        return ResponseEntity.ok(ApiResponse.success(notificationResponses));
     }
 
     @Operation(summary = "알림 읽음 처리 및 조회 ★",

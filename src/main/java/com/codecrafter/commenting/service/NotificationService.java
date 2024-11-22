@@ -200,6 +200,20 @@ public class NotificationService {
     }
 
     @Transactional
+    public NotificationPagingResponse markAllNotificationsAsRead(Period period) {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
+        notificationRepository.markAllNotificationsAsRead(getCurrentMemberId);
+        List<NotificationResponse> notificationResponses =  notificationQuerydslRepository.findByReceiverIdAndPeriod(getCurrentMemberId, period, null); // 읽음처리 후 첫페이지로
+        boolean lastPage = true;
+
+        if (notificationResponses.size() == 16)  { // 첫 조회 갯수는 16개, 반환은 15개
+            lastPage = false;
+            notificationResponses.remove(notificationResponses.size() - 1);
+        }
+        return new NotificationPagingResponse(notificationResponses, lastPage);
+    }
+
+    @Transactional
     public List<ConversationDetailsResponse> getConversationsAndMarkNotificationAsRead(
         ReadNotificationRequest readNotificationRequest,
         Long notificationId
