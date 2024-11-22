@@ -2,34 +2,54 @@ package com.codecrafter.commenting.config.handler;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.exception.AuthenticationFailedException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException  .class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleDuplicateEmailException(IllegalArgumentException ex) {
         ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(errorResponse);
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ApiResponse> handleAuthenticationFailedException(AuthenticationFailedException ex) {
         ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(errorResponse);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(errorResponse);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ApiResponse> handleException(Exception ex) {
         ApiResponse errorResponse = ApiResponse.error("알 수 없는 오류", ex);
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(errorResponse);
     }
 
 }

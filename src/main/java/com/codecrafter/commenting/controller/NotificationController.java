@@ -2,7 +2,9 @@ package com.codecrafter.commenting.controller;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
+import com.codecrafter.commenting.domain.enumeration.Period;
 import com.codecrafter.commenting.domain.request.ReadNotificationRequest;
+import com.codecrafter.commenting.domain.response.Notification.NotificationPagingResponse;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.service.NotificationService;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -54,10 +58,26 @@ public class NotificationController {
             ★로그인한 사용자에게 온 알림 목록 조회</br>
             {host}/api/notifications</br>
             """)
-    @GetMapping("/notifications")
+    @GetMapping("/notifications/1") // 이전버전
     public ResponseEntity<ApiResponse> getNotifications() {
         List<NotificationResponse> notificationResponses = notificationService.getNotifications();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
+    }
+
+    @Operation(summary = "알림 목록 조회 ★",
+        description = """
+            ★로그인한 사용자에게 온 알림 목록 조회</br>
+            {host}/api/notifications?period={}&lastIndex={}</br>
+            첫 조회시 lastIndex 필요X 두번째 조회부터 가장 낮은 알림 id값 </br>
+            period 안주면 1주일로 필터링 WEEK, MONTH, THREE_MONTHS, SIX_MONTHS, YEAR, ALL
+            """)
+    @GetMapping("/notifications")
+    public ResponseEntity<ApiResponse> getNotifications(
+        @RequestParam(required = false) Period period,
+        @RequestParam(required = false) Long lastIndex
+    ) {
+        NotificationPagingResponse notificationPagingResponse = notificationService.getNotifications(period, lastIndex);
+        return ResponseEntity.ok(ApiResponse.success(notificationPagingResponse));
     }
 
     @Operation(summary = "알림 목록 일괄 읽음 처리 ★",
@@ -65,10 +85,22 @@ public class NotificationController {
             ★로그인한 사용자가 버튼을 눌러 알림 목록 일괄 읽음 처리</br>
             {host}/api/notifications/mark-read</br>
             """)
-    @PutMapping("/notifications/mark-read")
+    @PutMapping("/notifications/mark-read/1") // 이전버전
     public ResponseEntity<ApiResponse> markAllNotificationsAsRead() {
         List<NotificationResponse> notificationResponses = notificationService.markAllNotificationsAsRead();
         return new ResponseEntity<>(ApiResponse.success(notificationResponses), HttpStatus.OK);
+    }
+
+    @Operation(summary = "알림 목록 일괄 읽음 처리 ★",
+        description = """
+            ★로그인한 사용자가 버튼을 눌러 알림 목록 일괄 읽음 처리</br>
+            {host}/api/notifications/mark-read?period={}</br>
+            period: 이전에 보던 페이지 기간
+            """)
+    @PutMapping("/notifications/mark-read")
+    public ResponseEntity<ApiResponse> markAllNotificationsAsRead(@RequestParam(required = false) Period period) {
+        NotificationPagingResponse notificationResponses = notificationService.markAllNotificationsAsRead(period);
+        return ResponseEntity.ok(ApiResponse.success(notificationResponses));
     }
 
     @Operation(summary = "알림 읽음 처리 및 조회 ★",
@@ -84,5 +116,16 @@ public class NotificationController {
         List<ConversationDetailsResponse> conversations =
                 notificationService.getConversationsAndMarkNotificationAsRead(readNotificationRequest, notificationId);
         return ResponseEntity.ok(ApiResponse.success(conversations));
+    }
+
+    @Operation(summary = "알림 삭제 ★",
+        description = """
+            ★로그인한 사용자가 알림을 삭제합니다.</br>
+            {host}/api/notifications/{notificationId}</br>
+            """)
+    @DeleteMapping("/notifications/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok().build();
     }
 }

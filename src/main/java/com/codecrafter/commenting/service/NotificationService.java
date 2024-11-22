@@ -5,18 +5,23 @@ import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.Notification;
 import com.codecrafter.commenting.domain.enumeration.NotificationType;
+import com.codecrafter.commenting.domain.enumeration.Period;
 import com.codecrafter.commenting.domain.request.ReadNotificationRequest;
+import com.codecrafter.commenting.domain.response.Notification.NotificationPagingResponse;
 import com.codecrafter.commenting.domain.response.Notification.NotificationResponse;
 import com.codecrafter.commenting.domain.response.conversation.ConversationDetailsResponse;
 import com.codecrafter.commenting.repository.EmitterRepository;
+import com.codecrafter.commenting.repository.NotificationQuerydslRepository;
 import com.codecrafter.commenting.repository.NotificationRepository;
 import com.codecrafter.commenting.repository.conversation.ConversationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -31,6 +36,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final ConversationRepository conversationRepository;
+    private final NotificationQuerydslRepository notificationQuerydslRepository;
 
     public SseEmitter subscribe(String email, String lastEventId) {
         String emitterId = makeTimeIncludeId(email);
@@ -170,11 +176,41 @@ public class NotificationService {
         return notificationRepository.findByReceiverId(getCurrentMemberId);
     }
 
+    @Transactional(readOnly = true)
+    public NotificationPagingResponse getNotifications(Period period, Long cursor) { // period=1week&periodStart=20241115&periodEnd=20241122  // 1week = 7 1month 30 3month 90  6month  180 1year 360
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
+        boolean lastPage = true;
+
+        List<NotificationResponse> notificationResponses = notificationQuerydslRepository.findByReceiverIdAndPeriod(getCurrentMemberId, period, cursor);
+
+        if ((cursor == null && notificationResponses.size() == 16) // 첫 조회 갯수는 16개, 반환은 15개
+            || (cursor != null && notificationResponses.size() == 6)) { // 첫 조회 아니면 갯수는 6개, 반환은 5개
+            lastPage = false;
+            notificationResponses.remove(notificationResponses.size() - 1);
+        }
+
+        return new NotificationPagingResponse(notificationResponses, lastPage);
+    }
+
     @Transactional
     public List<NotificationResponse> markAllNotificationsAsRead() {
         Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
         notificationRepository.markAllNotificationsAsRead(getCurrentMemberId);
         return notificationRepository.findByReceiverId(getCurrentMemberId);
+    }
+
+    @Transactional
+    public NotificationPagingResponse markAllNotificationsAsRead(Period period) {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId(); // 현재 사용자
+        notificationRepository.markAllNotificationsAsRead(getCurrentMemberId);
+        List<NotificationResponse> notificationResponses =  notificationQuerydslRepository.findByReceiverIdAndPeriod(getCurrentMemberId, period, null); // 읽음처리 후 첫페이지로
+        boolean lastPage = true;
+
+        if (notificationResponses.size() == 16)  { // 첫 조회 갯수는 16개, 반환은 15개
+            lastPage = false;
+            notificationResponses.remove(notificationResponses.size() - 1);
+        }
+        return new NotificationPagingResponse(notificationResponses, lastPage);
     }
 
     @Transactional
@@ -189,6 +225,18 @@ public class NotificationService {
             notification.markAsRead();
         }
         return conversationRepository.findConversationDetailsByMstId(readNotificationRequest.mstId(), getCurrentMemberId);
+    }
+
+    @Transactional
+    public void deleteNotification(Long id) {
+        Long getCurrentMemberId = SecurityUtil.getCurrentMember().getMemberInfo().getId();
+        Notification notification = notificationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("해당 알림을 찾을 수 없습니다."));
+        Long receiverId = notification.getReceiverInfo().getId();
+
+        if (!getCurrentMemberId.equals(receiverId)) {
+            throw new AccessDeniedException("알림 삭제 권한이 없습니다.");
+        }
+        notificationRepository.deleteById(id);
     }
 
 }
