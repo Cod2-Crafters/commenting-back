@@ -62,7 +62,7 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://commenting.duckdns.org", "https://*.vercel.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://commenting.duckdns.org", "https://*.vercel.app, https://commenting-front-five.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
