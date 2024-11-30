@@ -153,14 +153,6 @@ public class ConversationService {
 		MemberInfo owner = memberInfoRepository.findById(request.ownerId())
 												.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-		if (userId == 0L && !owner.getMemberSetting().getAllowAnonymous()) {
-			throw new IllegalArgumentException("익명 유저의 질문을 거부한 회원입니다.");
-		}
-
-        if (owner.getMemberSetting().getIsSpacePaused()) {
-			throw new IllegalStateException("스페이스 일시 중지한 회원입니다.");
-		}
-
 		MemberInfo guest = currentMember.getMemberInfo();
 
 		// 변경전 대화 마스터 최대값

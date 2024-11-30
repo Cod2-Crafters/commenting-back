@@ -1,6 +1,7 @@
 package com.codecrafter.commenting.config;
 
 import com.codecrafter.commenting.config.filter.ContentCachingFilter;
+import com.codecrafter.commenting.controller.interceptor.ConversationQuestionInterceptor;
 import com.codecrafter.commenting.controller.interceptor.MemberSettingInterceptor;
 import com.codecrafter.commenting.controller.interceptor.RecommendInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class WebServiceConfig implements WebMvcConfigurer {
 
     private final MemberSettingInterceptor memberSettingInterceptor;
     private final RecommendInterceptor recommendInterceptor;
+    private final ConversationQuestionInterceptor conversationQuestionInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -25,13 +27,16 @@ public class WebServiceConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(recommendInterceptor)
             .addPathPatterns("/api/recommends/**");
+
+        registry.addInterceptor(conversationQuestionInterceptor)
+            .addPathPatterns("/api/conversations/question");
     }
 
     @Bean
     public FilterRegistrationBean<ContentCachingFilter> contentCachingFilter() {
         FilterRegistrationBean<ContentCachingFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new ContentCachingFilter());
-        registrationBean.addUrlPatterns("/api/recommends/thanked", "/api/recommends/likes");
+        registrationBean.addUrlPatterns("/api/recommends/thanked", "/api/recommends/likes", "/api/conversations/question");
         registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
         return registrationBean;
     }
