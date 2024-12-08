@@ -23,25 +23,23 @@ public class WebServiceConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginCheckInterceptor)
-            .addPathPatterns(
-                "/api/member/setting/**", // 설정 수정
-                "/api/recommends/**",
-                "/api/conversations/question/update", // 질문수정
-                "/api/conversations/question/*", // 질문 삭제
-                "/api/conversations/answer", // 답변 작성
-                "/api/conversations/answer/update", // 답변 수정
-                "/api/conversations/answer/*", // 답변 삭제
-                "/api/conversations/members/*/send", // 보낸질문 조회
-                "/api/statistics" // 통계 조회
-            )
-
-        ;
+                .addPathPatterns(
+                    "/api/member/setting/**", // 설정 수정
+                    "/api/recommends/**",
+                    "/api/conversations/question/update", // 질문수정
+                    "/api/conversations/question/*", // 질문 삭제
+                    "/api/conversations/answer", // 답변 작성
+                    "/api/conversations/answer/update", // 답변 수정
+                    "/api/conversations/answer/*", // 답변 삭제
+                    "/api/conversations/members/*/send", // 보낸질문 조회
+                    "/api/statistics" // 통계 조회
+                );
 
         registry.addInterceptor(recommendInterceptor)
-            .addPathPatterns("/api/recommends/**");
+                .addPathPatterns("/api/recommends/**");
 
         registry.addInterceptor(conversationQuestionInterceptor)
-            .addPathPatterns("/api/conversations/question");
+                .addPathPatterns("/api/conversations/question");
     }
 
     @Bean
