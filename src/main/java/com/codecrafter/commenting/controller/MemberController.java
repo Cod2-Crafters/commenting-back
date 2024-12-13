@@ -4,11 +4,13 @@ import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
+import com.codecrafter.commenting.domain.response.MemberInfoResponse;
 import com.codecrafter.commenting.domain.response.SignInResponse;
 import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -100,4 +102,16 @@ public class MemberController {
 //        log.info("getUser memberAuth : {}", memberAuth.getId());
 //        return memberAuth.getEmail();
 //    }
+
+    @Operation(summary = "회원 정보 랜덤 조회",
+        description = """
+                        회원 정보 랜덤 조회</br>
+                        {host}/api/member/random
+                        """)
+    @GetMapping("/random")
+    public ResponseEntity<?> getRandomMembers() {
+        List<MemberInfoResponse> memberInfoResponses = memberService.getRandomMembers();
+        return ResponseEntity.ok().body(memberInfoResponses);
+    }
+
 }

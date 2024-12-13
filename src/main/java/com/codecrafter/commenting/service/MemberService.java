@@ -8,6 +8,7 @@ import com.codecrafter.commenting.domain.entity.MemberSetting;
 import com.codecrafter.commenting.domain.enumeration.Provider;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
+import com.codecrafter.commenting.domain.response.MemberInfoResponse;
 import com.codecrafter.commenting.domain.response.SignInResponse;
 import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.exception.AuthenticationFailedException;
@@ -16,7 +17,9 @@ import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.MemberSettingRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Transactional(readOnly = true)
 public class MemberService {
+
     private final MemberAuthRepository memberAuthRepository;
     private final MemberInfoRepository memberInfoRepository;
     private final MemberSettingRepository memberSettingRepository;
@@ -105,6 +109,24 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
         return false;
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberInfoResponse> getRandomMembers() {
+        long num = memberInfoRepository.count();
+
+        // 주어진 범위에서 랜덤 값 10개 뽑기
+        List<Long> randomValues = ThreadLocalRandom.current()
+                    .longs(1, num + 1)  // 범위: 1 ~ num (num을 포함)
+                    .limit(10)
+                    .boxed()
+                    .toList();
+
+        List<MemberInfo> memberInfos = memberInfoRepository.findAllById(randomValues);
+
+        return memberInfos.stream()
+                .map(e-> MemberInfoResponse.from(e))
+                .toList();
     }
 
 }
