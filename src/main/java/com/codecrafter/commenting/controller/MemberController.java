@@ -109,9 +109,9 @@ public class MemberController {
                         {host}/api/member/random
                         """)
     @GetMapping("/random")
-    public ResponseEntity<?> getRandomMembers() {
+    public ResponseEntity<ApiResponse> getRandomMembers() {
         List<MemberInfoResponse> memberInfoResponses = memberService.getRandomMembers();
-        return ResponseEntity.ok().body(memberInfoResponses);
+        return ResponseEntity.ok().body(ApiResponse.success(memberInfoResponses));
     }
 
 }

@@ -1,6 +1,5 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
@@ -17,6 +16,7 @@ import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.MemberSettingRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -111,22 +111,20 @@ public class MemberService {
         return false;
     }
 
-    @Transactional(readOnly = true)
-    public List<MemberInfoResponse> getRandomMembers() {
-        long num = memberInfoRepository.count();
+        @Transactional(readOnly = true)
+        public List<MemberInfoResponse> getRandomMembers() {
+            List<Long> ids = memberInfoRepository.findAllIds();
+            Collections.shuffle(ids, ThreadLocalRandom.current());
 
-        // 주어진 범위에서 랜덤 값 10개 뽑기
-        List<Long> randomValues = ThreadLocalRandom.current()
-                    .longs(1, num + 1)  // 범위: 1 ~ num (num을 포함)
+            ids = ids.stream()
                     .limit(10)
-                    .boxed()
                     .toList();
 
-        List<MemberInfo> memberInfos = memberInfoRepository.findAllById(randomValues);
+            List<MemberInfo> memberInfos = memberInfoRepository.findAllById(ids);
 
-        return memberInfos.stream()
-                .map(e-> MemberInfoResponse.from(e))
-                .toList();
-    }
+            return memberInfos.stream()
+                            .map(MemberInfoResponse::from)
+                            .toList();
+        }
 
 }
