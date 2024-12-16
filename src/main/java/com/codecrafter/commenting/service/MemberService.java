@@ -1,6 +1,5 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.config.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
@@ -8,6 +7,7 @@ import com.codecrafter.commenting.domain.entity.MemberSetting;
 import com.codecrafter.commenting.domain.enumeration.Provider;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.request.SignUpRequest;
+import com.codecrafter.commenting.domain.response.MemberInfoResponse;
 import com.codecrafter.commenting.domain.response.SignInResponse;
 import com.codecrafter.commenting.domain.response.SignUpResponse;
 import com.codecrafter.commenting.exception.AuthenticationFailedException;
@@ -16,7 +16,10 @@ import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.MemberSettingRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Transactional(readOnly = true)
 public class MemberService {
+
     private final MemberAuthRepository memberAuthRepository;
     private final MemberInfoRepository memberInfoRepository;
     private final MemberSettingRepository memberSettingRepository;
@@ -106,5 +110,21 @@ public class MemberService {
         }
         return false;
     }
+
+        @Transactional(readOnly = true)
+        public List<MemberInfoResponse> getRandomMembers() {
+            List<Long> ids = memberInfoRepository.findAllIds();
+            Collections.shuffle(ids, ThreadLocalRandom.current());
+
+            ids = ids.stream()
+                    .limit(10)
+                    .toList();
+
+            List<MemberInfo> memberInfos = memberInfoRepository.findAllById(ids);
+
+            return memberInfos.stream()
+                            .map(MemberInfoResponse::from)
+                            .toList();
+        }
 
 }
