@@ -1,7 +1,7 @@
 package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.common.event.dto.NotificationEvent;
-import com.codecrafter.commenting.config.SecurityUtil;
+import com.codecrafter.commenting.common.util.SecurityUtil;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.entity.ConversationMST;
 import com.codecrafter.commenting.domain.entity.MemberAuth;

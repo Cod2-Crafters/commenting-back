@@ -1,6 +1,6 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.SecurityUtil;
+import com.codecrafter.commenting.common.util.SecurityUtil;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.response.QuestionedUser;
 import com.codecrafter.commenting.domain.response.QuestionedUserInterface;

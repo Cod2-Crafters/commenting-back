@@ -1,8 +1,7 @@
 package com.codecrafter.commenting.controller.interceptor;
 
-import static com.codecrafter.commenting.util.ResponseUtil.createResponseBody;
+import static com.codecrafter.commenting.common.util.ResponseUtil.createResponseBody;
 
-import com.codecrafter.commenting.config.SecurityUtil;
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.Conversation;
 import com.codecrafter.commenting.domain.enumeration.ApiStatus;

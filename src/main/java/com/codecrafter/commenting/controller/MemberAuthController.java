@@ -1,29 +1,21 @@
 package com.codecrafter.commenting.controller;
 
-import com.codecrafter.commenting.config.jwt.TokenProvider;
+import com.codecrafter.commenting.common.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.enumeration.Provider;
 import com.codecrafter.commenting.domain.request.SignInRequest;
 import com.codecrafter.commenting.domain.response.SignInResponse;
 import com.codecrafter.commenting.service.MemberAuthService;
 import com.codecrafter.commenting.service.MemberService;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
