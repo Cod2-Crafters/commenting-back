@@ -2,7 +2,6 @@ package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
-import com.codecrafter.commenting.exception.InvalidCertificationNumberException;
 import com.codecrafter.commenting.repository.CertificationNumberRepository;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import java.util.HashMap;
