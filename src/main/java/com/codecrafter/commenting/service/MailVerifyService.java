@@ -2,9 +2,6 @@ package com.codecrafter.commenting.service;
 
 import com.codecrafter.commenting.domain.dto.ApiResponse;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
-import com.codecrafter.commenting.domain.entity.MemberInfo;
-import com.codecrafter.commenting.exception.EmailNotFoundException;
-import com.codecrafter.commenting.exception.InvalidCertificationNumberException;
 import com.codecrafter.commenting.repository.CertificationNumberRepository;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import java.util.HashMap;
@@ -12,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service

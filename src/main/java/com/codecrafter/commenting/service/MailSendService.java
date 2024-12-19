@@ -1,6 +1,6 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.mail.CertificationGenerator;
+import com.codecrafter.commenting.common.mail.CertificationGenerator;
 import com.codecrafter.commenting.domain.response.EmailCertificationResponse;
 import com.codecrafter.commenting.repository.CertificationNumberRepository;
 import jakarta.mail.MessagingException;

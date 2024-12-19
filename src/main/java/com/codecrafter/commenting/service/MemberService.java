@@ -1,6 +1,6 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.jwt.TokenProvider;
+import com.codecrafter.commenting.common.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.entity.MemberSetting;
@@ -10,7 +10,7 @@ import com.codecrafter.commenting.domain.request.SignUpRequest;
 import com.codecrafter.commenting.domain.response.MemberInfoResponse;
 import com.codecrafter.commenting.domain.response.SignInResponse;
 import com.codecrafter.commenting.domain.response.SignUpResponse;
-import com.codecrafter.commenting.exception.AuthenticationFailedException;
+import com.codecrafter.commenting.common.exception.AuthenticationFailedException;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import com.codecrafter.commenting.repository.MemberInfoRepository;
 import com.codecrafter.commenting.repository.MemberSettingRepository;

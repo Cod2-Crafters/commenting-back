@@ -1,14 +1,12 @@
 package com.codecrafter.commenting.service;
 
-import com.codecrafter.commenting.config.jwt.TokenProvider;
+import com.codecrafter.commenting.common.jwt.TokenProvider;
 import com.codecrafter.commenting.domain.dto.MemberInfoDto;
 import com.codecrafter.commenting.domain.entity.MemberAuth;
 import com.codecrafter.commenting.domain.entity.MemberInfo;
 import com.codecrafter.commenting.domain.request.ProfileRequest;
 import com.codecrafter.commenting.repository.MemberAuthRepository;
 import com.codecrafter.commenting.repository.profile.ProfileRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
