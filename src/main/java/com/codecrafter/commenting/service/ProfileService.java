@@ -17,8 +17,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -120,9 +120,15 @@ public class ProfileService {
     public ResponseEntity<Resource> serveFile(String filename) {
         try {
             Path file = Paths.get(avatarLocation).resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
+            log.info("파일 경로: {}", file.toAbsolutePath());
 
-            if (resource.exists() || resource.isReadable()) {
+            // 로컬 경로를 URL처럼 다루고 싶을 때
+            // Resource resource = new UrlResource(file.toUri());
+            // FileSystemResource -> 로컬 파일 시스템에 있는 파일
+            Resource resource = new FileSystemResource(file.toFile());
+            log.info("리소스 존재 여부: {}, 읽기 가능 여부: {}", resource.exists(), resource.isReadable());
+
+            if (resource.exists() && resource.isReadable()) {
                 String contentType = "image/jpeg";
                 if (filename.endsWith(".png")) {
                     contentType = "image/png";
@@ -137,6 +143,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
+            log.error("파일 서빙 중 예외 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
