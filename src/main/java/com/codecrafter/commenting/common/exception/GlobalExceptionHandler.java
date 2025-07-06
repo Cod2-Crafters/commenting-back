@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleDuplicateEmailException(IllegalArgumentException ex) {
-        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage());
         log.error("IllegalArgumentException 발생", ex);
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationFailedException.class)
     public ResponseEntity<ApiResponse> handleAuthenticationFailedException(AuthenticationFailedException ex) {
-        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage());
         log.error("AuthenticationFailedException 발생", ex);
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
-        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage());
         log.error("AccessDeniedException 발생", ex);
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
-        ApiResponse errorResponse = ApiResponse.error(ex.getMessage(), ex);
+        ApiResponse errorResponse = ApiResponse.error(ex.getMessage());
         log.error("EntityNotFoundException 발생", ex);
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleException(Exception ex) {
-        ApiResponse errorResponse = ApiResponse.error("알 수 없는 오류", ex);
+        ApiResponse errorResponse = ApiResponse.error("알 수 없는 오류");
         log.error("500 예외 발생", ex);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)

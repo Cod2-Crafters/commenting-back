@@ -25,7 +25,7 @@ public class MailVerifyService {
 
         if (!isVerify(email, certificationNumber)) {
 //            responseData.put("isVerify", false);
-            return ApiResponse.error("인증에 실패했습니다.", null);
+            return ApiResponse.error("인증에 실패했습니다.");
         }
 
         certificationNumberRepository.removeCertificationNumber(email);
@@ -33,7 +33,7 @@ public class MailVerifyService {
         Optional<MemberAuth> optionalMemberAuth = memberAuthRepository.findByEmail(email);
         if (optionalMemberAuth.isEmpty()) {
 //            responseData.put("isVerify", false);
-            return ApiResponse.error("존재하지 않는 이메일입니다.", null);
+            return ApiResponse.error("존재하지 않는 이메일입니다.");
         }
 
         MemberAuth memberAuth = optionalMemberAuth.get();

@@ -14,9 +14,8 @@ public record ApiResponse(
         return new ApiResponse(ApiStatus.SUCCESS, null, data, null);
     }
 
-    public static ApiResponse error(String message, Throwable throwable) {
-        String errorlog = getStackTrace(throwable);
-        return new ApiResponse(ApiStatus.ERROR, message, null, errorlog);
+    public static ApiResponse error(String message) {
+        return new ApiResponse(ApiStatus.ERROR, message, null, null);
     }
 
     private static String getStackTrace(Throwable throwable) {
