@@ -76,9 +76,9 @@ public class MemberController {
                         {host}/api/member/unregister
                         """)
     @PostMapping("/unregister")
-    public ResponseEntity<Void> unregister(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse> unregister(@RequestHeader("Authorization") String token) {
         memberService.unregister(token);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     @Operation(summary = "이메일 중복 검사",

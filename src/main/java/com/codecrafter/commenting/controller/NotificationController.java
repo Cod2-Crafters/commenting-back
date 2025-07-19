@@ -124,8 +124,8 @@ public class NotificationController {
             {host}/api/notifications/{notificationId}</br>
             """)
     @DeleteMapping("/notifications/{notificationId}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
+    public ResponseEntity<ApiResponse> deleteNotification(@PathVariable Long notificationId) {
         notificationService.deleteNotification(notificationId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

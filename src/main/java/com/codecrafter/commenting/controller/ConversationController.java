@@ -212,9 +212,9 @@ public class ConversationController {
                         {host}/api/conversations/global-question
                         """)
     @PostMapping("/global-question")
-    public ResponseEntity<Void> createGlobalQuestion(@RequestBody CreateGlobalQuestionRequest request) {
+    public ResponseEntity<ApiResponse> createGlobalQuestion(@RequestBody CreateGlobalQuestionRequest request) {
         conversationService.createGlobalQuestion(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
 }
